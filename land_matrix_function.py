@@ -5,9 +5,7 @@ from openpyxl import load_workbook #library for excel files manipulation, I use 
 from openpyxl.styles import PatternFill
 import pandas as pd
 import json
-qgis_bat=r"C:\OSGeo4W\bin\qgis-ltr.bat"
-fichier=r"A:\cours_m2\land_matrix\bdd_test.gpkg"
-project_path=r"A:\cours_m2\land_matrix\test.qgz"
+import os
 def buffer_creation(geom:gpd.GeoDataFrame,is_agricultural=False):#is _agricultural is a future parameter for dyniamic buffer radius
     geom.to_crs(epsg=3857,inplace=True)
     zoning=gpd.GeoDataFrame(geometry=geom.buffer(10500),crs=3857) 
@@ -36,6 +34,7 @@ def api_call(adress): #create the point geodataframe object
                 temp["lat"]=l.get("point").get("coordinates")[1]
             else:
                 None_deals.append(d)
+                json_dump_path=os.path.join(os.path.dirname(__file__),"incomplete_deals.json")
                 print(f"Incomplete positioning data for the deal {d["id"]} a json dump will be created for further analysis")
                 continue
             temp["accuracy"]=l.get("level_of_accuracy")
