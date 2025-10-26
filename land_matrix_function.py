@@ -21,7 +21,6 @@ def api_call(adress): #create the point geodataframe object
     extract=[]
     crs_validation=set()
     None_deals=[]
-    print("requête api effectué et initialisation des listes")
     for d in data:
         location=d["selected_version"]["locations"]
         for l in location:
@@ -34,7 +33,7 @@ def api_call(adress): #create the point geodataframe object
                 temp["lat"]=l.get("point").get("coordinates")[1]
             else:
                 None_deals.append(d)
-                json_dump_path=os.path.join(os.path.dirname(__file__),"incomplete_deals.json")
+                json_dump_path=os.path.join(os.path.dirname(__file__),"incomplete_deals.json")#create a json for unlocated points whereever you download this .py
                 print(f"Incomplete positioning data for the deal {d["id"]} a json dump will be created for further analysis")
                 continue
             temp["accuracy"]=l.get("level_of_accuracy")
@@ -63,7 +62,8 @@ def api_call(adress): #create the point geodataframe object
         gdf=gpd.GeoDataFrame(df,geometry=gpd.points_from_xy(df['lon'],df["lat"]),crs=df['crs'].iloc[0])
         gdf.to_crs(3857,inplace=True)
         gdf.drop(columns="crs",inplace=True)
-    with open("A:/cours_m2/land_matrix/incomplete_deals.json","w",encoding="utf-8") as f:
+    with open(json_dump_path,"w",encoding="utf-8") as f:
+        None_deals.insert(0,{"url_used":adress})
         json.dump(None_deals,f,indent=4)
     return gdf
 def export(gdataframe,destination:str="A:/cours_m2/land_matrix/found_land_matrix_deals.xlsx"):#Takes a geodataframe and export it to an excel file with colored cells according to the level of accuracy
