@@ -11,6 +11,11 @@ html, body {
 }
 
 #map {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+.input-group {
+  z-index: 1000;
 }
