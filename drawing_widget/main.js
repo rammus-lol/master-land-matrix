@@ -39,7 +39,7 @@ let draw;
 function addInteraction() {
   const value = typeSelect.value;
 
-  // 🟡 C’EST LA SEULE DIFFÉRENCE : on retire l’interaction précédente avant d’en ajouter une
+
   if (draw) {
     map.removeInteraction(draw);
   }
@@ -53,18 +53,101 @@ function addInteraction() {
   }
 }
 
-// Quand on change le type de géométrie
+
 typeSelect.onchange = addInteraction;
 
-// Bouton “Undo” pour retirer le dernier point ajouté
+
 document.getElementById('undo').addEventListener('click', function () {
-  if (draw) {
-    draw.removeLastPoint();
-  }
+    const type = draw.type_;  // récupère "Point", "LineString", "Polygon", "Circle"
+
+    if (type === 'Circle') {
+      const features = source.getFeatures();
+      if (features.length>0) {
+        const last=features[features.length-1];
+        source.removeFeature(last);}        
+      }
+    else {
+        // Undo normal sur les autres types
+        draw.removeLastPoint();
+    }
+});
+  document.getElementById('export').addEventListener('click', function () {
+    const format = new ol.format.GeoJSON();
+    const features = source.getFeatures();
+    const geojson = format.writeFeatures(features);
+    console.log("donnée exportée")});
+addInteraction();
+document.getElementById('clear').addEventListener('click', clearMap);
+function clearMap() {
+    source.clear(); 
+}
+const dropArea = document.getElementById("drop-area");
+
+// empêcher le comportement par défaut du browser
+['dragenter','dragover','dragleave','drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => e.preventDefault());
+    dropArea.addEventListener(eventName, (e) => e.stopPropagation());
 });
 
-// Initialisation
-addInteraction();
+// highlight zone
+['dragenter','dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'));
+});
+['dragleave','drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'));
+});
 
-// Ajuster à l’étendue globale
+// DROPZONE
+dropArea.addEventListener('drop', async (e) => {
+    e.preventDefault();
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    const fileName = file.name.toLowerCase();
+    let features = [];
+
+    try {
+        if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
+            const text = await file.text();
+            const format = new ol.format.GeoJSON();
+            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
+        }
+        else if (fileName.endsWith(".kml")) {
+            const text = await file.text();
+            const format = new ol.format.KML();
+            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
+        } 
+        else if (fileName.endsWith(".zip")) {
+            const arrayBuffer = await file.arrayBuffer();
+            const geojson = await shp(arrayBuffer);
+            const format = new ol.format.GeoJSON();
+            features = format.readFeatures(geojson, { featureProjection: "EPSG:3857" });
+        }
+        else {
+            alert("Format non supporté !");
+            return;
+        }
+        if (features.length > 0) {
+            source.addFeatures(features);
+
+            const extent = source.getExtent();
+            map.getView().fit(extent, { padding: [20, 20, 20, 20] });
+        }
+
+    } catch (err) {
+        console.error("Erreur lors du chargement du fichier :", err);
+        alert("Erreur lors du chargement du fichier : " + err.message);
+    }
+});
+dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropArea.classList.add('highlight');
+});
+
+dropArea.addEventListener('dragleave', (e) => {
+    dropArea.classList.remove('highlight');
+});
+
+
 map.getView().fit(ol.proj.get('EPSG:3857').getExtent(), { size: map.getSize() });
