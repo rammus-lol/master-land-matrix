@@ -776,14 +776,6 @@ pip install -r requirements.txt
 - [Documentation Requests](https://requests.readthedocs.io/)
 - [LandMatrix API](https://landmatrix.org/api/)
 
-## 👤 Auteur
-
-Arthur - Projet GeoNum
-
-## 📄 Licence
-
-Ce projet est à usage interne pour le projet GeoNum.
-
 ---
 
 **Date de création :** 17 novembre 2025  
