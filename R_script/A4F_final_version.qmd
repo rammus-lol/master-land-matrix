@@ -1,0 +1,920 @@
+---
+title: "A4F"
+format: html
+---
+
+```{r}
+#| label: "libraries"
+#| echo: false
+#| output: false
+#| message: false
+
+library(readr)
+library(sf)
+
+library(dplyr)
+library(janitor)
+library(stringr)
+
+library(ggplot2)
+library(ggrepel)
+library(ggspatial)
+
+library(knitr)
+
+# Additional libs
+library(leaflet)
+
+```
+
+```{r}
+#| label: "global_const"
+#| echo: false
+
+# Define CRS
+crs_wgs84 = 4326 # degrees
+crs_web_mercator = 3857 # meters
+
+```
+
+```{r}
+#| label: "import_and_prepare_data"
+#| echo: false
+#| output: false
+#| message: false
+
+# ======================================================================================
+# A4F DATA
+# ======================================================================================
+# Import shapefiles and merge
+a4f_9cases <- st_read('./data/shapefile/A4F-9cases.shp') %>%
+  rename(id = Id) %>%
+  mutate(location = NA) %>%
+  select(id, layer, location, geometry) %>%
+  st_transform(crs = crs_wgs84) %>%
+  st_zm() %>%
+  st_cast("MULTIPOLYGON")
+
+a4f_9cases$layer[9] <- "A4F-BurkinaFaso"
+
+a4f_montenegro <- st_read('./data/shapefile/A4F-Montenegro-fixed.shp') %>%
+  st_make_valid() %>%
+  mutate(id = 10, layer = "A4F-Montenegro", location = NA) %>%
+  select(id, layer, location, geometry) %>%
+  st_transform(crs = crs_wgs84)
+
+a4f_philippines1 <- st_read('./data/shapefile/A4F-Philippines1.shp') %>%
+  select(-CADT_No_) %>%
+  mutate(id = 11, layer = "A4F-Philippines1") %>%
+  rename(location = LOCATION) %>%
+  select(id, layer, location, geometry) %>%
+  st_transform(crs = crs_wgs84) %>%
+  st_cast("MULTIPOLYGON")
+
+a4f_philippines2 <- st_read('./data/shapefile/A4F-Philippines2-2.shp') %>%
+  select(-CADT.No.) %>%
+  mutate(id = 12, layer = "A4F-Philippines2") %>%
+  rename(location = Location) %>%
+  select(id, layer, location, geometry) %>%
+  st_transform(crs = crs_wgs84) %>%
+  st_cast("MULTIPOLYGON")
+
+# Merge into a single geojson
+a4f <- rbind(a4f_9cases, a4f_montenegro, a4f_philippines1, a4f_philippines2)
+
+
+# ======================================================================================
+# WORLD GEOM
+# ======================================================================================
+# Import countries geom
+countries <- st_read('data/countries.geojson') %>%
+  st_transform(crs = crs_wgs84) %>%
+  filter(iso != "AQ")
+
+
+# ======================================================================================
+# LAND MATRIX DATA
+# ======================================================================================
+# Deals
+lm_deals_all <- read_delim(
+  "data/landmatrix/export/deals.csv",
+  delim = ";",
+  escape_double = FALSE,
+  trim_ws = TRUE
+) %>%
+  clean_names()
+
+# Geom
+lm_locations_all <- st_read('./data/landmatrix/locations.geojson')
+
+
+```
+
+```{r}
+#| label: "ggplot_conf"
+#| echo: false
+
+# Color palettes
+pal_basemap_col <- "white"
+pal_basemap_fill <- "gray90"
+pal_polygon_fill <- "gray50"
+
+# Base world layer
+base_country_layer <- geom_sf(
+  data = countries,
+  col = pal_basemap_col,
+  fill = pal_basemap_fill
+)
+
+# Map theming
+map_theme <- theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+```
+
+## A4F area
+
+```{r}
+#| label: "a4f_data_overview"
+#| echo: false
+#| warning: false
+
+# Kable data table
+kable(st_drop_geometry(a4f))
+
+# Map data centroids
+ggplot() +
+  base_country_layer +
+  geom_sf(data = st_centroid(a4f)) +
+  geom_text_repel(
+    data = a4f,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = layer),
+    size = 3,
+    min.segment.length = 0
+  ) +
+  map_theme +
+  ggtitle("A4F locations: centroids and labels")
+
+# Map data polygons
+ggplot() +
+  base_country_layer +
+  geom_sf(data = a4f, fill = pal_polygon_fill) +
+  map_theme +
+  ggtitle("A4F locations: polygons")
+
+```
+
+## Land Matrix data
+
+```{r}
+#| label: "lm_data_prep"
+#| echo: false
+
+# LM - remove locations and deals with insufficient precision
+precise_locations_labels <- c(
+  'EXACT_LOCATION',
+  'APPROXIMATE_LOCATION',
+  'COORDINATES'
+)
+
+lm_locations <- lm_locations_all %>%
+  filter(
+    level_of_accuracy %in%
+      c(
+        'EXACT_LOCATION',
+        'APPROXIMATE_LOCATION',
+        'COORDINATES',
+        'ADMINISTRATIVE_REGION'
+      )
+  )
+
+lm_deals <- lm_deals_all %>%
+  filter(deal_id %in% lm_locations$deal_id)
+
+```
+
+*Data downloaded on 2025-05-28.*
+
+Number of deals with sufficient location accuracy for spatial join: `r nrow(lm_deals)`
+
+```{r}
+#| label: "lm_data_overview"
+#| echo: false
+
+# Locations
+ggplot() +
+  base_country_layer +
+  geom_sf(data = lm_locations, size = 0.5) +
+  map_theme +
+  ggtitle("Land Matrix deals locations")
+
+```
+
+## Land Matrix deals inside A4F layers
+
+Number of deals inside the boundaries or in a 10 km range.
+
+```{r}
+#| label: "overlap_with_buffer"
+#| echo: false
+#| warning: false
+
+# Buffer size (m)
+buffer_size <- 10000
+
+# Create buffers around LM deals locations
+lm_locations_buffer <- lm_locations %>%
+  st_transform(crs = crs_web_mercator) %>%
+  st_buffer(buffer_size) %>%
+  st_transform(crs = crs_wgs84)
+
+# Join layers
+join_buffer <- st_join(lm_locations_buffer, a4f, left = FALSE) %>%
+  st_centroid()
+
+# Show matches by precision
+join_buffer %>%
+  group_by(layer, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(caption = "Land Matrix deals inside the boundaries or in a 10 km range")
+
+```
+
+#### Note on level of accuracy
+
+The precision of the Land Matrix deals may differ. Locations with the level of accuracy "ADMINISTRATIVE_REGION" are included in the results as they *could* be inside the boundaries of the IP&LC territories, but it needs confirmation.
+
+### Mongolia
+
+```{r}
+#| label: "focus_mongolia"
+#| echo: false
+#| message: false
+#| warning: false
+
+# Retrieve country and layer geometries
+mongolia_geom <- filter(countries, iso == "MN")
+mongolia_layer <- filter(a4f, layer == "A4F-Mongolia")
+
+# Join LM with a4f
+mongolia_lm_in_a4f <- st_join(lm_locations_buffer, mongolia_layer, left = F)
+
+# Join LM with country
+mongolia_join <- st_join(lm_locations_buffer, mongolia_geom, left = F) %>%
+  mutate(
+    a4f_overlap = case_when(
+      id %in% mongolia_lm_in_a4f$id.x ~ TRUE,
+      .default = NA
+    )
+  )
+
+# Table the results
+mongolia_lm_in_a4f %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(
+    caption = "Land Matrix deals inside the boundaries or in a 10 km range in Mongolia"
+  )
+
+# Map the results
+ggplot() +
+  geom_sf(
+    data = mongolia_geom,
+    col = pal_basemap_col,
+    fill = pal_basemap_fill
+  ) +
+  geom_sf(data = mongolia_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(mongolia_join),
+    aes(col = a4f_overlap, shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  map_theme +
+  theme(legend.position = "bottom", legend.direction = "vertical") +
+  labs(title = paste0("Land Matrix deals in Mongolia")) +
+  annotation_scale()
+
+ggplot() +
+  geom_sf(data = mongolia_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(mongolia_lm_in_a4f),
+    aes(shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  geom_text_repel(
+    data = mongolia_lm_in_a4f,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = deal_id),
+    size = 3,
+    min.segment.length = 0,
+    col = alpha("black", 0.6)
+  ) +
+  map_theme +
+  theme(legend.position = "bottom", legend.direction = "vertical") +
+  labs(title = paste0("Land Matrix deals in IP&LC boundaries in Mongolia")) +
+  annotation_scale()
+
+```
+
+```{r results='asis'}
+#| label: "focus_mongolia_text"
+#| echo: false
+#| warning: false
+
+# Extra information on deals
+mongolia_deal_info <- lm_deals %>%
+  filter(deal_id %in% mongolia_lm_in_a4f$deal_id) %>%
+  select(
+    deal_id,
+    deal_size,
+    current_negotiation_status,
+    current_implementation_status,
+    intention_of_investment,
+    comment_on_intention_of_investment,
+    name_of_investment_project,
+    community_consultation,
+    community_reaction,
+    negative_impacts_for_local_communities
+  ) %>%
+  rename(int_of_inv = intention_of_investment) %>%
+  rowwise() %>%
+  mutate(intention_of_investment = unlist(str_split(int_of_inv, '#'))[[4]]) %>%
+  select(-int_of_inv)
+
+for (i in 1:nrow(mongolia_deal_info)) {
+  row <- mongolia_deal_info[i, ]
+  cat(paste0(
+    '**Deal [#',
+    row$deal_id,
+    ' – ',
+    row$name_of_investment_project,
+    '](https://landmatrix.org/deal/',
+    row$deal_id,
+    ')**\n\n',
+
+    '- _Deal size:_ ',
+    row$deal_size,
+    '\n',
+    '- _Current negotiation status:_ ',
+    row$current_negotiation_status,
+    '\n',
+    '- _Current implementation status:_ ',
+    row$current_implementation_status,
+    '\n',
+    '- _Intention of investment:_ ',
+    row$intention_of_investment,
+    '\n',
+    '- _Comment on intention of investment:_ ',
+    row$comment_on_intention_of_investment,
+    '\n',
+
+    '- _Community consultation:_ ',
+    row$community_consultation,
+    '\n',
+    '- _Community reaction:_ ',
+    row$community_reaction,
+    '\n',
+    '- _Negative impacts for local communities:_ ',
+    row$negative_impacts_for_local_communities,
+    '\n',
+
+    '\n --- \n\n'
+  ))
+}
+
+```
+
+### Suriname
+
+```{r}
+#| label: "focus_suriname"
+#| echo: false
+#| message: false
+#| warning: false
+
+# Retrieve country and layer geometries
+suriname_geom <- filter(countries, iso == "SR")
+suriname_layer <- filter(a4f, layer == "A4F-Suriname")
+
+# Join LM with a4f
+suriname_lm_in_a4f <- st_join(lm_locations_buffer, suriname_layer, left = F)
+
+# Join LM with country
+suriname_join <- st_join(lm_locations_buffer, suriname_geom, left = F) %>%
+  mutate(
+    a4f_overlap = case_when(
+      id %in% suriname_lm_in_a4f$id.x ~ TRUE,
+      .default = NA
+    )
+  )
+
+# Table the results
+suriname_lm_in_a4f %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(
+    caption = "Land Matrix deals inside the boundaries or in a 10 km range in Suriname"
+  )
+
+# Map the results
+ggplot() +
+  geom_sf(
+    data = suriname_geom,
+    col = pal_basemap_col,
+    fill = pal_basemap_fill
+  ) +
+  geom_sf(data = suriname_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(suriname_join),
+    aes(col = a4f_overlap, shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  map_theme +
+  labs(title = paste0("Land Matrix deals in Suriname")) +
+  annotation_scale()
+
+ggplot() +
+  geom_sf(data = suriname_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(suriname_lm_in_a4f),
+    aes(shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  geom_text_repel(
+    data = suriname_lm_in_a4f,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = deal_id),
+    size = 3,
+    min.segment.length = 0,
+    col = alpha("black", 0.6)
+  ) +
+  map_theme +
+  labs(title = paste0("Land Matrix deals in IP&LC boundaries in Suriname")) +
+  annotation_scale()
+
+```
+
+```{r results='asis'}
+#| label: "focus_suriname_text"
+#| echo: false
+#| warning: false
+
+# Extra information on deals
+suriname_deal_info <- lm_deals %>%
+  filter(deal_id %in% suriname_lm_in_a4f$deal_id) %>%
+  select(
+    deal_id,
+    deal_size,
+    current_negotiation_status,
+    current_implementation_status,
+    intention_of_investment,
+    comment_on_intention_of_investment,
+    name_of_investment_project,
+    community_consultation,
+    community_reaction,
+    negative_impacts_for_local_communities
+  ) %>%
+  rename(int_of_inv = intention_of_investment) %>%
+  rowwise() %>%
+  mutate(intention_of_investment = unlist(str_split(int_of_inv, '#'))[[4]]) %>%
+  select(-int_of_inv)
+
+for (i in 1:nrow(suriname_deal_info)) {
+  row <- suriname_deal_info[i, ]
+  cat(paste0(
+    '**Deal [#',
+    row$deal_id,
+    ' – ',
+    row$name_of_investment_project,
+    '](https://landmatrix.org/deal/',
+    row$deal_id,
+    ')**\n\n',
+
+    '- _Deal size:_ ',
+    row$deal_size,
+    '\n',
+    '- _Current negotiation status:_ ',
+    row$current_negotiation_status,
+    '\n',
+    '- _Current implementation status:_ ',
+    row$current_implementation_status,
+    '\n',
+    '- _Intention of investment:_ ',
+    row$intention_of_investment,
+    '\n',
+    '- _Comment on intention of investment:_ ',
+    row$comment_on_intention_of_investment,
+    '\n',
+
+    '- _Community consultation:_ ',
+    row$community_consultation,
+    '\n',
+    '- _Community reaction:_ ',
+    row$community_reaction,
+    '\n',
+    '- _Negative impacts for local communities:_ ',
+    row$negative_impacts_for_local_communities,
+    '\n',
+
+    '\n --- \n\n'
+  ))
+}
+
+```
+
+### Peru
+
+```{r}
+#| label: "focus_peru"
+#| echo: false
+#| message: false
+#| warning: false
+
+# Retrieve country and layer geometries
+peru_geom <- filter(countries, iso == "PE")
+peru_layer <- filter(a4f, layer == "A4F-Peru")
+
+# Join LM with a4f
+peru_lm_in_a4f <- st_join(lm_locations_buffer, peru_layer, left = F)
+
+# Join LM with country
+peru_join <- st_join(lm_locations_buffer, peru_geom, left = F) %>%
+  mutate(
+    a4f_overlap = case_when(
+      id %in% peru_lm_in_a4f$id.x ~ TRUE,
+      .default = NA
+    )
+  )
+
+peru_lm_in_a4f %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(
+    caption = "Land Matrix deals inside the boundaries or in a 10 km range in Peru"
+  )
+
+# Map the results
+ggplot() +
+  geom_sf(data = peru_geom, col = pal_basemap_col, fill = pal_basemap_fill) +
+  geom_sf(data = peru_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(peru_join),
+    aes(col = a4f_overlap, shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  map_theme +
+  labs(title = paste0("Land Matrix deals in Peru")) +
+  annotation_scale()
+
+ggplot() +
+  geom_sf(data = peru_layer, fill = pal_polygon_fill) +
+  geom_sf(data = st_centroid(peru_lm_in_a4f), aes(shape = level_of_accuracy)) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  geom_text_repel(
+    data = peru_lm_in_a4f,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = deal_id),
+    size = 3,
+    min.segment.length = 0,
+    col = alpha("black", 0.6)
+  ) +
+  map_theme +
+  labs(title = paste0("Land Matrix deals in IP&LC boundaries in Peru")) +
+  annotation_scale()
+
+```
+
+```{r results='asis'}
+#| label: "focus_peru_text"
+#| echo: false
+#| warning: false
+
+# Extra information on deals
+peru_deal_info <- lm_deals %>%
+  filter(deal_id %in% peru_lm_in_a4f$deal_id) %>%
+  select(
+    deal_id,
+    deal_size,
+    current_negotiation_status,
+    current_implementation_status,
+    intention_of_investment,
+    comment_on_intention_of_investment,
+    name_of_investment_project,
+    community_consultation,
+    community_reaction,
+    negative_impacts_for_local_communities
+  ) %>%
+  rename(int_of_inv = intention_of_investment) %>%
+  rowwise() %>%
+  mutate(intention_of_investment = unlist(str_split(int_of_inv, '#'))[[4]]) %>%
+  select(-int_of_inv)
+
+for (i in 1:nrow(peru_deal_info)) {
+  row <- peru_deal_info[i, ]
+  cat(paste0(
+    '**Deal [#',
+    row$deal_id,
+    ' – ',
+    row$name_of_investment_project,
+    '](https://landmatrix.org/deal/',
+    row$deal_id,
+    ')**\n\n',
+
+    '- _Deal size:_ ',
+    row$deal_size,
+    '\n',
+    '- _Current negotiation status:_ ',
+    row$current_negotiation_status,
+    '\n',
+    '- _Current implementation status:_ ',
+    row$current_implementation_status,
+    '\n',
+    '- _Intention of investment:_ ',
+    row$intention_of_investment,
+    '\n',
+    '- _Comment on intention of investment:_ ',
+    row$comment_on_intention_of_investment,
+    '\n',
+
+    '- _Community consultation:_ ',
+    row$community_consultation,
+    '\n',
+    '- _Community reaction:_ ',
+    row$community_reaction,
+    '\n',
+    '- _Negative impacts for local communities:_ ',
+    row$negative_impacts_for_local_communities,
+    '\n',
+
+    '\n --- \n\n'
+  ))
+}
+
+```
+
+### Philippines
+
+```{r}
+#| label: "focus_philippines"
+#| echo: false
+#| message: false
+#| warning: false
+
+# Retrieve country and layer geometries
+philippines_geom <- filter(countries, iso == "PH")
+philippines_layer <- filter(
+  a4f,
+  layer %in% c("A4F-Philippines1", "A4F-Philippines2")
+)
+
+# Join LM with a4f
+philippines_lm_in_a4f <- st_join(
+  lm_locations_buffer,
+  philippines_layer,
+  left = F
+)
+
+# Join LM with country
+philippines_join <- st_join(lm_locations_buffer, philippines_geom, left = F) %>%
+  mutate(
+    a4f_overlap = case_when(
+      id %in% philippines_lm_in_a4f$id.x ~ TRUE,
+      .default = NA
+    )
+  )
+
+philippines_lm_in_a4f %>%
+  select(deal_id, level_of_accuracy) %>%
+  distinct() %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(
+    caption = "Land Matrix deals inside the boundaries or in a 10 km range in the Philippines"
+  )
+
+# Map the results
+ggplot() +
+  geom_sf(
+    data = philippines_geom,
+    col = pal_basemap_col,
+    fill = pal_basemap_fill
+  ) +
+  geom_sf(data = philippines_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(philippines_join),
+    aes(col = a4f_overlap, shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  map_theme +
+  labs(title = paste0("Land Matrix deals in the Philippines")) +
+  annotation_scale()
+
+ggplot() +
+  geom_sf(data = philippines_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(philippines_lm_in_a4f),
+    aes(shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  geom_text_repel(
+    data = philippines_lm_in_a4f,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = deal_id),
+    size = 3,
+    min.segment.length = 0,
+    col = alpha("black", 0.6)
+  ) +
+  map_theme +
+  labs(
+    title = paste0("Land Matrix deals in IP&LC boundaries in the Philippines")
+  ) +
+  annotation_scale()
+
+```
+
+```{r results='asis'}
+#| label: "focus_philippines_text"
+#| echo: false
+#| warning: false
+
+# Extra information on deals
+philippines_deal_info <- lm_deals %>%
+  filter(deal_id %in% philippines_lm_in_a4f$deal_id) %>%
+  select(
+    deal_id,
+    deal_size,
+    current_negotiation_status,
+    current_implementation_status,
+    intention_of_investment,
+    comment_on_intention_of_investment,
+    name_of_investment_project,
+    community_consultation,
+    community_reaction,
+    negative_impacts_for_local_communities
+  ) %>%
+  rename(int_of_inv = intention_of_investment) %>%
+  rowwise() %>%
+  mutate(intention_of_investment = unlist(str_split(int_of_inv, '#'))[[4]]) %>%
+  select(-int_of_inv)
+
+for (i in 1:nrow(philippines_deal_info)) {
+  row <- philippines_deal_info[i, ]
+  cat(paste0(
+    '**Deal [#',
+    row$deal_id,
+    ' – ',
+    row$name_of_investment_project,
+    '](https://landmatrix.org/deal/',
+    row$deal_id,
+    ')**\n\n',
+
+    '- _Deal size:_ ',
+    row$deal_size,
+    '\n',
+    '- _Current negotiation status:_ ',
+    row$current_negotiation_status,
+    '\n',
+    '- _Current implementation status:_ ',
+    row$current_implementation_status,
+    '\n',
+    '- _Intention of investment:_ ',
+    row$intention_of_investment,
+    '\n',
+    '- _Comment on intention of investment:_ ',
+    row$comment_on_intention_of_investment,
+    '\n',
+
+    '- _Community consultation:_ ',
+    row$community_consultation,
+    '\n',
+    '- _Community reaction:_ ',
+    row$community_reaction,
+    '\n',
+    '- _Negative impacts for local communities:_ ',
+    row$negative_impacts_for_local_communities,
+    '\n',
+
+    '\n --- \n\n'
+  ))
+}
+
+```
+
+------------------------------------------------------------------------
+
+## Where are the deals near areas that didn't match?
+
+```{r}
+#| label: "focus_drc"
+#| echo: false
+#| message: false
+#| warning: false
+
+# Retrieve country and layer geometries
+drc_geom <- filter(countries, iso == "CD")
+drc_layer <- filter(a4f, layer == "A4F-DRC")
+
+# Join LM with a4f
+drc_lm_in_a4f <- st_join(lm_locations_buffer, drc_layer, left = F)
+
+# Join LM with country
+drc_join <- st_join(lm_locations_buffer, drc_geom, left = F) %>%
+  mutate(
+    a4f_overlap = case_when(
+      id %in% drc_lm_in_a4f$id.x ~ TRUE,
+      .default = NA
+    )
+  )
+
+# DRC regional results (Equateur)
+drc_regional_deals <- lm_locations_buffer %>%
+  filter(country == 'Congo, Dem. Rep.') %>%
+  filter(level_of_accuracy == "ADMINISTRATIVE_REGION") %>%
+  filter(str_detect(comment, 'Equateur|Equator')) %>%
+  st_centroid()
+
+# Table the results
+drc_lm_in_a4f %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(
+    caption = "Land Matrix deals inside the boundaries or in a 10 km range in DRC"
+  )
+
+# Map the results
+ggplot() +
+  geom_sf(data = drc_geom, col = pal_basemap_col, fill = pal_basemap_fill) +
+  geom_sf(data = drc_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(drc_join),
+    aes(col = a4f_overlap, shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  map_theme +
+  theme(legend.position = "bottom", legend.direction = "vertical") +
+  labs(title = paste0("Land Matrix deals in DRC")) +
+  annotation_scale()
+
+# Draw a buffer around this area to show the closest deals
+ggplot() +
+  geom_sf(data = drc_layer, fill = pal_polygon_fill) +
+  geom_sf(
+    data = st_centroid(drc_regional_deals),
+    aes(shape = level_of_accuracy)
+  ) +
+  scale_color_manual(values = c("black"), na.value = "grey60", guide = "none") +
+  scale_shape_manual(values = c(16, 3, 4, 4)) +
+  geom_text_repel(
+    data = drc_regional_deals,
+    stat = "sf_coordinates",
+    aes(geometry = geometry, label = deal_id),
+    size = 3,
+    min.segment.length = 0,
+    col = alpha("black", 0.6)
+  ) +
+  map_theme +
+  theme(legend.position = "bottom", legend.direction = "vertical") +
+  labs(title = paste0("Land Matrix deals in the studied region in DRC")) +
+  annotation_scale()
+
+# Table the results from region
+drc_regional_deals %>%
+  group_by(deal_id, level_of_accuracy) %>%
+  count() %>%
+  rename(n_deals = n) %>%
+  st_drop_geometry() %>%
+  kable(caption = "Land Matrix deals inside the Equator region in DRC")
+
+# Leaflet map for interactive exploration
+m <- leaflet() %>%
+  addTiles() %>%
+  addPolygons(data = drc_layer, color = "red") %>%
+  addCircleMarkers(
+    data = drc_regional_deals,
+    radius = 1
+  )
+
+m
+
+```
