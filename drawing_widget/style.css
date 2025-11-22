@@ -1,3 +1,4 @@
+/* Reset */
 * {
     margin: 0;
     padding: 0;
@@ -10,58 +11,109 @@ html, body {
     overflow: visible;
 }
 
-#map {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
+
+.control-bar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #fc941d;
+    padding: 10px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.input-group {
-  z-index: 1000;
+
+.left-group,
+.right-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* ✅ Panneau de contrôle en bas à gauche */
-.control-panel {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1000;
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+.control-bar .input-group-text {
+    width: auto;
+    padding: 4px 8px;
+    white-space: nowrap;
+    background: #fff;
+    border-radius: 6px;
 }
 
+.control-bar .form-select {
+    width: auto;
+    min-width: 120px;
+    display: inline-block;
+    padding: 4px 8px;
+}
+
+/* Buttons */
+.control-bar .btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+#known-point-panel {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 2000;
+    display: none; /* hide by default */
+    width: 200px;
+}
+
+#known-point-panel label {
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+#known-point-panel input {
+    width: 100%;
+    padding: 5px;
+    margin-top: 3px;
+}
+
+/* integrated dropzone */
 #drop-area {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 250px;
-  height: auto;  
-  padding: 20px;
-  background: #f8f8f8;
-  border: 2px dashed #999;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 14px;
-  z-index: 1500;
-}
-
-#drop-area button {
-  margin-top: 10px;
+    padding: 10px 15px;
+    background: #f8f8f8;
+    border: 2px dashed #999;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 #drop-area.highlight {
-  border-color: #ff0000;
-  background: #eef6ff;
+    border-color: #ff0000;
+    background: #eef6ff;
 }
+
+/*Load file button */
+#drop-area button {
+    margin-top: 10px;
+}
+
+
+#map {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* ol zoom buttons */
 .ol-zoom {
-  position: absolute;
-  top: auto !important;
-  left: auto !important;
-  bottom: 30px !important;
-  right: 20px !important;
+    position: absolute;
+    top: auto !important;
+    left: auto !important;
+    bottom: 30px !important;
+    right: 20px !important;
 }
