@@ -74,8 +74,7 @@ document.getElementById('undo').addEventListener('click', function () {
   document.getElementById('export').addEventListener('click', function () {
     const format = new ol.format.GeoJSON();
     const features = source.getFeatures();
-    const geojson = format.writeFeatures(features);
-    console.log("donnée exportée")});
+    const geojson = format.writeFeatures(features)});
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
@@ -246,3 +245,37 @@ kpDrawBtn.addEventListener("click", () => {
     console.log("Known point circle added");
 });
 map.getView().fit(ol.proj.get('EPSG:3857').getExtent(), { size: map.getSize() });
+document.getElementById('export').addEventListener('click', async () => {
+    const format = new ol.format.GeoJSON();
+    const features = source.getFeatures();
+
+    if (features.length === 0) {
+        alert("Aucune géométrie sur la carte !");
+        return;
+    }
+
+    // Générer le GeoJSON directement comme objet JS
+    const geojsonObject = format.writeFeaturesObject(features, {
+        featureProjection: "EPSG:3857",
+        dataProjection: "EPSG:3857"
+    });
+    console.log("geojson envoyé : ", geojsonObject)
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/geom/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(geojsonObject)
+        });
+
+        if (!response.ok) {
+            throw new Error("Erreur serveur : " + response.status);
+        }
+
+        const data = await response.json();
+        console.log("Réponse backend :", data);
+        alert("Requête envoyée avec succès !");
+    } catch (err) {
+        console.error(err);
+        alert("Erreur lors de l'envoi au backend");
+    }
+});
