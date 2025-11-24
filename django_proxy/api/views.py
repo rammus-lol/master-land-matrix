@@ -6,8 +6,8 @@ import geopandas as gpd
 import pandas as pd
 from shapely import Polygon,MultiPolygon,Point,intersects,within
 from shapely.geometry import shape
-point_ref=gpd.read_file(r'django_proxy\data\projet_imaginaire.geojson')
-polygone_ref=gpd.read_file(r'django_proxy\data\region_perou.geojson')
+point_ref=gpd.read_file(r'../django_proxy/data/projet_imaginaire.geojson')
+polygone_ref=gpd.read_file(r'../django_proxy/data/region_perou.geojson')
 @csrf_exempt
 def generic_proxy(request, endpoint):
     """
@@ -17,13 +17,13 @@ def generic_proxy(request, endpoint):
     try:
         # Construire l'URL complète
         url = f'https://landmatrix.org/api/{endpoint}'
-        
+
         # Transmettre les paramètres de requête s'ils existent
         params = request.GET.dict()
-        
+
         # Faire la requête vers l'API externe
         response = requests.get(url, params=params, timeout=10)
-        
+
         # Retourner la réponse avec le même statut
         return JsonResponse(
             response.json(),
@@ -44,7 +44,7 @@ def geom(request):
         geojson = json.loads(request.body)  # ← récupère le GeoJSON envoyé
         geoms = [shape(f["geometry"]) for f in geojson["features"]]
         props = [f.get("properties") or {} for f in geojson["features"]]
-        
+
         # Convertir GeoJSON → GeoDataFrame
         query = gpd.GeoDataFrame(props, geometry=geoms, crs="EPSG:3857")
         print("GeoDataFrame reçu :", query, flush=True)
@@ -55,7 +55,7 @@ def geom(request):
             roi=research['geometry'] #region of interests ie geojson provide by clients
             liste_geoseries = []
             for r in roi:
-                filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible   
+                filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible
                 liste_geoseries.append(filtred_region)
             series_roi=pd.concat(liste_geoseries, ignore_index=True)
             list_geodataframe=[]
@@ -78,7 +78,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     roi=research['geometry'] #region of interests ie geojson provide by clients
     liste_geoseries = []
     for r in roi:
-        filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible   
+        filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible
         liste_geoseries.append(filtred_region)
     series_roi=pd.concat(liste_geoseries, ignore_index=True)
     list_geodataframe=[]
@@ -87,4 +87,3 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
         list_geodataframe.append(poi)
     selected_project=gpd.GeoDataFrame(pd.concat(list_geodataframe,ignore_index=True),crs='EPSG:3857')
     return selected_project
-
