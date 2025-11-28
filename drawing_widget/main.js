@@ -71,10 +71,6 @@ document.getElementById('undo').addEventListener('click', function () {
         draw.removeLastPoint();
     }
 });
-  document.getElementById('export').addEventListener('click', function () {
-    const format = new ol.format.GeoJSON();
-    const features = source.getFeatures();
-    const geojson = format.writeFeatures(features)});
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
@@ -245,6 +241,8 @@ kpDrawBtn.addEventListener("click", () => {
     console.log("Known point circle added");
 });
 map.getView().fit(ol.proj.get('EPSG:3857').getExtent(), { size: map.getSize() });
+let resultLayer = null;
+
 document.getElementById('export').addEventListener('click', async () => {
     const format = new ol.format.GeoJSON();
     const features = source.getFeatures();
@@ -253,15 +251,43 @@ document.getElementById('export').addEventListener('click', async () => {
         alert("Aucune géométrie sur la carte !");
         return;
     }
+    const processedFeatures = [];
+    features.forEach(f => {
+        const geom = f.getGeometry();
 
-    // Générer le GeoJSON directement comme objet JS
-    const geojsonObject = format.writeFeaturesObject(features, {
+        if (geom instanceof ol.geom.Circle) {
+            // Extraire centre + rayon
+            const center = geom.getCenter();
+            const radius = geom.getRadius();
+                        // Transformer le cercle → point GeoJSON
+            const pointGeom = new ol.geom.Point(center);
+
+            // Créer une nouvelle feature à envoyer
+            const newF = new ol.Feature({
+                geometry: pointGeom,
+                properties: {
+                    ...f.getProperties(),
+                    radius: radius,           // ← rayon ajouté
+                    original_type: "Circle"   // ← traçabilité
+                }
+            });
+                        processedFeatures.push(newF);
+
+        } else {
+            // Feature normale → ajout direct
+            processedFeatures.push(f);
+        }
+    });
+    // Convertir en GeoJSON (objet JS)
+    const geojsonObject = format.writeFeaturesObject(processedFeatures, {
         featureProjection: "EPSG:3857",
         dataProjection: "EPSG:3857"
     });
-    console.log("geojson envoyé : ", geojsonObject)
+
+    console.log("geojson envoyé :", geojsonObject);
+
     try {
-        const response = await fetch("http://192.168.1.2/api/geom/", {
+        const response = await fetch("http://127.0.0.1:8000/api/geom/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
@@ -273,9 +299,64 @@ document.getElementById('export').addEventListener('click', async () => {
 
         const data = await response.json();
         console.log("Réponse backend :", data);
-        alert("Requête envoyée avec succès !");
+
+        if (!data.data) {
+            console.error("GeoJSON manquant dans la réponse backend !");
+            return;
+        }
+
+        const resultGeoJSON = data.data;
+
+        // Supprimer ancienne couche résultat
+        if (resultLayer !== null) {
+            map.removeLayer(resultLayer);
+        }
+
+        // Construire la source vecteur
+    const resultSource = new ol.source.Vector({ 
+        features: new ol.format.GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
+    const resultStyle = (feature) => {
+        const props = feature.getProperties();
+        const precision = props.precision || "";
+
+        // Liste des valeurs autorisées pour le style orange
+        const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
+
+        const isOrange = orangeList.includes(precision);
+
+        const strokeColor = isOrange ? "#fc941d" : "#43b6b5";
+        const fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
+        const pointColor = strokeColor;
+
+        return new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: strokeColor,
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: fillColor
+            }),
+            image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({ color: pointColor }),
+                stroke: new ol.style.Stroke({ color: "white", width: 1 })
+            })
+        });
+    };
+
+        // Nouvelle couche
+        resultLayer = new ol.layer.Vector({
+            source: resultSource,
+            style: resultStyle
+        });
+
+        map.addLayer(resultLayer);
+
+        // Zoom automatique sur les résultats
+        map.getView().fit(resultSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
+
     } catch (err) {
         console.error(err);
-        alert("Erreur lors de l'envoi au backend");
+        alert("Erreur lors de l’envoi au backend");
     }
 });
