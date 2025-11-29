@@ -6,8 +6,11 @@ import geopandas as gpd
 import pandas as pd
 from shapely import Polygon,MultiPolygon,Point,intersects,within
 from shapely.geometry import shape
-point_ref=gpd.read_file(r'../django_proxy/data/projet_imaginaire.geojson')
-polygone_ref=gpd.read_file(r'../django_proxy/data/region_perou.geojson')
+
+from pathlib import Path
+point_ref=gpd.read_file(Path('../django_proxy/data/projet_imaginaire.geojson'))
+polygone_ref=gpd.read_file(Path('../django_proxy/data/region_perou.geojson'))
+test=gpd.read_file(Path("..data/polygone_test.geojson"))
 @csrf_exempt
 def generic_proxy(request, endpoint):
     """
@@ -50,7 +53,7 @@ def geom(request):
         print("GeoDataFrame reçu :", query, flush=True)
         point_ref=gpd.read_file(r'A:\serveur_landmatrix\master-land-matrix\django_proxy\data\projet_imaginaire.geojson')
         polygone_ref=gpd.read_file(r'A:\serveur_landmatrix\master-land-matrix\django_proxy\data\region_perou.geojson')
-        # test=gpd.read_file(r'django_proxy\data\polygone_test.geojson')
+        test=gpd.read_file(r'django_proxy\data\polygone_test.geojson')
         def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref,project : gpd.GeoDataFrame=point_ref)->gpd.GeoDataFrame:
             roi=research['geometry'] #region of interests ie geojson provide by clients
             liste_geoseries = []
@@ -87,3 +90,4 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
         list_geodataframe.append(poi)
     selected_project=gpd.GeoDataFrame(pd.concat(list_geodataframe,ignore_index=True),crs='EPSG:3857')
     return selected_project
+# export=is_within(test)
