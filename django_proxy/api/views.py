@@ -8,9 +8,11 @@ import numpy as np
 from shapely import within
 from shapely.geometry import shape
 import traceback
-point_ref=gpd.read_file(r"data\projet_imaginaire.geojson")
-polygone_ref=gpd.read_file(r'data\region_monde_light.gpkg')
-test=gpd.read_file(r'data\polygone_test.geojson')
+from pathlib import Path
+from django.conf import settings
+point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projet_imaginaire.geojson")
+polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
+# test=gpd.read_file(r'data\polygone_test.geojson')
 @csrf_exempt
 def generic_proxy(request, endpoint):
     """
@@ -113,6 +115,4 @@ def accuracy_measure(precision, geometry, query):
         return None  # we drop the well knowed location outside of user query
     else:
         return "#000000"
-export=is_within(test)
-export.to_file("data/test_coloration.geojson",driver="GeoJSON")
-print(export)
+
