@@ -41,7 +41,16 @@ django_proxy/
 cd /home/arthur/Documents/nextcloud_sync/Documents/projet\ geonum/django_proxy
 ```
 
-### 2. Activer l'environnement virtuel
+### 2. Activer l'environnement virtuel(linux)
+
+```bash
+python3 -m venv .venv
+```
+si besoin installer :
+
+```bash
+sudo apt install python3.13-venv
+```
 
 ```bash
 source .venv/bin/activate
