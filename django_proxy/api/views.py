@@ -78,6 +78,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     filtered_regions=filtered_regions[["geometry"]]
     selected_projects = (gpd.sjoin(project, filtered_regions, how='inner', predicate='within').drop(columns=['index_right']))
     mask_to_keep = ~selected_projects.apply(lambda row: accuracy_measure(row, research), axis=1)
+    #we delete the deals when accuracy_measure return True
     selected_projects = selected_projects[mask_to_keep]
     #finnaly we need to create points and buffer based on the filed "deal_size"
     buffer_geoms = selected_projects["geometry"].buffer(
@@ -96,8 +97,9 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     return combined
 accurate_points=["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
 def accuracy_measure(row,query):
-    """Check if a project geometry is inside any polygon from query, 
-    and assign a color inside the landmatrix style guide."""
+    """Check if a project geometry is disjoint from the polygons
+    oprovided by users and if it's location is know precisly
+    ie project we are 100% sure they are not in the polygons"""
     project = row["geometry"]
     precision = row["level_of_accuracy"]
     test_disjoint= query["geometry"].apply(lambda q_geom: disjoint(project, q_geom)).any()
