@@ -354,6 +354,6 @@ document.getElementById('export').addEventListener('click', async () => {
 
     } catch (err) {
         console.error(err);
-        alert("Error during sending to backend);
+        alert("Error during sending to backend");
     }
 });
