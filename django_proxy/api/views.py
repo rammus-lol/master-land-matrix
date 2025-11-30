@@ -5,7 +5,7 @@ import json
 import geopandas as gpd
 import pandas as pd
 import numpy as np
-from shapely import within
+from shapely import disjoint
 from shapely.geometry import shape
 import traceback
 from pathlib import Path
@@ -77,10 +77,9 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     filtered_regions=gpd.sjoin(region,research)
     filtered_regions=filtered_regions[["geometry"]]
     selected_projects = (gpd.sjoin(project, filtered_regions, how='inner', predicate='within').drop(columns=['index_right']))
-    selected_projects["color"] = selected_projects.apply(
-    lambda row: accuracy_measure(row["level_of_accuracy"], row["geometry"], research),
-    axis=1)
-    selected_projects = selected_projects[selected_projects["color"].notna()]
+    mask_to_keep = ~selected_projects.apply(lambda row: accuracy_measure(row, research), axis=1)
+    #we delete the deals when accuracy_measure return True
+    selected_projects = selected_projects[mask_to_keep]
     #finnaly we need to create points and buffer based on the filed "deal_size"
     buffer_geoms = selected_projects["geometry"].buffer(
         np.sqrt(selected_projects["deal_size"] / np.pi) #formula for finding radius with area 
@@ -97,22 +96,13 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     
     return combined
 accurate_points=["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
-def accuracy_measure(precision, geometry, query):
-    """Check if a project geometry is inside any polygon from query, 
-    and assign a color inside the landmatrix style guide."""
-    test = query["geometry"].apply(lambda query_geom: within(geometry, query_geom))
-    
-    if any(test):
-        if precision in accurate_points:
-            return "#fc941d"
-        elif precision in ['ADMINISTRATIVE_REGION', "COUNTRY"]:
-            return "#43b6b5"
-        else:
-            return "#000000"
-    elif precision in ['ADMINISTRATIVE_REGION', "COUNTRY"]:
-        return "#43b6b5"
-    elif precision in accurate_points:
-        return None  # we drop the well knowed location outside of user query
-    else:
-        return "#000000"
-
+def accuracy_measure(row,query):
+    """Check if a project geometry is disjoint from the polygons
+    oprovided by users and if it's location is know precisly
+    ie project we are 100% sure they are not in the polygons"""
+    project = row["geometry"]
+    precision = row["level_of_accuracy"]
+    test_disjoint= query["geometry"].apply(lambda q_geom: disjoint(project, q_geom)).any()
+    #checking if it's not in a polygon provided by user
+    test_accuracy=precision in accurate_points
+    return test_accuracy and test_disjoint
