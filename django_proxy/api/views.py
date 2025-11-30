@@ -22,13 +22,13 @@ def generic_proxy(request, endpoint):
     try:
         # Construire l'URL complète
         url = f'https://landmatrix.org/api/{endpoint}'
-        
+
         # Transmettre les paramètres de requête s'ils existent
         params = request.GET.dict()
-        
+
         # Faire la requête vers l'API externe
         response = requests.get(url, params=params, timeout=10)
-        
+
         # Retourner la réponse avec le même statut
         return JsonResponse(
             response.json(),
