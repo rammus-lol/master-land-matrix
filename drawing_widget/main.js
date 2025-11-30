@@ -71,10 +71,6 @@ document.getElementById('undo').addEventListener('click', function () {
         draw.removeLastPoint();
     }
 });
-  document.getElementById('export').addEventListener('click', function () {
-    const format = new ol.format.GeoJSON();
-    const features = source.getFeatures();
-    const geojson = format.writeFeatures(features)});
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
@@ -124,7 +120,7 @@ dropArea.addEventListener('drop', async (e) => {
             features = format.readFeatures(geojson, { featureProjection: "EPSG:3857" });
         }
         else {
-            alert("Format non supporté !");
+            alert("Unsupported format !");
             return;
         }
         if (features.length > 0) {
@@ -135,8 +131,8 @@ dropArea.addEventListener('drop', async (e) => {
         }
 
     } catch (err) {
-        console.error("Erreur lors du chargement du fichier :", err);
-        alert("Erreur lors du chargement du fichier : " + err.message);
+        console.error("Error during file loading :", err);
+        alert("Error during file loading  : " + err.message);
     }
 });
 dropArea.addEventListener('dragover', (e) => {
@@ -162,7 +158,7 @@ fileInput.addEventListener("change", async (event) => {
     const fileName = file.name.toLowerCase();
     let features = [];
 
-    console.log("Fichier sélectionné :", fileName);
+    console.log("Selected file :", fileName);
 
     try {
 
@@ -196,12 +192,11 @@ fileInput.addEventListener("change", async (event) => {
             const extent = source.getExtent();
             map.getView().fit(extent, { padding: [20, 20, 20, 20] });
 
-            console.log("Nombre de features chargées :", features.length);
         }
 
     } catch (err) {
-        console.error("Erreur lors du chargement :", err);
-        alert("Erreur lors de la lecture du fichier.");
+        console.error("Error during file loading:", err);
+        alert("Erreur during file reading.");
     }
 });
 const kpPanel = document.getElementById("known-point-panel");
@@ -224,7 +219,7 @@ kpDrawBtn.addEventListener("click", () => {
     const radius = parseFloat(document.getElementById("kp_radius").value);
 
     if (isNaN(lon) || isNaN(lat) || isNaN(radius)) {
-        alert("Veuillez entrer longitude, latitude et rayon.");
+        alert("Please provide the three fields.");
         return;
     }
 
@@ -242,26 +237,54 @@ kpDrawBtn.addEventListener("click", () => {
     const extent = circle.getExtent();
     map.getView().fit(extent, { padding: [20, 20, 20, 20] });
 
-    console.log("Known point circle added");
 });
 map.getView().fit(ol.proj.get('EPSG:3857').getExtent(), { size: map.getSize() });
+let resultLayer = null;
+
 document.getElementById('export').addEventListener('click', async () => {
     const format = new ol.format.GeoJSON();
     const features = source.getFeatures();
 
     if (features.length === 0) {
-        alert("Aucune géométrie sur la carte !");
+        alert("No geometries on the map !");
         return;
     }
+    // Unfortunatly, geojson don't support circle object, i have to transform it into point object 
+    // and add a radius property, backend retransform it into a polygone with shapely.buffer 
+    const processedFeatures = [];
+    features.forEach(f => {
+        const geom = f.getGeometry();
 
-    // Générer le GeoJSON directement comme objet JS
-    const geojsonObject = format.writeFeaturesObject(features, {
+        if (geom instanceof ol.geom.Circle) {
+            // Extract center+radius for added circle
+            const center = geom.getCenter();
+            const radius = geom.getRadius();
+                        // Transformer le cercle → point GeoJSON
+            const pointGeom = new ol.geom.Point(center);
+
+            // Create new feature for backend sending
+            const newF = new ol.Feature({
+                geometry: pointGeom,
+                    radius: radius,           // ← radius
+                    original_type: "Circle"   // ← easier to read for debugging
+            });
+                        processedFeatures.push(newF);
+
+        } else {
+            // polygon feature extraction
+            processedFeatures.push(f);
+        }
+    });
+    // Convert to GeoJSON
+    const geojsonObject = format.writeFeaturesObject(processedFeatures, {
         featureProjection: "EPSG:3857",
         dataProjection: "EPSG:3857"
     });
-    console.log("geojson envoyé : ", geojsonObject)
+
+    console.log("geojson envoyé :", geojsonObject);
+
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/geom/", {
+        const response = await fetch("http://127.0.0.1:8000//api/geom/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
@@ -272,10 +295,65 @@ document.getElementById('export').addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        console.log("Réponse backend :", data);
-        alert("Requête envoyée avec succès !");
+        console.log("backend response:", data);
+
+        if (!data.data) {
+            console.error("No Geojson in backend response !");
+            return;
+        }
+
+        const resultGeoJSON = data.data;
+
+        // deleting last querying (is thi good ?)
+        if (resultLayer !== null) {
+            map.removeLayer(resultLayer);
+        }
+
+        // Building the display with backend response
+    const resultSource = new ol.source.Vector({ 
+        features: new ol.format.GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
+    const resultStyle = (feature) => {
+        const props = feature.getProperties();
+        const precision = props.level_of_accuracy || "";
+
+
+        const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
+
+        const isOrange = orangeList.includes(precision);
+
+        const strokeColor = isOrange ? "#fc941d" : "#43b6b5";
+        const fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
+        const pointColor = strokeColor;
+
+        return new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: strokeColor,
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: fillColor
+            }),
+            image: new ol.style.Circle({
+                radius: 6,
+                fill: new ol.style.Fill({ color: pointColor }),
+                stroke: new ol.style.Stroke({ color: "white", width: 1 })
+            })
+        });
+    };
+
+        // New layer
+        resultLayer = new ol.layer.Vector({
+            source: resultSource,
+            style: resultStyle
+        });
+
+        map.addLayer(resultLayer);
+
+        // Autoomatic zoom on results (don't think it's good)
+        map.getView().fit(resultSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
+
     } catch (err) {
         console.error(err);
-        alert("Erreur lors de l'envoi au backend");
+        alert("Error during sending to backend");
     }
 });
