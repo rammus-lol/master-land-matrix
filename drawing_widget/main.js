@@ -229,7 +229,7 @@ document.getElementById('export').addEventListener('click', async () => {
     console.log("geojson envoyé :", geojsonObject);
 
     try {
-        const response = await fetch("http://192.168.1.2/api/geom/", {
+        const response = await fetch("http://192.168.1.2:6767/api/geom/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
