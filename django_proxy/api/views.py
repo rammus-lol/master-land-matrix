@@ -105,7 +105,7 @@ def accuracy_measure(row,query):
     ie project we are 100% sure they are not in the polygons"""
     project = row["geometry"]
     precision = row["level_of_accuracy"]
-    test_disjoint= query["geometry"].apply(lambda q_geom: disjoint(project, q_geom)).any()
+    test_disjoint= query["geometry"].apply(lambda q_geom: disjoint(project, q_geom)).all()
     #checking if it's not in a polygon provided by user
     test_accuracy=precision in accurate_points
     return test_accuracy and test_disjoint
