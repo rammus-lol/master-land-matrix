@@ -4,10 +4,17 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import geopandas as gpd
 import pandas as pd
-from shapely import Polygon,MultiPolygon,Point,intersects,within
+import numpy as np
+from shapely import disjoint
 from shapely.geometry import shape
-point_ref=gpd.read_file(r'../django_proxy/data/projet_imaginaire.geojson')
-polygone_ref=gpd.read_file(r'../django_proxy/data/region_perou.geojson')
+import traceback
+from pathlib import Path
+from django.conf import settings
+point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projet_imaginaire.geojson")#good for production, bad for dev
+polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
+# polygone_ref=gpd.read_file(Path(r"django_proxy\data\region_monde_light.gpkg")) #for testing localy
+# point_ref=gpd.read_file(Path(r"django_proxy\data\projet_imaginaire.geojson"))
+# test=gpd.read_file(Path(r'django_proxy\data\polygone_test.geojson'))
 @csrf_exempt
 def generic_proxy(request, endpoint):
     """
@@ -41,29 +48,22 @@ def geom(request):
     if request.method != "POST":
         return JsonResponse({"error": "You have to make a POST request"}, status=400)
     try:
-        geojson = json.loads(request.body)  # ← récupère le GeoJSON envoyé
+        geojson = json.loads(request.body)  # ← load json
         geoms = [shape(f["geometry"]) for f in geojson["features"]]
         props = [f.get("properties") or {} for f in geojson["features"]]
-
-        # Convertir GeoJSON → GeoDataFrame
+        
+        # Convert to Geodataframe : filter json|point->transform into circle->combine into geodataframe of polygons
+        #                                      |polygon->do nothing
         query = gpd.GeoDataFrame(props, geometry=geoms, crs="EPSG:3857")
-        print("GeoDataFrame reçu :", query, flush=True)
-        point_ref=gpd.read_file(r'A:\serveur_landmatrix\master-land-matrix\django_proxy\data\projet_imaginaire.geojson')
-        polygone_ref=gpd.read_file(r'A:\serveur_landmatrix\master-land-matrix\django_proxy\data\region_perou.geojson')
-        # test=gpd.read_file(r'django_proxy\data\polygone_test.geojson')
-        def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref,project : gpd.GeoDataFrame=point_ref)->gpd.GeoDataFrame:
-            roi=research['geometry'] #region of interests ie geojson provide by clients
-            liste_geoseries = []
-            for r in roi:
-                filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible
-                liste_geoseries.append(filtred_region)
-            series_roi=pd.concat(liste_geoseries, ignore_index=True)
-            list_geodataframe=[]
-            for s in series_roi:
-                poi=project[project.apply(lambda x: within(x['geometry'],s),axis=1)]
-                list_geodataframe.append(poi)
-            selected_project=gpd.GeoDataFrame(pd.concat(list_geodataframe,ignore_index=True),crs='EPSG:3857')
-            return selected_project
+        print("GeoDataFrame reçu :")
+        print(query, flush=True)
+        test=query.get("radius")#->test if user asked for cicular form
+        if test is not None:
+            gdf_circle=query[query.geometry.geom_type == 'Point']
+            gdf_polygon=query[query.geometry.geom_type != 'Point']
+            buffer=gdf_circle.buffer(gdf_circle['radius'])
+            gdf_circle["geometry"]=buffer
+            query=gpd.GeoDataFrame(pd.concat([gdf_circle,gdf_polygon],ignore_index=True),crs='EPSG:3857')
         gdf=is_within(query)
         export=gdf.to_json()
         response={"status" : f"spatial selection sucessfull, number of found deal : {len(gdf)}",
@@ -73,17 +73,39 @@ def geom(request):
     )
     except Exception as e:
         print("Erreur dans geom :", e, flush=True)
+        traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=500)
 def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref,project : gpd.GeoDataFrame=point_ref)->gpd.GeoDataFrame:
-    roi=research['geometry'] #region of interests ie geojson provide by clients
-    liste_geoseries = []
-    for r in roi:
-        filtred_region=region[region.apply(lambda x: intersects(r,x['geometry']),axis=1)]['geometry']#I did a lambda function because this part must be as fast as possible
-        liste_geoseries.append(filtred_region)
-    series_roi=pd.concat(liste_geoseries, ignore_index=True)
-    list_geodataframe=[]
-    for s in series_roi:
-        poi=project[project.apply(lambda x: within(x['geometry'],s),axis=1)]
-        list_geodataframe.append(poi)
-    selected_project=gpd.GeoDataFrame(pd.concat(list_geodataframe,ignore_index=True),crs='EPSG:3857')
-    return selected_project
+    filtered_regions=gpd.sjoin(region,research)
+    filtered_regions=filtered_regions[["geometry"]]
+    selected_projects = (gpd.sjoin(project, filtered_regions, how='inner', predicate='within').drop(columns=['index_right']))
+    mask_to_keep = ~selected_projects.apply(lambda row: accuracy_measure(row, research), axis=1)
+    #we delete the deals when accuracy_measure return True
+    selected_projects = selected_projects[mask_to_keep]
+    #finnaly we need to create points and buffer based on the filed "deal_size"
+    area = selected_projects["deal_size"].replace(0, 2000000)
+    buffer_geoms = selected_projects["geometry"].buffer(
+        np.sqrt( area/ np.pi) #formula for finding radius with area 
+    )
+    points = selected_projects.copy()
+    points['feature_type'] = 'point'
+    buffers = selected_projects.copy()
+    buffers['geometry'] = buffer_geoms  # Remplacer directement la géométrie
+    buffers['feature_type'] = 'buffer'
+    combined = gpd.GeoDataFrame(
+        pd.concat([points, buffers], ignore_index=True),
+        crs='EPSG:3857'
+    )
+    
+    return combined
+accurate_points=["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
+def accuracy_measure(row,query):
+    """Check if a project geometry is disjoint from the polygons
+    oprovided by users and if it's location is know precisly
+    ie project we are 100% sure they are not in the polygons"""
+    project = row["geometry"]
+    precision = row["level_of_accuracy"]
+    test_disjoint= query["geometry"].apply(lambda q_geom: disjoint(project, q_geom)).all()
+    #checking if it's not in a polygon provided by user
+    test_accuracy=precision in accurate_points
+    return test_accuracy and test_disjoint
