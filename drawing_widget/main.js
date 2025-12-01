@@ -77,128 +77,73 @@ function clearMap() {
     source.clear(); 
 }
 const dropArea = document.getElementById("drop-area");
-
-
-['dragenter','dragover','dragleave','drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, (e) => e.preventDefault());
-    dropArea.addEventListener(eventName, (e) => e.stopPropagation());
-});
-
-// highlight zone
-['dragenter','dragover'].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'));
-});
-['dragleave','drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'));
-});
-
-// DROPZONE
-dropArea.addEventListener('drop', async (e) => {
-    e.preventDefault();
-
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
-    const fileName = file.name.toLowerCase();
-    let features = [];
-
-    try {
-        if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
-            const text = await file.text();
-            const format = new ol.format.GeoJSON();
-            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
-        }
-        else if (fileName.endsWith(".kml")) {
-            const text = await file.text();
-            const format = new ol.format.KML();
-            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
-        } 
-        else if (fileName.endsWith(".zip")) {
-            const arrayBuffer = await file.arrayBuffer();
-            const geojson = await shp(arrayBuffer);
-            const format = new ol.format.GeoJSON();
-            features = format.readFeatures(geojson, { featureProjection: "EPSG:3857" });
-        }
-        else {
-            alert("Unsupported format !");
-            return;
-        }
-        if (features.length > 0) {
-            source.addFeatures(features);
-
-            const extent = source.getExtent();
-            map.getView().fit(extent, { padding: [20, 20, 20, 20] });
-        }
-
-    } catch (err) {
-        console.error("Error during file loading :", err);
-        alert("Error during file loading  : " + err.message);
-    }
-});
-dropArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropArea.classList.add('highlight');
-});
-
-dropArea.addEventListener('dragleave', (e) => {
-    dropArea.classList.remove('highlight');
-});
-
 const openFileBtn = document.getElementById("openFileBtn");
 const fileInput = document.getElementById("fileInput");
 
-openFileBtn.addEventListener("click", () => {
-    fileInput.click();
-});
-
-fileInput.addEventListener("change", async (event) => {
-    const file = event.target.files[0];
+//  loading file function
+async function loadFile(file) {
     if (!file) return;
 
     const fileName = file.name.toLowerCase();
     let features = [];
-
-    console.log("Selected file :", fileName);
-
     try {
-
         if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
             const text = await file.text();
-            const format = new ol.format.GeoJSON();
-            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
+            features = new ol.format.GeoJSON().readFeatures(text, {
+                featureProjection: "EPSG:3857"
+            });
         }
-
         else if (fileName.endsWith(".kml")) {
             const text = await file.text();
-            const format = new ol.format.KML();
-            features = format.readFeatures(text, { featureProjection: "EPSG:3857" });
+            features = new ol.format.KML().readFeatures(text, {
+                featureProjection: "EPSG:3857"
+            });
         }
-
         else if (fileName.endsWith(".zip")) {
-            const arrayBuffer = await file.arrayBuffer();
-            const geojson = await shp(arrayBuffer);
-            const format = new ol.format.GeoJSON();
-            features = format.readFeatures(geojson, { featureProjection: "EPSG:3857" });
+            const buffer = await file.arrayBuffer();
+            const geojson = await shp(buffer);
+            features = new ol.format.GeoJSON().readFeatures(geojson, {
+                featureProjection: "EPSG:3857"
+            });
         }
-
         else {
-            alert("Format non supporté !");
+            alert("Unsupported format!");
             return;
         }
 
         if (features.length > 0) {
             source.addFeatures(features);
-
-            const extent = source.getExtent();
-            map.getView().fit(extent, { padding: [20, 20, 20, 20] });
-
+            map.getView().fit(source.getExtent(), { padding: [20,20,20,20] });
         }
 
     } catch (err) {
-        console.error("Error during file loading:", err);
-        alert("Erreur during file reading.");
+        console.error("Load error:", err);
+        alert("Error while reading file.");
     }
-});
+}
+// Stoping default behavior
+["dragenter","dragover","dragleave","drop"].forEach(evt =>
+    dropArea.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    })
+);
+
+// Highlight zone
+["dragenter","dragover"].forEach(evt =>
+    dropArea.addEventListener(evt, () => dropArea.classList.add("highlight"))
+);
+
+["dragleave","drop"].forEach(evt =>
+    dropArea.addEventListener(evt, () => dropArea.classList.remove("highlight"))
+);
+
+// Drop
+dropArea.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+//  Open explorer
+openFileBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", e => loadFile(e.target.files[0]));
+
 const kpPanel = document.getElementById("known-point-panel");
 const kpDrawBtn = document.getElementById("kp_draw");
 
@@ -284,7 +229,7 @@ document.getElementById('export').addEventListener('click', async () => {
     console.log("geojson envoyé :", geojsonObject);
 
     try {
-        const response = await fetch("http://192.168.1.2:6767/api/geom/", {
+        const response = await fetch("http://192.168.1.2/api/geom/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
@@ -357,3 +302,80 @@ document.getElementById('export').addEventListener('click', async () => {
         alert("Error during sending to backend");
     }
 });
+const saveBtn = document.getElementById("saveBtn");
+const filenameBox = document.getElementById("saveFilenameBox");
+const filenameInput = document.getElementById("saveFilenameInput");
+const saveOkBtn = document.getElementById("saveOkBtn");
+
+// Managing display button
+saveBtn.addEventListener("click", () => {
+    saveBtn.style.display = "none";
+    filenameBox.style.display = "inline-flex";
+    filenameInput.value = "";
+    filenameInput.focus();
+});
+
+// validating with ok buton
+saveOkBtn.addEventListener("click", () => {
+    triggerSave();
+});
+
+// validating with enter
+filenameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        triggerSave();
+    }
+});
+
+// Triggering function
+function triggerSave() {
+    const filename = filenameInput.value.trim();
+    if (!filename) {
+        alert("Please enter a filename.");
+        return;
+    }
+
+    saveGeoJSON(source.getFeatures(), filename);
+
+    // back to welcoming ui
+    filenameBox.style.display = "none";
+    saveBtn.style.display = "inline-block";
+}
+
+// Saveing function
+function saveGeoJSON(features, filename) {
+    const format = new ol.format.GeoJSON();
+
+    // Creating a geojson object
+    const geojsonObject = format.writeFeaturesObject(features, {
+        featureProjection: "EPSG:3857",
+        dataProjection: "EPSG:3857"
+    });
+
+    // because we works in 3857 we must write it in the file
+    geojsonObject.crs = {
+        type: "name",
+        properties: {
+            name: "EPSG:3857"
+        }
+    };
+
+    // 3️⃣conversion to string
+    const geojsonString = JSON.stringify(geojsonObject, null, 2);
+
+    // verify if filename ends with .geojson and if not adding it
+    if (!filename.toLowerCase().endsWith(".geojson")) {
+        filename += ".geojson";
+    }
+
+    // Downloading
+    const blob = new Blob([geojsonString], { type: "application/geo+json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
