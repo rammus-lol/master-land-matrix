@@ -94,6 +94,10 @@ cd /home/arthur/Documents/nextcloud_sync/Documents/projet\ geonum/django_proxy
 Ou simplement (si l'environnement virtuel est activé) :
 
 ```bash
+python manage.py runserver
+```
+ou
+```bash
 python3 manage.py runserver
 ```
 
@@ -104,11 +108,19 @@ Le serveur démarre sur : **http://127.0.0.1:8000/**
 ```bash
 python manage.py runserver 8080
 ```
+ou
+```bash
+python3 manage.py runserver 8080
+```
 
 ### Démarrer sur toutes les interfaces réseau
 
 ```bash
 python manage.py runserver 0.0.0.0:8000
+```
+ou
+```bash
+python3 manage.py runserver 0.0.0.0:8000
 ```
 
 ## 📡 Endpoints de l'API
