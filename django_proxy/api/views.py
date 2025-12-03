@@ -10,10 +10,10 @@ from shapely.geometry import shape
 import traceback
 from pathlib import Path
 from django.conf import settings
-point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projet_imaginaire.geojson")#good for production, bad for dev
+point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
 polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
 # polygone_ref=gpd.read_file(Path(r"django_proxy\data\region_monde_light.gpkg")) #for testing localy
-# point_ref=gpd.read_file(Path(r"django_proxy\data\projet_imaginaire.geojson"))
+# point_ref=gpd.read_file(Path(r"django_proxy\data\projects.gpkg"))
 # test=gpd.read_file(Path(r'django_proxy\data\polygone_test.geojson'))
 @csrf_exempt
 def generic_proxy(request, endpoint):
@@ -109,3 +109,4 @@ def accuracy_measure(row,query):
     #checking if it's not in a polygon provided by user
     test_accuracy=precision in accurate_points
     return test_accuracy and test_disjoint
+
