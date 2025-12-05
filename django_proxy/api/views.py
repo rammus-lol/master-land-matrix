@@ -109,3 +109,4 @@ def accuracy_measure(row,query):
     #checking if it's not in a polygon provided by user
     test_accuracy=precision in accurate_points
     return test_accuracy and test_disjoint
+
