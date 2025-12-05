@@ -10,9 +10,8 @@ from shapely.geometry import shape
 import traceback
 from pathlib import Path
 from django.conf import settings
-import time
-# point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
-# polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
+point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
+polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
 # polygone_ref=gpd.read_file(Path(r"django_proxy\data\region_monde_light.gpkg")) #for testing localy
 # point_ref=gpd.read_file(Path(r"django_proxy\data\projects.gpkg"))
 # test=gpd.read_file(Path(r'django_proxy\data\polygone_test.geojson'))
