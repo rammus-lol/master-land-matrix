@@ -10,8 +10,9 @@ from shapely.geometry import shape
 import traceback
 from pathlib import Path
 from django.conf import settings
-point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
-polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
+import time
+# point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
+# polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
 # polygone_ref=gpd.read_file(Path(r"django_proxy\data\region_monde_light.gpkg")) #for testing localy
 # point_ref=gpd.read_file(Path(r"django_proxy\data\projects.gpkg"))
 # test=gpd.read_file(Path(r'django_proxy\data\polygone_test.geojson'))
@@ -85,7 +86,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     #finnaly we need to create points and buffer based on the filed "deal_size"
     area = selected_projects["deal_size"].replace(0, 2000000)
     buffer_geoms = selected_projects["geometry"].buffer(
-        np.sqrt( area/ np.pi) #formula for finding radius with area 
+        np.sqrt( area*10000/ np.pi) #formula for finding radius with area 
     )
     points = selected_projects.copy()
     points['feature_type'] = 'point'
@@ -109,4 +110,3 @@ def accuracy_measure(row,query):
     #checking if it's not in a polygon provided by user
     test_accuracy=precision in accurate_points
     return test_accuracy and test_disjoint
-
