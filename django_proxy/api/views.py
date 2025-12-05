@@ -85,7 +85,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygone_ref
     #finnaly we need to create points and buffer based on the filed "deal_size"
     area = selected_projects["deal_size"].replace(0, 2000000)
     buffer_geoms = selected_projects["geometry"].buffer(
-        np.sqrt( area/ np.pi) #formula for finding radius with area 
+        np.sqrt( area*10000/ np.pi) #formula for finding radius with area 
     )
     points = selected_projects.copy()
     points['feature_type'] = 'point'
