@@ -85,7 +85,6 @@ try:
     call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
     call.raise_for_status()
     data = call.json()
-    print(f"requête ok {call.status_code}")
 except requests.exceptions.RequestException as e:
     print(f"Houston we got an HTML problem : {e}")
 test_s,report=gpkg_extraction(data)
