@@ -79,7 +79,6 @@ function clearMap() {
     source.clear(); 
 }
 const dropArea = document.getElementById("drop-area");
-const openFileBtn = document.getElementById("openFileBtn");
 const fileInput = document.getElementById("fileInput");
 
 //  loading file function
@@ -142,8 +141,8 @@ async function loadFile(file) {
 
 // Drop
 dropArea.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
-//  Open explorer
-openFileBtn.addEventListener("click", () => fileInput.click());
+// Click on zone triggers file picker
+dropArea.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", e => loadFile(e.target.files[0]));
 
 const kpPanel = document.getElementById("known-point-panel");
