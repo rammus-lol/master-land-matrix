@@ -1,4 +1,5 @@
 const source = new ol.source.Vector();
+const url_api = "https://landmatrix.artxypro.org/api/geom/"; // API endpoint
 
 const vectorLayer = new ol.layer.Vector({
   source: source,
@@ -33,6 +34,7 @@ const map = new ol.Map({
   }),
 });
 
+// Drawing interaction with default type false
 const typeSelect = document.getElementById('type');
 let draw;
 
@@ -229,7 +231,7 @@ document.getElementById('export').addEventListener('click', async () => {
     console.log("geojson envoyé :", geojsonObject);
 
     try {
-        const response = await fetch("https://landmatrix.artxypro.org/api/geom/", {
+        const response = await fetch(url_api, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
