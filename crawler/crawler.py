@@ -80,6 +80,7 @@ def gpkg_extraction(calling : dict|list[dict]):
             continue
     df=pd.DataFrame(summary)
     gdf=gpd.GeoDataFrame(df,geometry=gpd.points_from_xy(df["long"],df["lat"]),crs="EPSG:4326")
+    gdf.to_crs("EPSG:3857",inplace=True)
     return gdf,report
 try:
     call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
