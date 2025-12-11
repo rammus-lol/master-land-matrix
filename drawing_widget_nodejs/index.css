@@ -1,0 +1,152 @@
+
+/* --- Home page header & layout (index.html) --- */
+.background-image {
+    position: fixed;
+    inset: 0;
+    /* Replace the gradient by an image if you have one: url("./path/to/image.jpg") */
+    background: url("images/fond.svg") no-repeat;
+    /* transparence */
+    opacity: 0.4;
+    background-color: #fc941d;
+    background-size: cover;
+    background-position: left;
+    z-index: -1;
+}
+
+header {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 1% 1%;
+}
+
+.title-page {
+    margin: 0;
+    color: #222;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 180px);
+    padding: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 15px 20px;
+    background: #fff;
+    border-top: 1px solid #e6e6e6;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* goToMapBtn see map center horizontale / vertical */
+#goToMapBtn {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    width: 14%;
+    height: 7%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    background-color: #967149;
+    border: none;
+}
+
+/* goToMapBtn hover */
+#goToMapBtn:hover {
+    background-color: #b07f4a;
+}
+
+.logo-simple {
+    top: 27%;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    display: block;
+    max-width: 40%;
+    height: auto;
+}
+
+#header-btn {
+    margin-top: 1%;
+    background-color: #967149;
+    border: none;
+}
+
+/* header-btn hover */
+#header-btn:hover {
+    background-color: #b07f4a;
+}
+
+.slogan {
+    top: 47%;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 1.3rem;
+    text-align: center;
+    width: 80%;
+    max-width: 720px;
+}
+
+/* logo université */
+.university-logo {
+    position: absolute;
+    bottom: 0%;
+    right: 3%;
+    width: 10%;
+    height:90%;
+}
+/* logo université */
+.university-logo-front {
+    position: relative;
+    width: 10%;
+    height:10%;
+    left: 88%;
+    margin-top: 1%;
+}
+
+
+/* logo master geonum */
+.master-geonum-logo {
+    position: absolute;
+    bottom: 0%;
+    left: 3%;
+    width: 4%;
+    height: 90%;
+}
+
+/* logo master geonum */
+.master-geonum-logo-front {
+    position: relative;
+    width: 5%;
+    height: 5%;
+    margin-top: 1%;
+    left: -8%;    
+}
+
+
+/* btn layers */
+#layers {
+    position: absolute;
+    top: 90%;
+    right: 93%;
+    z-index: 1000;
+}
+
+/* div list btn */
+.list-btn {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    margin-left: 10px;
+}

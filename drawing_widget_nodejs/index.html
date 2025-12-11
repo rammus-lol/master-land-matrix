@@ -1,0 +1,56 @@
+<!-- Page d'acceuil Avec une image static en fond , un footer , header et un bouton centrale "Go to the map" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LandMatrix - Home</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+  <div class="background-image"></div>
+
+  <header>
+    <div class="list-btn">
+    <!-- button Carte -->
+    <button class="btn btn-primary" id="header-btn" onclick="location.href='dist/maps.html'">Go to the Map</button>
+    <!-- button A propos -->
+    <button class="btn btn-secondary" id="header-btn" onclick="location.href='#about'">About</button>
+    <!-- Documentation -->
+    <button class="btn btn-secondary" id="header-btn" onclick="location.href='documentation.html'">Documentation</button>
+    </div>
+  </header>
+
+  <img class="logo-simple" src="images/logo_simple.png" alt="landmatrix-large-logo">
+  <div class="slogan">
+    <center><h2>LandMatrix - Projet GeoNum</h2></center>
+    <p>Donec euismod, nisl eget consectetur sagittis, nisl nunc.</p>
+    </div>
+<img class="university-logo-front" src="images/univ.png" alt="university-logo">
+<img class="master-geonum-logo-front" src="images/logo_geonum.png" alt="master-geonum-logo">
+
+  <main>
+    <button class="btn btn-primary" id="goToMapBtn" onclick="location.href='dist/maps.html'">Go to the Map</button>
+  </main>
+
+  <section id="about" class="about-section">
+    <h2>About LandMatrix - Projet GeoNum</h2>
+    <p>
+      LandMatrix is a project developed as part of the GeoNum Master's program. It aims to provide an interactive mapping tool for analyzing land use and ownership patterns globally. Our team is dedicated to creating a user-friendly experience that allows users to explore and understand complex land data.
+    </p>
+    <p>
+      This project is a collaboration between students and faculty at [Your University Name], leveraging cutting-edge web technologies to deliver an engaging platform for researchers, policymakers, and the general public.
+    </p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 LandMatrix - Projet GeoNum. All rights reserved.</p>
+    <!-- logo université -->
+    <img class="university-logo" src="images/univ.png" alt="university-logo">
+    <!-- logo master geonum -->
+    <img class="master-geonum-logo" src="images/logo_geonum.png" alt="master-geonum-logo">
+  </footer>
+</body>
+</html>

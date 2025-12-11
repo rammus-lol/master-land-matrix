@@ -36,10 +36,10 @@ main {
 
 footer {
     text-align: center;
-    padding: 12px 16px;
+    padding: 15px 20px;
     background: #fff;
     border-top: 1px solid #e6e6e6;
-    position: fixed;
+    position: relative;
     bottom: 0;
     left: 0;
     right: 0;
@@ -103,8 +103,36 @@ footer {
     bottom: 0%;
     right: 3%;
     width: 10%;
-    height: auto;
+    height:90%;
 }
+/* logo université */
+.university-logo-front {
+    position: relative;
+    width: 10%;
+    height:10%;
+    left: 88%;
+    margin-top: 1%;
+}
+
+
+/* logo master geonum */
+.master-geonum-logo {
+    position: absolute;
+    bottom: 0%;
+    left: 3%;
+    width: 4%;
+    height: 90%;
+}
+
+/* logo master geonum */
+.master-geonum-logo-front {
+    position: relative;
+    width: 5%;
+    height: 5%;
+    margin-top: 1%;
+    left: -8%;    
+}
+
 
 /* btn layers */
 #layers {
@@ -112,4 +140,13 @@ footer {
     top: 90%;
     right: 93%;
     z-index: 1000;
+}
+
+/* div list btn */
+.list-btn {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    margin-left: 10px;
 }
