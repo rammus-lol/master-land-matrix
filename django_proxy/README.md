@@ -1,10 +1,10 @@
 # Django Proxy API - LandMatrix Countries
 
-## 📋 Description
+##  Description
 
 Ce projet est un serveur Django minimal qui fait office de proxy pour l'API LandMatrix. Il permet d'interroger l'endpoint `https://landmatrix.org/api/countries` via une API locale.
 
-## 🏗️ Architecture du Projet
+##  Architecture du Projet
 
 ```
 django_proxy/
@@ -27,7 +27,7 @@ django_proxy/
 └── README.md                   # Ce fichier
 ```
 
-## 🚀 Installation et Configuration
+##  Installation et Configuration
 
 ### Prérequis
 
@@ -82,7 +82,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['votre-domaine.com', 'localhost', '127.0.0.1']
 ```
 
-## 🎯 Utilisation
+##  Utilisation
 
 ### Démarrer le serveur de développement
 
@@ -123,7 +123,7 @@ ou
 python3 manage.py runserver 0.0.0.0:8000
 ```
 
-## 📡 Endpoints de l'API
+##  Endpoints de l'API
 
 ### GET `/api/countries`
 
@@ -173,7 +173,7 @@ fetch('http://127.0.0.1:8000/api/countries')
   .then(data => console.log(data));
 ```
 
-## 🔧 Mise à jour et Maintenance
+##  Mise à jour et Maintenance
 
 ### Mettre à jour Django
 
@@ -202,13 +202,13 @@ pip freeze > requirements.txt
 pip install -r requirements.txt
 ```
 
-## 📝 Modifications et Extensions
+##  Modifications et Extensions
 
-### 🎯 Trois méthodes pour ajouter des endpoints
+###  Trois méthodes pour ajouter des endpoints
 
 Le projet supporte **3 façons** d'ajouter de nouveaux endpoints après `/api/` :
 
-#### Méthode 1 : Proxy Générique (Déjà configuré ✅)
+#### Méthode 1 : Proxy Générique (Déjà configuré )
 
 **Le plus simple** - Aucune modification nécessaire !
 
@@ -277,7 +277,7 @@ def deals_proxy(request):
 
 **Étape 2 - Ajouter la route dans `api/urls.py` :**
 
-⚠️ **IMPORTANT** : Ajoutez votre route **AVANT** la route générique (`<path:endpoint>`)
+ **IMPORTANT** : Ajoutez votre route **AVANT** la route générique (`<path:endpoint>`)
 
 ```python
 from django.urls import path
@@ -334,7 +334,7 @@ urlpatterns = [
 
 Accessible via : `http://127.0.0.1:8000/api/external`
 
-### 📋 Exemples complets d'ajout d'endpoints
+###  Exemples complets d'ajout d'endpoints
 
 #### Exemple 1 : Ajouter /api/investors avec cache
 
@@ -430,7 +430,7 @@ def stats_proxy(request):
 path('stats', views.stats_proxy, name='stats_proxy'),
 ```
 
-### 🔄 Rechargement automatique
+###  Rechargement automatique
 
 Le serveur Django en mode développement recharge automatiquement les fichiers modifiés. Après avoir ajouté un endpoint :
 
@@ -442,9 +442,9 @@ Le serveur Django en mode développement recharge automatiquement les fichiers m
    ```
 3. Testez immédiatement votre nouvel endpoint !
 
-### ⚠️ Erreurs courantes à éviter
+###  Erreurs courantes à éviter
 
-1. **Route générique en premier** ❌
+1. **Route générique en premier** 
    ```python
    # MAUVAIS ORDRE
    urlpatterns = [
@@ -453,14 +453,14 @@ Le serveur Django en mode développement recharge automatiquement les fichiers m
    ]
    ```
 
-2. **Oublier @csrf_exempt** ❌
+2. **Oublier @csrf_exempt** 
    ```python
    # Sans @csrf_exempt, les requêtes POST/PUT/DELETE seront rejetées
    def my_view(request):  # Manque @csrf_exempt
        ...
    ```
 
-3. **Ne pas importer la vue** ❌
+3. **Ne pas importer la vue** 
    ```python
    # Dans urls.py - oublier d'importer
    from . import views  # ← N'oubliez pas cette ligne !
@@ -576,7 +576,7 @@ def countries_proxy(request):
         return JsonResponse({'error': str(e)}, status=500)
 ```
 
-## 🧪 Tests
+##  Tests
 
 ### Créer des tests unitaires
 
@@ -614,7 +614,7 @@ coverage report
 coverage html  # Génère un rapport HTML
 ```
 
-## 🚀 Déploiement en Production
+##  Déploiement en Production
 
 ### 1. Préparer le projet
 
@@ -692,7 +692,7 @@ sudo systemctl start django_proxy
 sudo systemctl status django_proxy
 ```
 
-## 🔒 Sécurité
+##  Sécurité
 
 ### Recommandations pour la production
 
@@ -740,7 +740,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 ```
 
-## 📊 Monitoring et Logs
+##  Monitoring et Logs
 
 ### Voir les logs en temps réel
 
@@ -763,7 +763,7 @@ if DEBUG:
     INTERNAL_IPS = ['127.0.0.1']
 ```
 
-## ❓ Dépannage
+##  Dépannage
 
 ### Le serveur ne démarre pas
 
@@ -791,7 +791,7 @@ pip install -r requirements.txt
 - Vérifier que l'URL de l'API est correcte
 - Augmenter le timeout dans `views.py`
 
-## 📚 Ressources
+##  Ressources
 
 - [Documentation Django](https://docs.djangoproject.com/)
 - [Documentation Requests](https://requests.readthedocs.io/)
