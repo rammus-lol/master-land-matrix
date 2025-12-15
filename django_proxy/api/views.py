@@ -12,6 +12,7 @@ from pathlib import Path
 from django.conf import settings
 point_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "projects.gpkg")#good for production, bad for dev
 polygone_ref=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "region_monde_light.gpkg")
+polygone_project=gpd.read_file(settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg")
 # polygone_ref=gpd.read_file(Path(r"django_proxy\data\region_monde_light.gpkg")) #for testing localy
 # point_ref=gpd.read_file(Path(r"django_proxy\data\projects.gpkg"))
 # test=gpd.read_file(Path(r'django_proxy\data\polygone_test.geojson'))

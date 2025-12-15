@@ -1,0 +1,23 @@
+{
+  "name": "drawing_widget",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "ol": "^10.7.0",
+    "ol-load-geopackage": "^1.0.3",
+    "shpjs": "^6.2.0"
+  },
+  "devDependencies": {
+    "vite": "^7.2.6"
+  }
+}
