@@ -1,35 +1,52 @@
-const source = new ol.source.Vector();
+import './maps.css';
+import shp from 'shpjs';
+import Map from 'ol/Map';
+import View from 'ol/View.js';
+import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
+import Draw from 'ol/interaction/Draw.js';
+import { fromLonLat,transform,get } from 'ol/proj';
+import GeoJSON from 'ol/format/GeoJSON';
+import KML from 'ol/format/KML';
+import { OSM, XYZ } from 'ol/source';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import TileLayer from 'ol/layer/Tile';
+// import StadiaMaps from 'ol/source/StadiaMaps.js';
+import {Circle,Point} from 'ol/geom';
+import Feature from 'ol/Feature';
+import LayerSwitcherModal from './modal.js';
+const source = new VectorSource();
 const url_api = "https://landmatrix.artxypro.org/api/geom/"; // API endpoint
 
-const vectorLayer = new ol.layer.Vector({
+const vectorLayer = new VectorLayer({
   source: source,
-  style: new ol.style.Style({
-    fill: new ol.style.Fill({
+  style: new Style({
+    fill: new Fill({
       color: 'rgba(255, 255, 255, 0.2)',
     }),
-    stroke: new ol.style.Stroke({
+    stroke: new Stroke({
       color: '#fc941d',
       width: 2,
     }),
-    image: new ol.style.Circle({
+    image: new CircleStyle({
       radius: 7,
-      fill: new ol.style.Fill({
+      fill: new Fill({
         color: '#fc941d',
       }),
     }),
   }),
 });
 
-const map = new ol.Map({
+const map = new Map({
   target: 'map',
   layers: [
-    new ol.layer.Tile({
-      source: new ol.source.OSM(),
+    new TileLayer({
+      source: new OSM(),
     }),
     vectorLayer,
   ],
-  view: new ol.View({
-    center: ol.proj.fromLonLat([2.35, 48.85]),
+  view: new View({
+    center: fromLonLat([2.35, 48.85]),
     zoom: 10,
   }),
 });
@@ -47,7 +64,7 @@ function addInteraction() {
   }
 
   if (value !== 'None') {
-    draw = new ol.interaction.Draw({
+    draw = new Draw({
       source: source,
       type: value,
     });
@@ -90,20 +107,20 @@ async function loadFile(file) {
     try {
         if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
             const text = await file.text();
-            features = new ol.format.GeoJSON().readFeatures(text, {
+            features = new GeoJSON().readFeatures(text, {
                 featureProjection: "EPSG:3857"
             });
         }
         else if (fileName.endsWith(".kml")) {
             const text = await file.text();
-            features = new ol.format.KML().readFeatures(text, {
+            features = new KML().readFeatures(text, {
                 featureProjection: "EPSG:3857"
             });
         }
         else if (fileName.endsWith(".zip")) {
             const buffer = await file.arrayBuffer();
             const geojson = await shp(buffer);
-            features = new ol.format.GeoJSON().readFeatures(geojson, {
+            features = new GeoJSON().readFeatures(geojson, {
                 featureProjection: "EPSG:3857"
             });
         }
@@ -170,11 +187,11 @@ kpDrawBtn.addEventListener("click", () => {
     }
 
     // this function was conceptualised for field observation where points are created with a gps
-    const center3857 = ol.proj.transform([lon, lat], "EPSG:4326", "EPSG:3857");
+    const center3857 = transform([lon, lat], "EPSG:4326", "EPSG:3857");
 
-    const circle = new ol.geom.Circle(center3857, radius);
+    const circle = new Circle(center3857, radius);
 
-    const feature = new ol.Feature(circle);
+    const feature = new Feature(circle);
 
  
     source.addFeature(feature);
@@ -184,11 +201,11 @@ kpDrawBtn.addEventListener("click", () => {
     map.getView().fit(extent, { padding: [20, 20, 20, 20] });
 
 });
-map.getView().fit(ol.proj.get('EPSG:3857').getExtent(), { size: map.getSize() });
+map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
 let resultLayer = null;
 
 document.getElementById('export').addEventListener('click', async () => {
-    const format = new ol.format.GeoJSON();
+    const format = new GeoJSON();
     const features = source.getFeatures();
 
     if (features.length === 0) {
@@ -201,15 +218,15 @@ document.getElementById('export').addEventListener('click', async () => {
     features.forEach(f => {
         const geom = f.getGeometry();
 
-        if (geom instanceof ol.geom.Circle) {
+        if (geom instanceof Circle) {
             // Extract center+radius for added circle
             const center = geom.getCenter();
             const radius = geom.getRadius();
                         // Transformer le cercle → point GeoJSON
-            const pointGeom = new ol.geom.Point(center);
+            const pointGeom = new Point(center);
 
             // Create new feature for backend sending
-            const newF = new ol.Feature({
+            const newF = new Feature({
                 geometry: pointGeom,
                     radius: radius,           // ← radius
                     original_type: "Circle"   // ← easier to read for debugging
@@ -256,8 +273,8 @@ document.getElementById('export').addEventListener('click', async () => {
         }
 
         // Building the display with backend response
-    const resultSource = new ol.source.Vector({ 
-        features: new ol.format.GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
+    const resultSource = new VectorSource({ 
+        features: new GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
     const resultStyle = (feature) => {
         const props = feature.getProperties();
         const precision = props.level_of_accuracy || "";
@@ -271,24 +288,24 @@ document.getElementById('export').addEventListener('click', async () => {
         const fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
         const pointColor = strokeColor;
 
-        return new ol.style.Style({
-            stroke: new ol.style.Stroke({
+        return new Style({
+            stroke: new Stroke({
                 color: strokeColor,
                 width: 2
             }),
-            fill: new ol.style.Fill({
+            fill: new Fill({
                 color: fillColor
             }),
-            image: new ol.style.Circle({
+            image: new CircleStyle({
                 radius: 6,
-                fill: new ol.style.Fill({ color: pointColor }),
-                stroke: new ol.style.Stroke({ color: "white", width: 1 })
+                fill: new Fill({ color: pointColor }),
+                stroke: new Stroke({ color: "white", width: 1 })
             })
         });
     };
 
         // New layer
-        resultLayer = new ol.layer.Vector({
+        resultLayer = new VectorLayer({
             source: resultSource,
             style: resultStyle
         });
@@ -345,7 +362,7 @@ function triggerSave() {
 
 // Saveing function
 function saveGeoJSON(features, filename) {
-    const format = new ol.format.GeoJSON();
+    const format = new GeoJSON();
 
     // Creating a geojson object
     const geojsonObject = format.writeFeaturesObject(features, {
@@ -380,4 +397,4 @@ function saveGeoJSON(features, filename) {
 
     URL.revokeObjectURL(url);
 }
-
+const layerSwitcher = new LayerSwitcherModal(map);
