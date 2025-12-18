@@ -1,0 +1,77 @@
+<!-- Page d'acceuil Avec une image static en fond , un footer , header et un bouton centrale "Go to the map" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LandMatrix - Home</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <div class="background-image"></div>
+
+  <header>
+    <div class="list-btn">
+    <!-- button Carte -->
+    <button class="btn btn-primary" id="header-btn" onclick="location.href='public/maps.html'">Go to the Map</button>
+    <!-- button A propos -->
+    <button class="btn btn-secondary" id="header-btn" onclick="location.href='#about'">About</button>
+    <!-- Documentation -->
+    <button class="btn btn-secondary" id="header-btn" onclick="location.href='documentation.html'">Documentation</button>
+    </div>
+  </header>
+
+  <img class="logo-simple" src="images/logo_simple.png" alt="landmatrix-large-logo">
+  <div class="slogan">
+    <center><h2>LandMatrix - Projet GeoNum</h2></center>
+    <p>Donec euismod, nisl eget consectetur sagittis, nisl nunc.</p>
+    </div>
+<img class="university-logo-front" src="images/univ.png" alt="university-logo">
+<img class="master-geonum-logo-front" src="images/logo_geonum.png" alt="master-geonum-logo">
+
+  <main>
+    <button class="btn btn-primary" id="goToMapBtn" onclick="location.href='public/maps.html'">Go to the Map</button>
+  </main>
+
+  <section id="about" class="about-section">
+    <h2>About LandMatrix - Projet GeoNum</h2>
+    <p>
+      lispsium dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </p>
+    <p>
+      dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </p>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-5">
+          <h5>LandMatrix - Projet GeoNum</h5>
+          <p>Lispsium dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+        <div class="col-md-3">
+          <h5>Quick Links</h5>
+          <ul class="footer-links">
+            <li><a href="public/maps.html">Go to the Map</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 text-end">
+           <img class="footer-logo" src="images/univ.png" alt="University Logo">
+           <img class="footer-logo" src="images/logo_geonum.png" alt="GeoNum Logo">
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <p class="copyright-text">&copy; 2025 LandMatrix - Projet GeoNum. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
