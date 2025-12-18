@@ -1,0 +1,207 @@
+
+/* --- Home page header & layout (index.html) --- */
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    /* Replace the gradient by an image if you have one: url("./path/to/image.jpg") */
+    background: url("images/fond.svg") no-repeat;
+    /* transparence */
+    opacity: 0.4;
+    background-color: #fc941d;
+    background-size: cover;
+    background-position: left;
+    z-index: -1;
+}
+
+header {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 1% 1%;
+}
+
+.title-page {
+    margin: 0;
+    color: #222;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 180px);
+    padding: 20px;
+}
+
+.site-footer {
+    background-color: #f8f9fa;
+    padding: 45px 0 20px;
+    font-size: 15px;
+    line-height: 24px;
+    color: #333333;
+    margin-top: auto;
+    border-top: 1px solid #e7e7e7;
+}
+
+.site-footer h5 {
+    color: #2c3e50;
+    font-size: 16px;
+    text-transform: uppercase;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+.site-footer a {
+    color: #555555;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    color: #967149;
+    text-decoration: none;
+}
+
+.footer-links {
+    padding-left: 0;
+    list-style: none;
+}
+
+.footer-links li {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.footer-logo {
+    height: 50px;
+    width: auto;
+    margin-left: 15px;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.copyright-text {
+    margin: 0;
+}
+
+hr {
+    border-top-color: #bbb;
+    opacity: 0.5;
+}
+
+/* goToMapBtn see map center horizontale / vertical */
+#goToMapBtn {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    width: 14%;
+    height: 7%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    background-color: #967149;
+    border: none;
+}
+
+/* goToMapBtn hover */
+#goToMapBtn:hover {
+    background-color: #b07f4a;
+}
+
+.logo-simple {
+    top: 27%;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    display: block;
+    max-width: 40%;
+    height: auto;
+}
+
+#header-btn {
+    margin-top: 1%;
+    background-color: #967149;
+    border: none;
+}
+
+/* header-btn hover */
+#header-btn:hover {
+    background-color: #b07f4a;
+}
+
+.slogan {
+    top: 47%;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 1.3rem;
+    text-align: center;
+    width: 80%;
+    max-width: 720px;
+}
+
+/* logo université */
+.university-logo-front {
+    position: relative;
+    width: 10%;
+    height:10%;
+    left: 88%;
+    margin-top: 1%;
+}
+
+
+/* logo master geonum */
+.master-geonum-logo-front {
+    position: relative;
+    width: 5%;
+    height: 5%;
+    margin-top: 1%;
+    left: -8%;    
+}
+
+
+/* btn layers */
+#layers {
+    position: absolute;
+    top: 90%;
+    right: 93%;
+    z-index: 1000;
+}
+
+/* div list btn */
+.list-btn {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+/* About Section */
+.about-section {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    position: relative; /* Ensures it sits correctly in the flow */
+    z-index: 1;
+}
+
+.about-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.about-section p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-align: justify;
+}
