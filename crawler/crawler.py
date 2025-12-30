@@ -15,21 +15,24 @@ def geom_from_list(report_list,row_deal,location : list,index : int=0):
     list for further investigation"""
     try:
         point=location[index]["point"]
-        return {"nid":location[index]["nid"],"crs":point["crs"]["properties"]["name"],
+        return {
+            "nid":location[index]["nid"],
+            "crs":point["crs"]["properties"]["name"],
            "long":point["coordinates"][0],
            "lat":point["coordinates"][1],
-           "level_of_accuracy":location[index]['level_of_accuracy']}
+           "level_of_accuracy":location[index]['level_of_accuracy']
+        }
     except TypeError:
         report_list.append(row_deal)
         return {
-    "nid": location[index].get("nid"),
-    "crs": None,
-    "long": None,
-    "lat": None,
-    "level_of_accuracy": location[index].get('level_of_accuracy')
-}
+            "nid": location[index]["nid"],
+            "crs": None,
+            "long": None,
+            "lat": None,
+            "level_of_accuracy": location[index]['level_of_accuracy']
+        }
 def key_extraction(js, key, path=[]):
-    """Because of the complexity of the /api/dels/ exit, i use this recursion 
+    """Because of the complexity of the /api/deals/ exit, i use this recursion
     for finding a key I want and format it with [] for dictionnary searching"""
     def path_construction(path_in_list):
         #format a list for dictionaries searching
@@ -52,7 +55,7 @@ def key_extraction(js, key, path=[]):
                 return path_construction(result)
     return "This key doesn't exist"
 def gpkg_extraction(calling : dict|list[dict]):
-    """Take a list from API and format it into a GeoDataFrame"""
+    """Take an Iterable from API and format it into a GeoDataFrame"""
     report=[]
     summary=[]
     for c in calling:
@@ -69,13 +72,12 @@ def gpkg_extraction(calling : dict|list[dict]):
                    liste_point[i].update(geometry)
                 summary.extend(liste_point)
             else:
-                geometry=geom_from_list(report,c,geom)#it's called geometry but it isnt a geometry object
+                geometry=geom_from_list(report,c,geom) #it's called geometry but it isnt a geometry object
                 deal.update(geometry)
                 summary.append(deal)
         except (KeyError,TypeError) as e:
             print(f"Problem with {c['id']} : {e}")
-            print(traceback.format_exc()) 
-            summary.append(deal)
+            print(traceback.format_exc())
             report.append(c)
             continue
     df=pd.DataFrame(summary)
@@ -88,9 +90,15 @@ try:
     data = call.json()
 except requests.exceptions.RequestException as e:
     print(f"Houston we got an HTML problem : {e}")
-test_s,report=gpkg_extraction(data)
-test_s.to_file(Path(r"django_proxy\data\projects.gpkg"),driver="GPKG")
-with open(Path(r"crawler\report.json"),"w",encoding='utf-8') as f:
+gdf_deals,report=gpkg_extraction(data)
+gdf_deals = gdf_deals.dropna(subset=['crs', 'long', 'lat'])#this is the cleanest version i can get out of my brain to delete deals with no coordinates
+print("traitement réussi")
+# Créer le répertoire
+base_dir = Path(__file__).parents[1]
+output_path = base_dir / "django_proxy" / "data" / "deals.gpkg"
+output_path.parent.mkdir(parents=True, exist_ok=True)
+gdf_deals.to_file(output_path, driver="GPKG",layer="deals")
+with open(Path("report.json"),"w",encoding='utf-8') as f:
     json.dump(report,f,ensure_ascii=False,indent=2)#exporting deals without geometrics info into a json
 print(f"The export of deals in geopackage ends well, the script have founded {len(report)} without coordinates.")
 
