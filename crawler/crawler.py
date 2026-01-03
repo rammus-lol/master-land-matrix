@@ -91,10 +91,12 @@ try:
 except requests.exceptions.RequestException as e:
     print(f"Houston we got an HTML problem : {e}")
 gdf_deals,report=gpkg_extraction(data)
-gdf_deals = gdf_deals.dropna(subset=['crs', 'long', 'lat'])#this is the cleanest version i can get out of my brain to delete deals with no coordinates
-print("traitement réussi")
-# Créer le répertoire
+gdf_deals = gdf_deals.dropna(subset=['crs', 'long', 'lat'])#this is the cleanest version i can get out of my brain to delete deals with no coordinates.
 base_dir = Path(__file__).parents[1]
+gdf_region=gpd.read_file(base_dir / "django_proxy" / "data" / "world_region_light.gpkg")
+gdf_deals=gpd.sjoin(gdf_deals, gdf_region)
+col_to_drop=[col for col in gdf_region.columns if col not in ('admin','geometry')]+['index_right']
+gdf_deals.drop(col_to_drop,axis=1,inplace=True)
 output_path = base_dir / "django_proxy" / "data" / "deals.gpkg"
 output_path.parent.mkdir(parents=True, exist_ok=True)
 gdf_deals.to_file(output_path, driver="GPKG",layer="deals")
