@@ -11,4 +11,4 @@ const dest = path.join(__dirname, '..', 'public', 'sql-wasm.wasm');
 fs.mkdirSync(path.dirname(dest), { recursive: true });
 
 fs.copyFileSync(source, dest);
-console.log('✓ sql-wasm.wasm copié dans public/');
+console.log('sql-wasm.wasm load in public/');

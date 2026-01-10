@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "patch-package && node scripts/copy_wasm.js"
+    "copy-wasm": "node scripts/copy-wasm.js",
+    "postinstall": "patch-package && npm run copy-wasm"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   "dependencies": {
     "ol": "^10.7.0",
     "ol-load-geopackage": "^1.0.3",
+    "patch-package": "^8.0.1",
     "shpjs": "^6.2.0"
   },
   "devDependencies": {

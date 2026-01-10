@@ -7,14 +7,17 @@ import Draw from 'ol/interaction/Draw.js';
 import { fromLonLat,transform,get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import KML from 'ol/format/KML';
-import OSM from 'ol/source';
+import OSM from 'ol/source/OSM.js';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import LayerSwitcherModal from './modal.js';
+import alertPanel from "./alert_panel.js";
 import loadGpkg from 'ol-load-geopackage';
+import * as url from "node:url";
+
 const source = new VectorSource();
 
 const vectorLayer = new VectorLayer({
@@ -92,7 +95,6 @@ function clearMap() {
     source.clear(); 
 }
 const dropArea = document.getElementById("drop-area");
-const openFileBtn = document.getElementById("openFileBtn");
 const fileInput = document.getElementById("fileInput");
 
 //  loading file function
@@ -154,7 +156,7 @@ async function loadFile(file) {
                 if (!hasPolygonLayer) {
                     alert("The provided geopackage contains no polygonal layer (Polygon or MultiPolygon).");
                 }
-
+                URL.revokeObjectURL(url_gpkg)
             } catch (error) {
                 alert("ol-load-geopackage error: " + error);
             }
@@ -174,29 +176,93 @@ async function loadFile(file) {
         alert("Error while reading file.");
     }
 }
-// Stoping default behavior
-["dragenter","dragover","dragleave","drop"].forEach(evt =>
-    dropArea.addEventListener(evt, e => {
+
+const dropZone = map.getTargetElement();
+const modification = {
+    "background-color": "#FFD700",
+    "color": "#000000"
+};
+const dragmessage = "Supported format : GeoJSONs, KMLs, zipped SHPs and GPKGs";
+const dragalert = new alertPanel(modification, dragmessage, 'top-center', 10);
+
+let dragCounterMap = 0;
+
+dropZone.addEventListener('dragenter', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterMap=1;
+    console.log('dragenter', dragCounterMap);
+    if (dragCounterMap === 1) {
+        dragalert.Alerting();
+        dropZone.classList.add("highlight");
+    }
+});
+
+dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopPropagation();
+});
+
+dropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterMap=0;
+    console.log('dragleave', dragCounterMap);
+    if (dragCounterMap === 0) {
+        dragalert.dropModification();
+        dropZone.classList.remove("highlight");
+    }
+});
+
+dropZone.addEventListener('drop', async e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterMap = 0; // Reset forcé
+    console.log('drop - reset counter');
+    dragalert.dropModification();
+    dropZone.classList.remove("highlight");
+
+    if (e.dataTransfer.files.length > 0) {
+        await loadFile(e.dataTransfer.files[0]);
+    }
+});
+
+["dragenter", "dragover"].forEach(evt =>
+    dropArea.addEventListener(evt, (e) => {
         e.preventDefault();
         e.stopPropagation();
+        dropArea.classList.add("highlight");
     })
 );
 
-// Highlight zone
-["dragenter","dragover"].forEach(evt =>
-    dropArea.addEventListener(evt, () => dropArea.classList.add("highlight"))
-);
+dropArea.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.remove("highlight");
+});
 
-["dragleave","drop"].forEach(evt =>
-    dropArea.addEventListener(evt, () => dropArea.classList.remove("highlight"))
-);
+dropArea.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.remove("highlight");
+    if (e.dataTransfer.files.length > 0) {
+        await loadFile(e.dataTransfer.files[0]);
+    }
+});
 
-// Drop
-dropArea.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
-// Click on zone triggers file picker
 dropArea.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", e => loadFile(e.target.files[0]));
-// Knowing point
+
+dropZone.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.click()
+});
+
+fileInput.addEventListener("change", async (e) => {
+    if (e.target.files.length > 0) {
+        await loadFile(e.target.files[0]);
+    }
+});// Knowing point
 const kpPanel = document.getElementById("known-point-panel");
 const kpDrawBtn = document.getElementById("kp_draw");
 

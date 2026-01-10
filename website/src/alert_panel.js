@@ -39,7 +39,7 @@ class alertPanel {
     static resetAll() {
         alertPanel.instances.forEach(instance => {
             if (instance.isActive) {
-                instance.dropModification(0);
+                instance.dropModification();
             }
         });
     }
