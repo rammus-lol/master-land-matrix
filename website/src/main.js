@@ -7,11 +7,10 @@ import Draw from 'ol/interaction/Draw.js';
 import { fromLonLat,transform,get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import KML from 'ol/format/KML';
-import { OSM, XYZ } from 'ol/source';
+import OSM from 'ol/source';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
-import StadiaMaps from 'ol/source/StadiaMaps.js';
 import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import LayerSwitcherModal from './modal.js';
@@ -95,19 +94,7 @@ function clearMap() {
 const dropArea = document.getElementById("drop-area");
 const openFileBtn = document.getElementById("openFileBtn");
 const fileInput = document.getElementById("fileInput");
-function displayGpkgContents(dataFromGpkg, sldsFromGpkg) {
-    var tablesText = '<p>Details extracted for each table { ' +
-        '"table name" [original projection]: (attribute names) }:</p><ul>';
-    for (var table in dataFromGpkg) {
-        tablesText += '<li>"' + table + '" [' +
-            dataFromGpkg[table].getProperties()["origProjection"] + ']: (';
 
-        // Attribute names are stored as Feature "Properties":
-        // list them for first feature in each table
-        var properties = dataFromGpkg[table].getFeatures()[0].getProperties();
-        tablesText += Object.keys(properties).join(', ') + ')</li>';
-    }
-    outputElem.innerHTML += tablesText + '</ul>';}
 //  loading file function
 async function loadFile(file) {
     if (!file) return;
@@ -139,17 +126,39 @@ async function loadFile(file) {
             return; 
         }
         else if (fileName.endsWith(".gpkg")) {
-            const displayProjection = 'EPSG:3857';
-            let gpkgPromise = loadGpkg(file, displayProjection);
-            gpkgPromise
-            .then(([dataFromGpkg, sldsFromGpkg]) => {
-            var processingSecs = (Date.now() - startProcessing) / 1000;
-            outputElem.innerHTML +=
-                '<p>...loading, data extraction and reprojection completed in ' +
-                processingSecs + ' seconds.</p>';
-            displayGpkgContents(dataFromGpkg, sldsFromGpkg);
+            const displayProjection = "EPSG:3857";
+            const url_gpkg = URL.createObjectURL(file);
 
-        }).catch(error => alert('ol-load-geopackage error: ' + error))}
+            try {
+                const [dataFromGpkg] = await loadGpkg(url_gpkg, displayProjection);
+
+                let hasPolygonLayer = false;
+
+                for (const table in dataFromGpkg) {
+                    const source = dataFromGpkg[table];
+                    const tableFeatures = source.getFeatures();
+
+                    if (!tableFeatures || tableFeatures.length === 0) {
+                        continue;
+                    }
+
+                    // Standard supposé : une table = un type de géométrie
+                    const geomType = tableFeatures[0].getGeometry()?.getType();
+
+                    if (geomType === "Polygon" || geomType === "MultiPolygon") {
+                        hasPolygonLayer = true;
+                        features.push(...tableFeatures);
+                    }
+                }
+
+                if (!hasPolygonLayer) {
+                    alert("The provided geopackage contains no polygonal layer (Polygon or MultiPolygon).");
+                }
+
+            } catch (error) {
+                alert("ol-load-geopackage error: " + error);
+            }
+        }
         else {
             alert("Unsupported format!");
             return;
