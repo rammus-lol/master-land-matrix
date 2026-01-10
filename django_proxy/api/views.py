@@ -97,11 +97,11 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
     -code_1 : The polygons provided are in a country with no deal.
     -code_2 : The polygons provided contains no deal, but some are nearby them."""
     export_list=[]
-    filtered_regions=gpd.sjoin(region,research).drop(columns=["id","index_right"])
+    filtered_regions=gpd.sjoin(region,research).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(project, filtered_regions, how='inner', predicate='within')
     col_to_drop=[col for col in filtered_regions.columns if col not in ("admin","geometry")]
     col_to_drop+=["admin_right",'index_right']
-    selected_projects.drop(col_to_drop,axis=1,inplace=True)
+    selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
     selected_projects.rename(columns={"admin_left":'admin'},inplace=True)
 
     #First, we track deals inside the countries cover by the provided shapes with a COUNTRY accuracy.
@@ -126,7 +126,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
         return any(bool_list)
     filtered_regions_ids = list(filtered_regions["iso_3166_2"])
     filtered_areas = polygon_project[polygon_project["region_list"].apply(lambda x: region_checker(x, filtered_regions_ids))]
-    selected_areas=gpd.sjoin(filtered_areas,research).drop(columns=["id_right","index_right"])
+    selected_areas=gpd.sjoin(filtered_areas,research).drop(columns=["id_right","index_right"],errors="ignore")
     selected_areas.rename(columns={"id_left":"id"},inplace=True)
     selected_areas['feature_type'] = 'areas'
     export_list.append(selected_areas)
@@ -138,13 +138,11 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
     if not selected_areas.empty:
         accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
         points_inaccurate = selected_projects[~selected_projects["level_of_accuracy"].isin(accurate_points)]
-        point_inside = gpd.sjoin(selected_projects, research, how='inner').drop(columns=["id_right","index_right"])
+        point_inside = gpd.sjoin(selected_projects, research, how='inner').drop(columns=["id_right","index_right"],errors="ignore")
         final_points= gpd.GeoDataFrame(pd.concat([points_inaccurate, point_inside])).drop_duplicates(
             subset='geometry')
         if final_points.empty:
             return "code_2"
-        final_points["id"]=final_points["id"].fillna(final_points["id_left"])
-        final_points=final_points.drop(columns=["id_left"])
         area = final_points["deal_size"].replace(0, 2000000)
         buffer_geoms = final_points["geometry"].buffer(
             np.sqrt( area*10000/ np.pi) #formula for finding radius with area
