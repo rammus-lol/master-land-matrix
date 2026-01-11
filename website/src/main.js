@@ -14,11 +14,11 @@ import TileLayer from 'ol/layer/Tile';
 import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import LayerSwitcherModal from './modal.js';
-import alertPanel from "./alert_panel.js";
+import AlertPanel from "./alert_panel.js";
 import loadGpkg from 'ol-load-geopackage';
 import * as url from "node:url";
 
-const topCenterPanel = new alertPanel()
+const topCenterPanel = new AlertPanel()
 
 const source = new VectorSource();
 
@@ -186,59 +186,102 @@ const yellowTemplate = {
 };
 const dragmessage = "Supported format : GeoJSONs, KMLs, zipped SHPs and GPKGs";
 
-let dragCounterMap = 0;
+let dragCounter = 0;
+let highlightTimeout = null;
 
 dropZone.addEventListener('dragenter', e => {
     e.preventDefault();
     e.stopPropagation();
-    dragCounterMap=1;
-    console.log('dragenter', dragCounterMap);
-    if (dragCounterMap === 1) {
-        topCenterPanel.alerting(yellowTemplate, dragmessage,10);
+    console.log("avant le test dragenter ", dragCounter);
+    // On ne déclenche l'effet que si on n'était pas déjà dans la zone
+    if (dragCounter === 0) {
+        console.log("après le test dragenter ", dragCounter);
+        console.log("Entrée réelle dans la zone");
+        topCenterPanel.alerting(yellowTemplate, dragmessage, 10);
+        if (highlightTimeout) {
+            clearTimeout(highlightTimeout);
+        }
+        highlightTimeout = setTimeout(() => {
+            dropZone.classList.remove("highlight");
+        }, 10000);
         dropZone.classList.add("highlight");
     }
+    dragCounter++;
+    if (dragCounter >1) {dragCounter=1} //some bootstrapping for managing propagation.
+
 });
 
 dropZone.addEventListener('dragover', e => {
     e.preventDefault();
     e.stopPropagation();
+
 });
 
 dropZone.addEventListener('dragleave', e => {
     e.preventDefault();
     e.stopPropagation();
-    dragCounterMap=0;
-    console.log('dragleave', dragCounterMap);
-    if (dragCounterMap === 0) {
-        topCenterPanel.dropModification();
+
+    dragCounter--;
+    console.log("avant le test dragleave", dragCounter);
+    // On ne retire l'effet que si le compteur retombe à 0
+    if (dragCounter === 0) {
+        console.log("après le test dragleave",dragCounter);
+        console.log("Sortie réelle de la zone");
+        topCenterPanel.dropModification()
         dropZone.classList.remove("highlight");
+        if (highlightTimeout) {
+            clearTimeout(highlightTimeout);
+            highlightTimeout = null;
+        }
     }
 });
 
 dropZone.addEventListener('drop', async e => {
     e.preventDefault();
     e.stopPropagation();
-    dragCounterMap = 0; // Reset forcé
-    console.log('drop - reset counter');
+
+    console.log("drop - counter avant reset:", dragCounter);
+    dragCounter = 0; // Reset complet
+
     topCenterPanel.dropModification();
     dropZone.classList.remove("highlight");
+
+    if (highlightTimeout) {
+        clearTimeout(highlightTimeout);
+        highlightTimeout = null;
+    }
 
     if (e.dataTransfer.files.length > 0) {
         await loadFile(e.dataTransfer.files[0]);
     }
+
+    console.log("drop - counter après reset:", dragCounter);
 });
 
-["dragenter", "dragover"].forEach(evt =>
+["dragenter"].forEach(evt =>
     dropArea.addEventListener(evt, (e) => {
         e.preventDefault();
         e.stopPropagation();
+        topCenterPanel.alerting(yellowTemplate, dragmessage,10);
         dropArea.classList.add("highlight");
     })
 );
+dropArea.addEventListener("dragenter", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    topCenterPanel.alerting(yellowTemplate, dragmessage,10);
+    dropArea.classList.add("highlight");
+});
+
+dropArea.addEventListener("dragover", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+});
 
 dropArea.addEventListener("dragleave", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    topCenterPanel.dropModification();
     dropArea.classList.remove("highlight");
 });
 
@@ -246,22 +289,23 @@ dropArea.addEventListener("drop", async (e) => {
     e.preventDefault();
     e.stopPropagation();
     dropArea.classList.remove("highlight");
+    topCenterPanel.dropModification();
     if (e.dataTransfer.files.length > 0) {
         await loadFile(e.dataTransfer.files[0]);
     }
 });
 
-dropArea.addEventListener("click", () => fileInput.click());
-
-dropZone.addEventListener("dblclick", (e) => {
+dropArea.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    topCenterPanel.alerting(yellowTemplate, dragmessage);
     fileInput.click()
 });
 
 fileInput.addEventListener("change", async (e) => {
     if (e.target.files.length > 0) {
         await loadFile(e.target.files[0]);
+        topCenterPanel.dropModification();
     }
 });// Knowing point
 const kpPanel = document.getElementById("known-point-panel");
@@ -347,27 +391,35 @@ document.getElementById('export').addEventListener('click', async () => {
     });
 
     console.log("geojson envoyé :", geojsonObject);
-
+    const redTemplate = {
+        "background-color" : "#b61010",
+        "height": "70px",
+        "fontsize": "20px"
+    };
     try {
-        const response = await fetch("https://landmatrix.artxypro.org/api/geom/", {
+        const query = await fetch("http://127.0.0.1:8000/api/geom/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(geojsonObject)
         });
 
-        if (!response.ok) {
-            throw new Error("Erreur serveur : " + response.status);
+        if (!query.ok) {
+            const error = `Server error: ${query.status}.\nPlease contact us below`;
+            topCenterPanel.alerting(yellowTemplate, error,30);
         }
 
-        const data = await response.json();
-        console.log("backend response:", data);
-
-        if (!data.data) {
-            console.error("No Geojson in backend response !");
+        const response = await query.json();
+        console.log("backend response:", response);
+        const resultStatus = response.status
+        const resultGeoJSON = response.data;
+        console.log(resultGeoJSON);
+        if (resultGeoJSON === 0) {
+            const emptyMessage = response.status;
+            topCenterPanel.alerting(yellowTemplate, emptyMessage,30);
             return;
         }
 
-        const resultGeoJSON = data.data;
+        topCenterPanel.alerting({"background-color" : "#43b6b5"}, resultStatus);
 
         // deleting last querying (is this good ?)
         if (resultLayer !== null) {
@@ -375,6 +427,7 @@ document.getElementById('export').addEventListener('click', async () => {
         }
 
         // Building the display with backend response
+
     const resultSource = new VectorSource({ 
         features: new GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
     const resultStyle = (feature) => {
@@ -418,8 +471,8 @@ document.getElementById('export').addEventListener('click', async () => {
         map.getView().fit(resultSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
 
     } catch (err) {
-        console.error(err);
-        alert("Error during sending to backend");
+        console.error("Technical error:", err);
+        topCenterPanel.alerting(redTemplate,"The server is disconnected.",30);
     }
 });
 const saveBtn = document.getElementById("saveBtn");
