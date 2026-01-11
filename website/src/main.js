@@ -18,6 +18,8 @@ import alertPanel from "./alert_panel.js";
 import loadGpkg from 'ol-load-geopackage';
 import * as url from "node:url";
 
+const topCenterPanel = new alertPanel()
+
 const source = new VectorSource();
 
 const vectorLayer = new VectorLayer({
@@ -178,12 +180,11 @@ async function loadFile(file) {
 }
 
 const dropZone = map.getTargetElement();
-const modification = {
+const yellowTemplate = {
     "background-color": "#FFD700",
     "color": "#000000"
 };
 const dragmessage = "Supported format : GeoJSONs, KMLs, zipped SHPs and GPKGs";
-const dragalert = new alertPanel(modification, dragmessage, 'top-center', 10);
 
 let dragCounterMap = 0;
 
@@ -193,7 +194,7 @@ dropZone.addEventListener('dragenter', e => {
     dragCounterMap=1;
     console.log('dragenter', dragCounterMap);
     if (dragCounterMap === 1) {
-        dragalert.Alerting();
+        topCenterPanel.alerting(yellowTemplate, dragmessage,10);
         dropZone.classList.add("highlight");
     }
 });
@@ -209,7 +210,7 @@ dropZone.addEventListener('dragleave', e => {
     dragCounterMap=0;
     console.log('dragleave', dragCounterMap);
     if (dragCounterMap === 0) {
-        dragalert.dropModification();
+        topCenterPanel.dropModification();
         dropZone.classList.remove("highlight");
     }
 });
@@ -219,7 +220,7 @@ dropZone.addEventListener('drop', async e => {
     e.stopPropagation();
     dragCounterMap = 0; // Reset forcé
     console.log('drop - reset counter');
-    dragalert.dropModification();
+    topCenterPanel.dropModification();
     dropZone.classList.remove("highlight");
 
     if (e.dataTransfer.files.length > 0) {

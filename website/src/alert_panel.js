@@ -1,48 +1,39 @@
 class alertPanel {
-    static instances = [];
-    constructor(modification, message, htmlElement = 'top-center', duration = 0) {
-        this.modification = modification;
-        this.message = message;
-        this.pageComponent = document.getElementById(htmlElement);
+
+    constructor(htmlElementId = 'top-center') {
+        this.pageComponent = document.getElementById(htmlElementId);
+        this.getOriginalContent();
+    }
+
+    getOriginalContent() {
         this.originalContent = this.pageComponent.innerText;
-        this.duration = duration;
-        this.isActive = false;
-
-        alertPanel.instances.push(this);
-    }
-
-    Alerting() {
-        this.pageComponent.innerText = this.message;
-        for (const [key, value] of Object.entries(this.modification)) {
-            this.pageComponent.style.setProperty(key, value);
-
+        this.originalStyle = this.pageComponent.style.cssText;
         }
-        if (this.duration > 0) {this.dropModification(this.duration)}
-    }
 
-    dropModification(duration) {
-        if (duration > 0) {
-            setTimeout(() => {
-                this.pageComponent.innerText = this.originalContent;
-                for (const key of Object.keys(this.modification)) {
-                    this.pageComponent.style.removeProperty(key);
-                }
-            }, this.duration * 1000);
-        } else {
+    dropModification(fadingTime=0) {
+        const restore = () => {
             this.pageComponent.innerText = this.originalContent;
-            for (const key of Object.keys(this.modification)) {
-                this.pageComponent.style.removeProperty(key);
-            }
+            this.pageComponent.style.cssText = this.originalStyle.cssText;
+        };
+        if (fadingTime > 0) {
+            setTimeout(restore, fadingTime * 1000);
         }
-        this.isActive = false;
+        else {restore();}
     }
-    static resetAll() {
-        alertPanel.instances.forEach(instance => {
-            if (instance.isActive) {
-                instance.dropModification();
-            }
-        });
+
+    alerting(modification = {}, message = null, duration = 0) {
+
+        if (modification !== {}) {
+            for (const [key, value] of Object.entries(modification)) {
+                this.pageComponent.style.setProperty(key, value);
+            }}
+
+        if (message) {
+            this.pageComponent.innerText = message;
+        }
+
+        if (duration > 0) {this.dropModification(duration)}
     }
-    }
+}
 
 export default alertPanel;
