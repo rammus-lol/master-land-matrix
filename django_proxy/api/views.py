@@ -61,8 +61,6 @@ def geom(request):
         # Convert to Geodataframe : filter json|point->transform into circle->combine into geodataframe of polygons
         #                                      |polygon->do nothing
         query = gpd.GeoDataFrame(props, geometry=geoms, crs="EPSG:3857")
-        print("GeoDataFrame reçu :")
-        print(query, flush=True)
         test=query.get("radius")#->test if user asked for cicular form
         if test is not None:
             gdf_circle=query[query.geometry.geom_type == 'Point']
@@ -70,26 +68,27 @@ def geom(request):
             buffer=gdf_circle.buffer(gdf_circle['radius'])
             gdf_circle["geometry"]=buffer
             query=gpd.GeoDataFrame(pd.concat([gdf_circle,gdf_polygon],ignore_index=True),crs='EPSG:3857')
-        spatial_query=is_within(query)
-        export=spatial_query.to_json()
-        if spatial_query not in ("code_1","code_2"):
-            response={"status" : f"spatial selection sucessfull, number of found deal : {len(gdf)}",
+        spatial_query,number_of_deals=is_within(query)
+        try:
+            export=spatial_query.to_json()
+            response={"status" : f"Spatial selection successful. Number of deals found: {number_of_deals}",
                 'data':json.loads(export)}
             return JsonResponse(response,
             status=200
         )
-        elif spatial_query=="code_2":
-            return JsonResponse({"status": "No deal inside the provided shapes but some are near by"
-                                 ,"data": 0}, status=200)
-        else:
-            return JsonResponse({"status": "No deal found",
-                                 "data":0}, status=200)
+        except:
+            if spatial_query=="code_2":
+                return JsonResponse({"status": "No deal inside the provided shapes but some are near by"
+                                     ,"data": 0}, status=200)
+            else:
+                return JsonResponse({"status": "No deal found",
+                                     "data":0}, status=200)
     except Exception as e:
         print("Erreur dans geom :", e, flush=True)
         traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=500)
 def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
-              project : gpd.GeoDataFrame=point_ref)->gpd.GeoDataFrame | str:
+              project : gpd.GeoDataFrame=point_ref):
     """Spatial selection of deals and areas inside the polygons
     brought by user inside the frontend interface
     can return :
@@ -104,17 +103,7 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
     selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
     selected_projects.rename(columns={"admin_left":'admin'},inplace=True)
 
-    #First, we track deals inside the countries cover by the provided shapes with a COUNTRY accuracy.
-
-    filtered_regions_countries = set(filtered_regions["admin"])
-    country_project = project[
-        (project['admin'].str.strip().isin(filtered_regions_countries)) &
-        (project['level_of_accuracy'].str.strip() == 'COUNTRY')
-        ]
-    country_project['feature_type'] = 'point'#this column is for frontend displaying
-    export_list.append(country_project)
-
-    #Second, we search for areas crossing the provided shapes
+    #First,we search for areas crossing the provided shapes.
 
     def region_checker(region_list : list,region_id_list : list):
         bool_list=[]
@@ -131,18 +120,25 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
     selected_areas['feature_type'] = 'areas'
     export_list.append(selected_areas)
     if selected_projects.empty and selected_areas.empty:
-        return "code_1"
+        return "code_1",0
 
-    #Third we treat other deals and we draw a buffer around them based on the attributes 'deal_size'.
-
-    if not selected_areas.empty:
+    else:
+        # Second, we track deals inside the countries cover by the provided shapes with a COUNTRY accuracy.
+        filtered_regions_countries = set(filtered_regions["admin"])
+        country_project = project[
+            (project['admin'].str.strip().isin(filtered_regions_countries)) &
+            (project['level_of_accuracy'].str.strip() == 'COUNTRY')
+            ]
+        country_project['feature_type'] = 'point'  # this column is for frontend displaying
+        export_list.append(country_project)
+        # Third we treat other deals, and we draw a buffer around them based on the attributes 'deal_size'.
         accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
         points_inaccurate = selected_projects[~selected_projects["level_of_accuracy"].isin(accurate_points)]
         point_inside = gpd.sjoin(selected_projects, research, how='inner').drop(columns=["id_right","index_right"],errors="ignore")
-        final_points= gpd.GeoDataFrame(pd.concat([points_inaccurate, point_inside])).drop_duplicates(
+        final_points= gpd.GeoDataFrame(pd.concat([points_inaccurate, point_inside, country_project],ignore_index=True)).drop_duplicates(
             subset='geometry')
         if final_points.empty:
-            return "code_2"
+            return "code_2",0
         area = final_points["deal_size"].replace(0, 2000000)
         buffer_geoms = final_points["geometry"].buffer(
             np.sqrt( area*10000/ np.pi) #formula for finding radius with area
@@ -154,8 +150,9 @@ def is_within(research : gpd.GeoDataFrame,region : gpd.GeoDataFrame=polygon_ref,
         buffers['geometry'] = buffer_geoms
         buffers['feature_type'] = 'buffer'
         export_list.append(buffers)
+        number_of_deals = len(selected_areas)+len(final_points)
     combined = gpd.GeoDataFrame(
         pd.concat(export_list, ignore_index=True),
         crs='EPSG:3857'
     ).drop_duplicates(subset='geometry')
-    return combined
+    return combined,number_of_deals
