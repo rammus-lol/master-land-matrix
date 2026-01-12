@@ -15,7 +15,8 @@
   <div class="top-bar">
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
-    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo">
+      <!-- when clicking on the logo redirect to the home page -->
+    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -33,7 +34,7 @@
     <div class="main-content">
       <div id="map"></div>
         <div id="layer-switcher-btn" class="layer-switcher-btn">
-    <img src="https://cdn-icons-png.flaticon.com/512/2377/2377846.png" alt="Layers" width="24" height="24">
+    <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
   </div>
 
   <!-- Layer Modal -->
@@ -61,6 +62,8 @@
 
     <!-- ----------- SIDE PANEL ----------- -->
     <div class="side-panel">
+      <!-- button for the toggle of the div side-panel -->
+      <button class="panel-toggle-btn" id="panelToggle" title="Toggle panel">‹</button> 
 
       <!-- Right-group: dropzone + load -->
       <div class="right-group">
@@ -74,12 +77,21 @@
 
       <!-- Drawing tools -->
       <div class="left-group">
-      <select class="form-select" id="type">
-        <option value="None">Select your drawing tool </option>
-        <option value="Polygon">Polygon</option>
-        <option value="Circle">Circle</option>
-        <option value="Point">Known point</option>
-      </select>
+        <h5 class="text-center mb-2">Drawing Tools</h5>
+        <div class="drawing-tools-buttons">
+          <button class="btn btn-tool" data-type="Polygon" title="Draw a polygon">
+            <img src="../images/polygone.png" alt="Polygon" width="20" height="20">
+            <span>Polygon</span>
+          </button>
+          <button class="btn btn-tool" data-type="Circle" title="Draw a circle">
+            <img src="../images/cercle.png" alt="Circle" width="20" height="20">
+            <span>Circle</span>
+          </button>
+          <button class="btn btn-tool" data-type="Point" title="Known point location">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <span>Known Point</span>
+          </button>
+        </div>
       </div>
 
       <div class="left-group mt-2">
@@ -114,9 +126,9 @@
         <input type="number" id="kp_lat" step="0.000001">
 
         <label>Radius (meters):</label>
-        <input type="number" id="kp_radius" step="1">
+        <input type="number" id="kp_radius" step="1" style="margin-bottom: 5%;">
 
-        <button class="btn btn-primary mt-2" id="kp_draw">Draw circle</button>
+        <button class="btn-tool" id="kp_draw">Draw circle</button>
       </div>
       <!-- <div id="basemap-section">
     <h5>Base map</h5>
