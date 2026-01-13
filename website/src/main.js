@@ -17,6 +17,7 @@ import LayerSwitcherModal from './modal.js';
 import AlertPanel from "./alert_panel.js";
 import loadGpkg from 'ol-load-geopackage';
 import * as url from "node:url";
+import { initializePopup } from './popup.js';
 
 // API Base URL - change for production/development
 const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -58,6 +59,9 @@ const map = new Map({
     zoom: 10,
   }),
 });
+
+// Initialize popup overlay
+initializePopup(map);
 
 let draw;
 let currentDrawType = null;
@@ -590,3 +594,4 @@ panelToggleBtn.addEventListener('click', () => {
         map.updateSize();
     }, 300);
 });
+
