@@ -1,5 +1,71 @@
 import Overlay from 'ol/Overlay';
 
+// Cache for popup template
+let popupTemplate = null;
+
+// Mapping for accuracy display
+const ACCURACY_LABELS = {
+  'APPROXIMATE_LOCATION': 'Approximate location',
+  'EXACT_LOCATION': 'Exact location',
+  'COORDINATES': 'Coordinates',
+  'COUNTRY': 'Country',
+  'ADMINISTRATIVE_REGION': 'Administrative region'
+};
+
+/**
+ * Format intention data (array or string)
+ */
+function formatIntention(intention) {
+  if (!intention) return 'N/A';
+  
+  // Parse if it's a stringified array
+  let data = intention;
+  if (typeof intention === 'string' && intention.startsWith('[')) {
+    try {
+      data = JSON.parse(intention.replace(/'/g, '"'));
+    } catch (e) {
+      return intention.replace(/_/g, ' ');
+    }
+  }
+  
+  // Format array items
+  if (Array.isArray(data)) {
+    return data
+      .map(item => item.replace(/_/g, ' ').toLowerCase())
+      .map(item => item.charAt(0).toUpperCase() + item.slice(1))
+      .join(', ');
+  }
+  
+  return data.replace(/_/g, ' ');
+}
+
+/**
+ * Format deal size with proper units
+ */
+function formatDealSize(dealSize) {
+  if (!dealSize || dealSize === 'N/A') return 'N/A';
+  if (dealSize === 0 || dealSize === '0.0') return 'Not specified';
+  
+  const size = typeof dealSize === 'number' ? dealSize : parseFloat(dealSize);
+  return !isNaN(size) && size > 0 ? `${size.toLocaleString()} ha` : 'N/A';
+}
+
+/**
+ * Load popup template from HTML file
+ */
+async function loadPopupTemplate() {
+  if (!popupTemplate) {
+    try {
+      const response = await fetch('/src/popup-content.html');
+      popupTemplate = await response.text();
+    } catch (error) {
+      console.error('Error loading popup template:', error);
+      popupTemplate = '<div class="popup-deal-title">Deal #{{dealId}}</div><p>Error loading template</p>';
+    }
+  }
+  return popupTemplate;
+}
+
 /**
  * Initialize and configure the popup overlay for displaying deal information
  * @param {Map} map - The OpenLayers map instance
@@ -30,112 +96,45 @@ export function initializePopup(map) {
   };
 
   // Add click handler to display popup on feature click
-  map.on('click', function (evt) {
-    const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-      return feature;
-    });
+  map.on('click', async function (evt) {
+    const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
 
-    if (feature) {
-      const properties = feature.getProperties();
-      
-      // Only show popup for result features (those with deal data)
-      if (properties.deal_id || properties.id) {
-        const coordinate = evt.coordinate;
-        
-        // Build popup content
-        const dealId = properties.deal_id || properties.id || 'N/A';
-        const accuracy = properties.level_of_accuracy || 'N/A';
-        
-        // Handle intention - can be an array or stringified array
-        let intention = 'N/A';
-        if (properties.intention) {
-          let intentionData = properties.intention;
-          
-          // If it's a string that looks like an array, parse it
-          if (typeof intentionData === 'string' && intentionData.startsWith('[')) {
-            try {
-              intentionData = JSON.parse(intentionData.replace(/'/g, '"'));
-            } catch (e) {
-              console.log('Could not parse intention:', intentionData);
-            }
-          }
-          
-          // Format the intention
-          if (Array.isArray(intentionData)) {
-            intention = intentionData
-              .map(item => item.replace(/_/g, ' ').toLowerCase())
-              .map(item => item.charAt(0).toUpperCase() + item.slice(1))
-              .join(', ');
-          } else {
-            intention = intentionData.replace(/_/g, ' ');
-          }
-        }
-        
-        const dealSize = properties.deal_size || 'N/A';
-        const facilityName = properties.facility_name || properties.name || null;
-        
-        // Format accuracy level to be more readable
-        let accuracyDisplay = accuracy;
-        if (accuracy === 'APPROXIMATE_LOCATION') {
-          accuracyDisplay = 'Approximate location';
-        } else if (accuracy === 'EXACT_LOCATION') {
-          accuracyDisplay = 'Exact location';
-        } else if (accuracy === 'COORDINATES') {
-          accuracyDisplay = 'Coordinates';
-        } else if (accuracy === 'COUNTRY') {
-          accuracyDisplay = 'Country';
-        }
-        // ADMINISTRATIVE_REGION
-        else if (accuracy === 'ADMINISTRATIVE_REGION') {
-          accuracyDisplay = 'Administrative region';
-        }
-        
-        // Format deal size
-        let dealSizeDisplay = dealSize;
-        if (typeof dealSize === 'number' && dealSize > 0) {
-          dealSizeDisplay = `${dealSize.toLocaleString()} ha`;
-        } else if (dealSize === 0 || dealSize === '0.0') {
-          dealSizeDisplay = 'Not specified';
-        } else if (dealSize !== 'N/A') {
-          dealSizeDisplay = `${dealSize} ha`;
-        }
-        
-        content.innerHTML = `
-          <div class="popup-deal-title">Deal #${dealId}</div>
-          
-          <div class="popup-field">
-            <div class="popup-field-label">Spatial accuracy level</div>
-            <div class="popup-field-value">${accuracyDisplay}</div>
-          </div>
-          
-          <div class="popup-field">
-            <div class="popup-field-label">Current intention of investment</div>
-            <div class="popup-field-value">
-              ${intention}
-            </div>
-          </div>
-          
-          <div class="popup-field">
-            <div class="popup-field-label">Deal size</div>
-            <div class="popup-field-value">${dealSizeDisplay}</div>
-          </div>
-          
-          ${facilityName ? `
-          <div class="popup-field">
-            <div class="popup-field-label">Facility / Area name</div>
-            <div class="popup-field-value" style="color: #fc941d;">${facilityName}</div>
-          </div>
-          ` : ''}
-          
-          <button class="popup-more-btn" onclick="window.open('https://landmatrix.org/deal/${dealId}/locations/', '_blank')">More details</button>
-        `;
-        
-        overlay.setPosition(coordinate);
-      }
-    } else {
-      // Close popup if clicking on empty area
+    if (!feature) {
       overlay.setPosition(undefined);
+      return;
     }
+
+    const properties = feature.getProperties();
+    const dealId = properties.deal_id || properties.id;
+    
+    // Only show popup for result features (those with deal data)
+    if (!dealId) return;
+
+    // Extract and format properties
+    const accuracy = properties.level_of_accuracy || 'N/A';
+    const accuracyDisplay = ACCURACY_LABELS[accuracy] || accuracy;
+    const intention = formatIntention(properties.intention);
+    const dealSizeDisplay = formatDealSize(properties.deal_size);
+    const facilityName = properties.facility_name || properties.name;
+    
+    // Build facility name section if it exists
+    const facilityNameSection = facilityName ? `
+      <div class="popup-field">
+        <div class="popup-field-label">Facility / Area name</div>
+        <div class="popup-field-value" style="color: #fc941d;">${facilityName}</div>
+      </div>
+    ` : '';
+    
+    // Load template and populate content
+    const template = await loadPopupTemplate();
+    content.innerHTML = template
+      .replace(/{{dealId}}/g, dealId)
+      .replace(/{{accuracyDisplay}}/g, accuracyDisplay)
+      .replace(/{{intention}}/g, intention)
+      .replace(/{{dealSizeDisplay}}/g, dealSizeDisplay)
+      .replace(/{{facilityNameSection}}/g, facilityNameSection);
+    
+    overlay.setPosition(evt.coordinate);
   });
 
   return overlay;

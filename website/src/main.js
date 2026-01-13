@@ -18,6 +18,7 @@ import AlertPanel from "./alert_panel.js";
 import loadGpkg from 'ol-load-geopackage';
 import * as url from "node:url";
 import { initializePopup } from './popup.js';
+import { initializeLegend, showLegend } from './legend.js';
 
 // API Base URL - change for production/development
 const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -62,6 +63,9 @@ const map = new Map({
 
 // Initialize popup overlay
 initializePopup(map);
+
+// Initialize legend
+initializeLegend(map);
 
 let draw;
 let currentDrawType = null;
@@ -489,10 +493,14 @@ document.getElementById('export').addEventListener('click', async () => {
         // New layer
         resultLayer = new VectorLayer({
             source: resultSource,
-            style: resultStyle
+            style: resultStyle,
+            name: 'results'  // Mark layer for legend detection
         });
 
         map.addLayer(resultLayer);
+        
+        // Show legend when results are displayed
+        showLegend();
 
         // Automatic zoom on results (don't think it's good)
         map.getView().fit(resultSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
