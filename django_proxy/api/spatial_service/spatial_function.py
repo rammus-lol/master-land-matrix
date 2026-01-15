@@ -3,7 +3,11 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from django.conf import settings
-
+"""Spatial processing of data sqlless using geopandas it can return
+-A GeoDataFrame comporting evry shapes you need to bring back to frontend.
+-code_1 their is no deals in the entier country.
+-code_2 the processing find deals in the administrative regions crossing the polygons provided 
+but is certain their is no one inside this polygons or any deals with APPROXIMATE_LOCATION near by."""
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
