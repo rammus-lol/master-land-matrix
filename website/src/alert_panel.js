@@ -17,7 +17,7 @@ class AlertPanel {
         }
         const restore = () => {
             this.pageComponent.innerText = this.originalContent;
-            this.pageComponent.style.cssText = this.originalStyle;  // ✅ String, pas objet
+            this.pageComponent.style.cssText = this.originalStyle;
         };
         if (fadingTime > 0) {
            this.alertTimeOut = setTimeout(restore, fadingTime * 1000);
