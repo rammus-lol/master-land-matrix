@@ -74,6 +74,7 @@ def geom_constructor(query):
     final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals)
     if final_deals.empty:
         return "code_2", 0
+    filtered_regions['feature_type'] = 'administrative_region'# I modify this files here because this way sjoin wouldn't break things
     nb_deals = len(final_areas)+len(final_deals)
     buffers= final_deals.copy()
     area = final_deals["deal_size"].replace(0, 2000000)
@@ -81,7 +82,7 @@ def geom_constructor(query):
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     buffers["geometry"] = buffers_geoms
     buffers['feature_type'] = 'buffer'
-    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas]
+    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
 
