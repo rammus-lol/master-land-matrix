@@ -51,7 +51,7 @@ def final_filtering(query, regions, projects, selected_projects):
 
     final_projects = (gpd.GeoDataFrame(
         pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
-        .drop_duplicates(subset='nid'))
+        .drop_duplicates())
 
     final_projects['feature_type'] = 'point'
     return final_projects
@@ -62,9 +62,9 @@ REGIONS = gpd.read_file(
     settings.BASE_DIR.parent / "django_proxy" / "data" / "world_region_light.gpkg")
 AREAS = gpd.read_file(
     settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg")
-# DEALS = gpd.read_file(Path("..") / "data" / "deals.gpkg")
-# REGIONS = gpd.read_file(Path("..") / "data" / "world_region_light.gpkg") #for testing locally
-# AREAS = gpd.read_file(Path("..") / "data" / "areas.gpkg")
+# DEALS = gpd.read_file((Path("..")/ ".." / "django_proxy" / "data" / "deals.gpkg"))
+# REGIONS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "world_region_light.gpkg") #for testing locally
+# AREAS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "areas.gpkg")
 
 def geom_constructor(query):
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
@@ -74,6 +74,7 @@ def geom_constructor(query):
     final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals)
     if final_deals.empty:
         return "code_2", 0
+    filtered_regions['feature_type'] = 'administrative_region'# I modify this files here because this way sjoin wouldn't break things
     nb_deals = len(final_areas)+len(final_deals)
     buffers= final_deals.copy()
     area = final_deals["deal_size"].replace(0, 2000000)
@@ -81,9 +82,10 @@ def geom_constructor(query):
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     buffers["geometry"] = buffers_geoms
     buffers['feature_type'] = 'buffer'
-    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas]
+    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
+
 
 
 

@@ -4,14 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import geopandas as gpd
 import pandas as pd
-import numpy as np
 from shapely.geometry import shape
 import traceback
 from pathlib import Path
 from django.conf import settings
 from land_matrix_function import export
 from api.spatial_service.spatial_function import  geom_constructor
-import time as t
+# import time as t
 # test = gpd.read_file(Path("..") / "data" / "polygone_test.geojson") #works only for dev on my computer
 @csrf_exempt
 def generic_proxy(request, endpoint):
@@ -41,7 +40,6 @@ def generic_proxy(request, endpoint):
             {'error': str(e)},
             status=500
         )
-@csrf_exempt
 def geom(request):
     """Receive the calling from frontend
     and clean it for spatial querying
@@ -53,10 +51,10 @@ def geom(request):
         geoms = [shape(f["geometry"]) for f in geojson["features"]]
         props = [f.get("properties") or {} for f in geojson["features"]]
 
-        # Convert to GeoDataFrame : filter json|point->transform into circle->combine into geodataframe of polygons
+        # Convert to GeoDataFrame : filter JSON|point->transform into circle->combine into GeoDataFrame of polygons
         #                                      |polygon->do nothing
         query = gpd.GeoDataFrame(props, geometry=geoms, crs="EPSG:3857")
-        test=query.get("radius")#->test if user asked for cicular form
+        test=query.get("radius")#->test if user asked for circular form
         if test is not None:
             gdf_circle=query[query.geometry.geom_type == 'Point']
             gdf_polygon=query[query.geometry.geom_type != 'Point']
@@ -79,9 +77,6 @@ def geom(request):
                                 status=200
                                 )
     except Exception as e:
-        print("Erreur dans geom :", e, flush=True)
+        print("error in geom api querying :", e, flush=True)
         traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=500)
-
-
-
