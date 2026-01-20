@@ -1,0 +1,22 @@
+<div class="popup-deal-title">Deal #{{dealId}}</div>
+
+<div class="popup-field">
+  <div class="popup-field-label">Spatial accuracy level</div>
+  <div class="popup-field-value">{{accuracyDisplay}}</div>
+</div>
+
+<div class="popup-field">
+  <div class="popup-field-label">Current intention of investment</div>
+  <div class="popup-field-value">
+    {{intention}}
+  </div>
+</div>
+
+<div class="popup-field">
+  <div class="popup-field-label">Deal size</div>
+  <div class="popup-field-value">{{dealSizeDisplay}}</div>
+</div>
+
+{{facilityNameSection}}
+
+<button class="popup-more-btn" onclick="window.open('https://landmatrix.org/deal/{{dealId}}/locations/', '_blank')">More details</button>

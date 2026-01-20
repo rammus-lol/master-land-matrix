@@ -1,0 +1,110 @@
+/* Popup overlay styling */
+.ol-popup {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+    min-width: 280px;
+    max-width: 350px;
+}
+
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}
+
+.ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 20px;
+    color: #666;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.ol-popup-closer:after {
+    content: "✖";
+}
+
+.ol-popup-closer:hover {
+    color: #000;
+}
+
+#popup-content {
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.popup-deal-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #000;
+}
+
+.popup-field {
+    margin-bottom: 12px;
+}
+
+.popup-field-label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 2px;
+}
+
+.popup-field-value {
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.popup-field-value svg {
+    width: 16px;
+    height: 16px;
+}
+
+.popup-more-btn {
+    background-color: #fc941d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.popup-more-btn:hover {
+    background-color: #e67e0a;
+}
