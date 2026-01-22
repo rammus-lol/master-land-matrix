@@ -124,7 +124,7 @@ html, body {
 
 .side-panel.collapsed .panel-toggle-btn {
     right: 0;
-    border-radius: 8px 0 0 8px;
+    /*border-radius: 8px 0 0 8px;*/
 }
 
 .panel-toggle-btn:hover {
@@ -190,6 +190,23 @@ html, body {
     z-index: 1000;
 }
 
+.scale-line-container {
+    position: absolute;
+    bottom: 12px;
+    left: 100px;
+    z-index: 2005;
+}
+
+.scale-line-container .ol-scale-line-inner {
+    border: 1px solid #000000;
+    border-top: none;
+    color: #000000;
+    font-size: 15px;
+    text-align: center;
+    margin: 1px;
+    will-change: contents, width;
+    /*background-color: rgba(0, 60, 136, 0.3); !* Un fond pour mieux voir *!*/
+}
 
 #known-point-panel {
     padding: 10px;

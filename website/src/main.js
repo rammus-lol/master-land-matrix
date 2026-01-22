@@ -15,6 +15,7 @@ import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import LayerSwitcherModal from './modal.js';
 import AlertPanel from "./alert_panel.js";
+import {defaults as defaultControls,ScaleLine} from 'ol/control';
 import loadGpkg from 'ol-load-geopackage';
 import * as url from "node:url";
 import { initializePopup } from './popup.js';
@@ -28,6 +29,15 @@ const API_BASE_URL = 'https://landmatrix.artxypro.org';
 const topCenterPanel = new AlertPanel()
 
 const source = new VectorSource();
+
+
+const scaleControl = new ScaleLine({
+    className: 'ol-scale-line',
+    target: document.getElementById('scale-line-container'),
+});
+
+const controls = defaultControls().extend([scaleControl]);
+
 
 const vectorLayer = new VectorLayer({
   source: source,
@@ -48,6 +58,7 @@ const vectorLayer = new VectorLayer({
   }),
 });
 const map = new Map({
+    controls: controls,
   target: 'map',
   layers: [
     new TileLayer({
@@ -93,9 +104,10 @@ toolButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const type = btn.getAttribute('data-type');
     const kpPanel = document.getElementById('known-point-panel');
-    
+
     // Toggle active state
     toolButtons.forEach(b => b.classList.remove('active'));
+
     
     if (currentDrawType === type) {
       // Deactivate if clicking the same tool
@@ -463,21 +475,36 @@ document.getElementById('export').addEventListener('click', async () => {
         features: new GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
     const resultStyle = (feature) => {
         const props = feature.getProperties();
-        const precision = props.level_of_accuracy || "";
-
-
-        const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
-
-        const isOrange = orangeList.includes(precision);
-
-        const strokeColor = isOrange ? "#fc941d" : "#43b6b5";
-        const fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
-        const pointColor = strokeColor;
+        const featureType = props["feature_type"];
+        let precision = props.level_of_accuracy || "";
+        let orangeList = "";
+        let isOrange = "";
+        let strokeColor = "";
+        let fillColor = "";
+        let pointColor = "";
+        let widthAdministrativeRegion = "";
+        if (featureType === 'point' || featureType === 'buffer') {
+            precision = props.level_of_accuracy || "";
+            orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
+            isOrange = orangeList.includes(precision);
+            strokeColor = isOrange ? "#fc941d" : "#43b6b5";
+            fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
+            pointColor = strokeColor;
+        }
+        else if (featureType === 'areas') {
+            strokeColor = "#000000";
+            fillColor = "rgba(252, 148, 29, 0.5)";
+        }
+        else if (featureType === 'administrative_region') {
+            strokeColor = '#000000';
+            fillColor = "rgba(0,0,0,0)";
+            widthAdministrativeRegion = 0.5;
+        }
 
         return new Style({
             stroke: new Stroke({
                 color: strokeColor,
-                width: 2
+                width: widthAdministrativeRegion || 2,
             }),
             fill: new Fill({
                 color: fillColor
@@ -595,8 +622,8 @@ const sidePanel = document.querySelector('.side-panel');
 
 panelToggleBtn.addEventListener('click', () => {
     sidePanel.classList.toggle('collapsed');
-    panelToggleBtn.innerHTML = sidePanel.classList.contains('collapsed') ? '›' : '‹';
-    
+    panelToggleBtn.innerHTML = sidePanel.classList.contains('collapsed') ?  '‹':'›' ;
+
     // Force the update for the OpenLayers maps if not the panel space stay empty
     setTimeout(() => {
         map.updateSize();

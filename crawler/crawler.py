@@ -6,7 +6,7 @@ from copy import deepcopy
 import traceback
 from pathlib import Path
 def deal_dict(deal : dict):
-    """Summarize a deal into a smaller dict well fitted for spatial querying"""
+    """Summarize a deal into a smaller dict well-fitted for spatial querying"""
     return {"id":deal["id"],"deal_size":deal['selected_version']['deal_size'],
             "intention":deal["selected_version"]["current_intention_of_investment"]}
 def geom_from_list(report_list,row_deal,location : list,index : int=0):

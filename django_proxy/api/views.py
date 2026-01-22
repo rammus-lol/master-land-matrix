@@ -10,7 +10,7 @@ from pathlib import Path
 from django.conf import settings
 from land_matrix_function import export
 from api.spatial_service.spatial_function import  geom_constructor
-# import time as t
+import time as t
 # test = gpd.read_file(Path("..") / "data" / "polygone_test.geojson") #works only for dev on my computer
 @csrf_exempt
 def generic_proxy(request, endpoint):
@@ -40,6 +40,7 @@ def generic_proxy(request, endpoint):
             {'error': str(e)},
             status=500
         )
+@csrf_exempt
 def geom(request):
     """Receive the calling from frontend
     and clean it for spatial querying
@@ -62,20 +63,19 @@ def geom(request):
             gdf_circle["geometry"]=buffer
             query=gpd.GeoDataFrame(pd.concat([gdf_circle,gdf_polygon],ignore_index=True),crs='EPSG:3857')
         spatial_query,number_of_deals=geom_constructor(query)
-
-        if spatial_query=="code_2":
-            return JsonResponse({"status": "No deal inside the provided shapes but some are near by"
-                                 ,"data": 0}, status=200)
-        elif spatial_query=="code_1":
-            return JsonResponse({"status": "No deal found",
-                                 "data":0}, status=200)
+        if type(spatial_query) is str:
+            if spatial_query=="code_2":
+                return JsonResponse({"status": "No deal inside the provided shapes but some are near by"
+                                     ,"data": 0}, status=200)
+            elif spatial_query=="code_1":
+                return JsonResponse({"status": "No deal found",
+                                     "data":0}, status=200)
         else:
             export = spatial_query.to_json()
             response = {"status": f"Spatial selection successful. Number of deals found: {number_of_deals}",
                         'data': json.loads(export)}
-            return JsonResponse(response,
-                                status=200
-                                )
+            return JsonResponse(response,status=200)
+
     except Exception as e:
         print("error in geom api querying :", e, flush=True)
         traceback.print_exc()
