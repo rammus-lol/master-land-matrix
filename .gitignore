@@ -1,0 +1,10 @@
+# Virtual environments
+.venv/
+venv/
+env/
+node_modules/
+django_proxy/data/
+
+# Dependencies
+*.pyc
+__pycache__/

@@ -108,6 +108,7 @@ toolButtons.forEach(btn => {
     // Toggle active state
     toolButtons.forEach(b => b.classList.remove('active'));
 
+    
     if (currentDrawType === type) {
       // Deactivate if clicking the same tool
       addInteraction(null);
@@ -116,7 +117,7 @@ toolButtons.forEach(btn => {
       // Activate new tool
       btn.classList.add('active');
       addInteraction(type);
-
+      
       // Show/hide known point panel
       if (type === 'Point') {
         kpPanel.style.display = 'block';
@@ -130,8 +131,8 @@ toolButtons.forEach(btn => {
 
 document.getElementById('undo').addEventListener('click', function () {
     if (!draw) return;
-
-    const type = draw.type_ || currentDrawType;
+    
+    const type = draw.type_ || currentDrawType; 
     // If the selected tool is known point or circle erase the last drawed feature
     if (['Circle', 'Point'].includes(type)) {
       const features = source.getFeatures();
