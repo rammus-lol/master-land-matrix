@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.7.0/ol.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="../src/maps.css" />
+  <link rel="stylesheet" href="../src/popup.css" />
+  <link rel="stylesheet" href="../src/legend.css" />
   <link rel="stylesheet" href="../src/fond.css" />
 </head>
 
@@ -15,7 +17,8 @@
   <div class="top-bar">
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
-    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo">
+      <!-- when clicking on the logo redirect to the home page -->
+    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -32,8 +35,16 @@
     <!-- ---------- MAIN CONTENT PANEL ----------- -->
     <div class="main-content">
       <div id="map"></div>
+      <div id="scale-line-container" class="scale-line-container"></div>
+
+
+      <!-- Popup overlay for deal information -->
+      <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content"></div>
+      </div>
         <div id="layer-switcher-btn" class="layer-switcher-btn">
-    <img src="https://cdn-icons-png.flaticon.com/512/2377/2377846.png" alt="Layers" width="24" height="24">
+    <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
   </div>
 
   <!-- Layer Modal -->
@@ -61,6 +72,8 @@
 
     <!-- ----------- SIDE PANEL ----------- -->
     <div class="side-panel">
+      <!-- button for the toggle of the div side-panel -->
+      <button class="panel-toggle-btn" id="panelToggle" title="Toggle panel">›</button>
 
       <!-- Right-group: dropzone + load -->
       <div class="right-group">
@@ -74,12 +87,21 @@
 
       <!-- Drawing tools -->
       <div class="left-group">
-      <select class="form-select" id="type">
-        <option value="None">Select your drawing tool </option>
-        <option value="Polygon">Polygon</option>
-        <option value="Circle">Circle</option>
-        <option value="Point">Known point</option>
-      </select>
+        <h5 class="text-center mb-2">Drawing Tools</h5>
+        <div class="drawing-tools-buttons">
+          <button class="btn btn-tool" data-type="Polygon" title="Draw a polygon">
+            <img src="../images/polygone.png" alt="Polygon" width="20" height="20">
+            <span>Polygon</span>
+          </button>
+          <button class="btn btn-tool" data-type="Circle" title="Draw a circle">
+            <img src="../images/cercle.png" alt="Circle" width="20" height="20">
+            <span>Circle</span>
+          </button>
+          <button class="btn btn-tool" data-type="Point" title="Known point location">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <span>Known Point</span>
+          </button>
+        </div>
       </div>
 
       <div class="left-group mt-2">
@@ -114,104 +136,10 @@
         <input type="number" id="kp_lat" step="0.000001">
 
         <label>Radius (meters):</label>
-        <input type="number" id="kp_radius" step="1">
+        <input type="number" id="kp_radius" step="1" style="margin-bottom: 5%;">
 
-        <button class="btn btn-primary mt-2" id="kp_draw">Draw circle</button>
+        <button class="btn-tool" id="kp_draw">Draw circle</button>
       </div>
-      <!-- <div id="basemap-section">
-    <h5>Base map</h5>
-
-    <label class="basemap-option">
-        <input type="radio" name="basemap" value="osm" checked>
-        <span class="radio-custom"></span>
-        OpenStreetMap
-    </label>
-
-    <label class="basemap-option">
-        <input type="radio" name="basemap" value="terrain">
-        <span class="radio-custom"></span>
-        Stamen Terrain
-    </label>
-      </div>
-    </div>
-  </div> -->
-  <!-- <div class="h-full w-full overflow-y-auto p-2 lg:p-3">
-    <h2 class="heading5">About this map</h2> 
-    <p class="text-gray italic">Placeholder</p> 
-    <h2 class="heading5">Land Matrix deals</h2> 
-    <button type="button" class="absolute top-[calc(50%-100px)] -right-5 cursor-pointer svelte-dra7gd flipped">
-      <svg viewBox="0 0 2 20" width="20px" class="text-black/80">
-        <path d="M0,0 L2,2 L2,18 L0,20z" fill="hsl(32, 97%, 55%)"></path>
-        <text x="0.3" y="11" fill="white" style="font-size:4px">‹</text>
-      </svg>
-    </button><h3 class="subtitle1">Deals</h3> 
-    <ul class="mb-6">
-      <li>
-        <label class="block">
-          <input type="radio" class="radio-btn" name="lm-map-deals-layer" value="base">
-          Deals location
-        </label>
-      </li>
-      <li>
-        <label class="block">
-          <input type="radio" class="radio-btn" name="lm-map-deals-layer" value="implementation_status">
-          Implementation status
-        </label>
-      </li>
-      <li>
-        <label class="block">
-          <input type="radio" class="radio-btn" name="lm-map-deals-layer" value="negotiation_status">
-          Negotiation status
-        </label>
-      </li>
-    </ul>
-    <h2 class="heading5">Context layers</h2> 
-    <ul class="mb-6">
-      <label class="block">
-        <input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="land_cover">
-        Land Cover
-      </label>
-      <label class="block"><input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="global_cropland">
-        Global Cropland
-      </label>
-      <label class="block"><input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="oil_palm_concessions_indonesia">
-        Oil palm concessions Indonesia
-      </label>
-      <label class="block"><input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="key_biodiversity_areas_philippines">
-        Key biodiversity areas, Philippines
-      </label>
-      <label class="block">
-        <input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="protected_areas_philippines">
-        Protected areas, Philippines
-      </label>
-      <label class="block">
-        <input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="indigenous_and_community_philippines">
-        Indigenous and community conserved area, Philippines
-      </label>
-      <label class="block">
-        <input type="checkbox" class="checkbox-btn" name="lm-map-context-layers" value="landmark_indigenous_lands_acknowledged_by_government_documented">
-        Indigenous lands acknowledged by government (documented)
-      </label>
-    </ul> 
-    <h2 class="heading5">Base layers</h2>
-    <ul class="mb-6">
-      <li>
-        <label class="block"><input type="radio" class="radio-btn" name="lm-map-base-layer" value="satellite">
-        Satellite
-        </label>
-      </li>
-      <li>
-        <label class="block"><input type="radio" class="radio-btn" name="lm-map-base-layer" value="map">
-          Map
-        </label>
-      </li>
-      <li>
-        <label class="block"><input type="radio" class="radio-btn" name="lm-map-base-layer" value="osm">
-          OSM
-        </label>
-      </li>
-    </ul>
-</div> -->
   <script type= "module" src="../src/main.js"></script>
   <script type= "module" src="../src/modal.js"></script>
 </body>

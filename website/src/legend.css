@@ -1,0 +1,176 @@
+/* Legend container */
+.map-legend {
+  position: fixed;
+  bottom: 20px;
+  right: 380px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  z-index: 1400;
+  max-width: 300px;
+  min-width: 250px;
+  transition: right 0.3s ease;
+}
+
+/* When panel is collapsed, move legend to the right */
+body:has(.side-panel.collapsed) .map-legend {
+  right: 60px;
+}
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #fc941d;
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.legend-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.legend-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.legend-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.legend-content {
+  padding: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.legend-section {
+  margin-bottom: 15px;
+}
+
+.legend-section:last-child {
+  margin-bottom: 0;
+}
+
+.legend-section h5 {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.legend-label {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Legend symbols */
+.legend-symbol {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend-orange {
+  background-color: rgba(252, 148, 29, 0.3);
+  border: 2px solid #fc941d;
+}
+
+.legend-teal {
+  background-color: rgba(67, 182, 181, 0.3);
+  border: 2px solid #43b6b5;
+}
+
+.legend-point {
+  background-color: #fc941d;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #fc941d;
+}
+
+.legend-buffer {
+  background-color: rgba(252, 148, 29, 0.2);
+  border: 2px dashed #fc941d;
+}
+
+.legend-area {
+  background-color: rgba(67, 182, 181, 0.3);
+  border: 2px solid #43b6b5;
+}
+
+/* Legend button */
+.legend-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 330px;
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1399;
+  transition: right 0.3s ease;
+}
+
+/* When panel is collapsed, move button to the right */
+body:has(.side-panel.collapsed) .legend-btn {
+  right: 60px;
+}
+
+.legend-btn:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.legend-btn.active {
+  background-color: #fc941d;
+  color: white;
+}
+
+.legend-btn.active svg {
+  stroke: white;
+}
+
+/* When legend is visible, hide the button */
+.map-legend[style*="display: block"] ~ .legend-btn {
+  display: none;
+}

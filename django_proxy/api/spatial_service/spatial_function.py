@@ -18,7 +18,10 @@ def which_regions(query, projects, regions):
     return selected_projects,filtered_regions
 
 def which_areas(query, regions, polygone_projects):
+
     def region_checker(region_list : list,region_id_list : list):
+        clean_string = region_list.strip('[]')
+        region_list = [item.strip("'") for item in clean_string.split(',')]
         bool_list=[]
         for region in region_list:
             if region in region_id_list:
@@ -30,7 +33,6 @@ def which_areas(query, regions, polygone_projects):
     regions_ids = list(regions["iso_3166_2"])
     filtered_areas = polygone_projects[
         polygone_projects["region_list"].apply(lambda x: region_checker(x, regions_ids))]
-
     selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["id_right","index_right"],errors="ignore")
     selected_areas.rename(columns={"id_left":"id"},inplace=True)
     selected_areas['feature_type'] = 'areas'
@@ -65,7 +67,6 @@ AREAS = gpd.read_file(
 # DEALS = gpd.read_file((Path("..")/ ".." / "django_proxy" / "data" / "deals.gpkg"))
 # REGIONS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "world_region_light.gpkg") #for testing locally
 # AREAS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "areas.gpkg")
-
 def geom_constructor(query):
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
