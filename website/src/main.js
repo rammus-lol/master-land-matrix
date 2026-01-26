@@ -1,36 +1,38 @@
 import './maps.css';
-import shp from 'shpjs';
 import Map from 'ol/Map';
 import View from 'ol/View.js';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
 import Draw from 'ol/interaction/Draw.js';
 import { fromLonLat,transform,get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
-import KML from 'ol/format/KML';
 import OSM from 'ol/source/OSM.js';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
+import {defaults as defaultControls,ScaleLine} from 'ol/control';
+import {sql_js_version} from 'ol-load-geopackage';
+
+//custom scripts
 import LayerSwitcherModal from './modal.js';
 import AlertPanel from "./alert_panel.js";
-import {defaults as defaultControls,ScaleLine} from 'ol/control';
-import loadGpkg from 'ol-load-geopackage';
-import * as url from "node:url";
 import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
+import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 
 // API Base URL - change for production/development
 const API_BASE_URL = 'https://landmatrix.artxypro.org';
 // const API_BASE_URL = 'http://localhost:8000';
-
-
+const sqlJsWasmDir = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/' + sql_js_version;
+let sqlInitializer=null;
 const topCenterPanel = new AlertPanel()
 
 const source = new VectorSource();
 
 
+
+//for the moment I keep the initialization at the beginning, if it's appear it's slows down the app for
 const scaleControl = new ScaleLine({
     className: 'ol-scale-line',
     target: document.getElementById('scale-line-container'),
@@ -153,86 +155,6 @@ function clearMap() {
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 
-//  loading file function
-async function loadFile(file) {
-    if (!file) return;
-
-    const fileName = file.name.toLowerCase();
-    let features = [];
-    try {
-        if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
-            const text = await file.text();
-            features = new GeoJSON().readFeatures(text, {
-                featureProjection: "EPSG:3857"
-            });
-        }
-        else if (fileName.endsWith(".kml")) {
-            const text = await file.text();
-            features = new KML().readFeatures(text, {
-                featureProjection: "EPSG:3857"
-            });
-        }
-        else if (fileName.endsWith(".zip")) {
-            const buffer = await file.arrayBuffer();
-            const geojson = await shp(buffer);
-            features = new GeoJSON().readFeatures(geojson, {
-                featureProjection: "EPSG:3857"
-            });
-        }
-        else if (fileName.endsWith(".shp")) {
-            alert(".shp isn't a loneliness enjoyer you need to zip all your files having the same name but different extension and give it back to me.");
-            return; 
-        }
-        else if (fileName.endsWith(".gpkg")) {
-            const displayProjection = "EPSG:3857";
-            const url_gpkg = URL.createObjectURL(file);
-
-            try {
-                const [dataFromGpkg] = await loadGpkg(url_gpkg, displayProjection);
-
-                let hasPolygonLayer = false;
-
-                for (const table in dataFromGpkg) {
-                    const source = dataFromGpkg[table];
-                    const tableFeatures = source.getFeatures();
-
-                    if (!tableFeatures || tableFeatures.length === 0) {
-                        continue;
-                    }
-
-                    // Standard supposé : une table = un type de géométrie
-                    const geomType = tableFeatures[0].getGeometry()?.getType();
-
-                    if (geomType === "Polygon" || geomType === "MultiPolygon") {
-                        hasPolygonLayer = true;
-                        features.push(...tableFeatures);
-                    }
-                }
-
-                if (!hasPolygonLayer) {
-                    alert("The provided geopackage contains no polygonal layer (Polygon or MultiPolygon).");
-                }
-                URL.revokeObjectURL(url_gpkg)
-            } catch (error) {
-                alert("ol-load-geopackage error: " + error);
-            }
-        }
-        else {
-            alert("Unsupported format!");
-            return;
-        }
-
-        if (features.length > 0) {
-            source.addFeatures(features);
-            map.getView().fit(source.getExtent(), { padding: [20,20,20,20] });
-        }
-
-    } catch (err) {
-        console.error("Load error:", err);
-        alert("Error while reading file.");
-    }
-}
-
 const dropZone = map.getTargetElement();
 const yellowTemplate = {
     "background-color": "#FFD700",
@@ -246,11 +168,10 @@ let highlightTimeout = null;
 dropZone.addEventListener('dragenter', e => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("avant le test dragenter ", dragCounter);
-    // On ne déclenche l'effet que si on n'était pas déjà dans la zone
+    if (!sqlInitializer) {
+        sqlInitializer = sqlStarter();
+    }
     if (dragCounter === 0) {
-        console.log("après le test dragenter ", dragCounter);
-        console.log("Entrée réelle dans la zone");
         topCenterPanel.alerting(yellowTemplate, dragmessage, 10);
         if (highlightTimeout) {
             clearTimeout(highlightTimeout);
@@ -276,11 +197,8 @@ dropZone.addEventListener('dragleave', e => {
     e.stopPropagation();
 
     dragCounter--;
-    console.log("avant le test dragleave", dragCounter);
-    // On ne retire l'effet que si le compteur retombe à 0
+    if (dragCounter < 0) {dragCounter=0} // Same bootstrapping in the other way
     if (dragCounter === 0) {
-        console.log("après le test dragleave",dragCounter);
-        console.log("Sortie réelle de la zone");
         topCenterPanel.dropModification()
         dropZone.classList.remove("highlight");
         if (highlightTimeout) {
@@ -294,8 +212,7 @@ dropZone.addEventListener('drop', async e => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("drop - counter avant reset:", dragCounter);
-    dragCounter = 0; // Reset complet
+    dragCounter = 0; // Complete Rest
 
     topCenterPanel.dropModification();
     dropZone.classList.remove("highlight");
@@ -306,24 +223,17 @@ dropZone.addEventListener('drop', async e => {
     }
 
     if (e.dataTransfer.files.length > 0) {
-        await loadFile(e.dataTransfer.files[0]);
+        await loadFile(e.dataTransfer.files,source,map);
     }
-
-    console.log("drop - counter après reset:", dragCounter);
 });
 
-["dragenter"].forEach(evt =>
-    dropArea.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        topCenterPanel.alerting(yellowTemplate, dragmessage,10);
-        dropArea.classList.add("highlight");
-    })
-);
 dropArea.addEventListener("dragenter", (e)=>{
     e.preventDefault();
     e.stopPropagation();
     topCenterPanel.alerting(yellowTemplate, dragmessage,10);
+    if (!sqlInitializer) {
+        sqlInitializer = sqlStarter();
+    }
     dropArea.classList.add("highlight");
 });
 
@@ -345,7 +255,7 @@ dropArea.addEventListener("drop", async (e) => {
     dropArea.classList.remove("highlight");
     topCenterPanel.dropModification();
     if (e.dataTransfer.files.length > 0) {
-        await loadFile(e.dataTransfer.files[0]);
+        await loadFile(e.dataTransfer.files,source,map);
     }
 });
 
@@ -353,12 +263,15 @@ dropArea.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     topCenterPanel.alerting(yellowTemplate, dragmessage);
+    if (!sqlInitializer) {
+        sqlInitializer = sqlStarter();
+    }
     fileInput.click()
 });
 
 fileInput.addEventListener("change", async (e) => {
     if (e.target.files.length > 0) {
-        await loadFile(e.target.files[0]);
+        await loadFile(e.target.files,source,map);
         topCenterPanel.dropModification();
     }
 });// Knowing point
@@ -375,7 +288,7 @@ kpDrawBtn.addEventListener("click", () => {
         return;
     }
 
-    // this function was conceptualised for field observation where points are created with a gps
+    // this function was conceptualized for field observation where points are created with a gps
     const center3857 = transform([lon, lat], "EPSG:4326", "EPSG:3857");
 
     const circle = new Circle(center3857, radius);
@@ -401,7 +314,7 @@ document.getElementById('export').addEventListener('click', async () => {
         alert("No geometries on the map !");
         return;
     }
-    // Unfortunatly, geojson don't support circle object, i have to transform it into point object 
+    // Unfortunately, geojson don't support circle object, i have to transform it into point object
     // and add a radius property, backend retransform it into a polygone with shapely.buffer 
     const processedFeatures = [];
     features.forEach(f => {
@@ -433,7 +346,7 @@ document.getElementById('export').addEventListener('click', async () => {
         dataProjection: "EPSG:3857"
     });
 
-    console.log("geojson envoyé :", geojsonObject);
+    console.log("geojson send :", geojsonObject);
     const redTemplate = {
         "background-color" : "#b61010",
         "height": "70px",
@@ -577,43 +490,6 @@ function triggerSave() {
     saveBtn.style.display = "inline-block";
 }
 
-// Saveing function
-function saveGeoJSON(features, filename) {
-    const format = new GeoJSON();
-
-    // Creating a geojson object
-    const geojsonObject = format.writeFeaturesObject(features, {
-        featureProjection: "EPSG:3857",
-        dataProjection: "EPSG:3857"
-    });
-
-    // because we works in 3857 we must write it in the file
-    geojsonObject.crs = {
-        type: "name",
-        properties: {
-            name: "EPSG:3857"
-        }
-    };
-
-    // 3️⃣conversion to string
-    const geojsonString = JSON.stringify(geojsonObject, null, 2);
-
-    // verify if filename ends with .geojson and if not adding it
-    if (!filename.toLowerCase().endsWith(".geojson")) {
-        filename += ".geojson";
-    }
-
-    // Downloading
-    const blob = new Blob([geojsonString], { type: "application/geo+json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
 const layerSwitcher = new LayerSwitcherModal(map);
 
 // Panel toggle functionality
