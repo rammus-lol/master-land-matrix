@@ -409,49 +409,50 @@ document.getElementById('export').addEventListener('click', async () => {
         }
         function resultStyle(rawSource, typeName) {
             if (typeName === 'point' || typeName === 'buffer') {
-                    const styleCache = {
-                        orange: new Style({
-                            stroke: new Stroke({color: "#fc941d", width: 2}),
-                            fill: new Fill({color: "rgba(252, 148, 29, 0.3)"}),
-                            image: new CircleStyle({
-                                radius: 6,
-                                fill: new Fill({color: "#fc941d"}),
-                                stroke: new Stroke({color: "white", width: 1})
-                            })
-                        }),
-                        blue: new Style({
-                            stroke: new Stroke({color: "#43b6b5", width: 2}),
-                            fill: new Fill({color: "rgba(67, 182, 181, 0.3)"}),
-                            image: new CircleStyle({
-                                radius: 6,
-                                fill: new Fill({color: "#43b6b5"}),
-                                stroke: new Stroke({color: "white", width: 1})
-                            })
+                const styleCache = {
+                    orange: new Style({
+                        stroke: new Stroke({color: "#fc941d", width: 2}),
+                        fill: new Fill({color: "rgba(252, 148, 29, 0.3)"}),
+                        image: new CircleStyle({
+                            radius: 6,
+                            fill: new Fill({color: "#fc941d"}),
+                            stroke: new Stroke({color: "white", width: 1})
                         })
-                    };
+                    }),
+                    blue: new Style({
+                        stroke: new Stroke({color: "#43b6b5", width: 2}),
+                        fill: new Fill({color: "rgba(67, 182, 181, 0.3)"}),
+                        image: new CircleStyle({
+                            radius: 6,
+                            fill: new Fill({color: "#43b6b5"}),
+                            stroke: new Stroke({color: "white", width: 1})
+                        })
+                    })
+                };
 
-                    const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
+                const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
 
-                    return function (feature) {
-                        const precision = feature.get('level_of_accuracy') || "";
-                        return orangeList.includes(precision) ? styleCache.orange : styleCache.blue;
-                    };
-                } else if (typeName === 'areas') {
-                    return new Style({
-                        stroke: new Stroke({color: "#000000", width: 2}),
-                        fill: new Fill({color: "rgba(252, 148, 29, 0.5)"})
-                    });
-                } else if (typeName === 'administrative_region') {
-                    return new Style({
-                        stroke: new Stroke({color: '#000000', width: 0.5}),
-                        fill: new Fill({color: "rgba(0,0,0,0)"})
-                    });
-                }
+                return function (feature) {
+                    const precision = feature.get('level_of_accuracy') || "";
+                    return orangeList.includes(precision) ? styleCache.orange : styleCache.blue;
+                };
+            } else if (typeName === 'areas') {
+                return new Style({
+                    stroke: new Stroke({color: "#000000", width: 2}),
+                    fill: new Fill({color: "rgba(252, 148, 29, 0.5)"})
+                });
+            } else if (typeName === 'administrative_region') {
+                return new Style({
+                    stroke: new Stroke({color: '#000000', width: 0.5}),
+                    fill: new Fill({color: "rgba(0,0,0,0)"})
+                });
             }
+        }
 
 
         // New layers
         layerConstructor(resultGeoJSON);
+
         // Show legend when results are displayed
         showLegend();
     } catch (err) {
