@@ -7,7 +7,7 @@
     width: 100%;
     height: 100vh;
     /* Replace the gradient by an image if you have one: url("./path/to/image.jpg") */
-    background: url("images/fond.svg") no-repeat;
+    background: url("images/fond.png") no-repeat;
     /* transparence */
     opacity: 0.4;
     background-color: #fc941d;
