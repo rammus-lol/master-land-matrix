@@ -5,13 +5,17 @@ import requests
 from copy import deepcopy
 import traceback
 from pathlib import Path
+from datetime import datetime
+from geopandas.geodataframe import GeoDataFrame
+import pprint as pri
+
 def deal_dict(deal : dict):
     """Summarize a deal into a smaller dict well-fitted for spatial querying"""
     return {"id":deal["id"],"deal_size":deal['selected_version']['deal_size'],
             "intention":deal["selected_version"]["current_intention_of_investment"]}
 def geom_from_list(report_list,row_deal,location : list,index : int=0):
     """extract the geometric information from a list with an index
-    if no geometric informations are provided, take the entire dictionnary and ad it into a report
+    if no geometric information are provided, take the entire dictionary and ad it into a report
     list for further investigation"""
     try:
         point=location[index]["point"]
@@ -32,11 +36,11 @@ def geom_from_list(report_list,row_deal,location : list,index : int=0):
             "level_of_accuracy": location[index]['level_of_accuracy']
         }
 def key_extraction(js, key, path=[]):
-    """Because of the complexity of the /api/deals/ exit, i use this recursion
-    for finding a key I want and format it with [] for dictionnary searching"""
+    """Because of the complexity of the /api/deals/ exit, I use this recursion
+    for finding a key I want and format it with [] for dictionary searching"""
     def path_construction(path_in_list):
         #format a list for dictionaries searching
-        return '["'+'"]["'.join(path_in_list)+'"]'#yeah it's a weird string but it works
+        return '["'+'"]["'.join(path_in_list)+'"]'#Yeah, it's a weird string but it works
     if isinstance(js, dict):
         for k, v in js.items():
             current_path = path + [k]
@@ -54,7 +58,7 @@ def key_extraction(js, key, path=[]):
                 # return result
                 return path_construction(result)
     return "This key doesn't exist"
-def gpkg_extraction(calling : dict|list[dict]):
+def geodataframe_writer(calling : list[dict]):
     """Take an Iterable from API and format it into a GeoDataFrame"""
     report=[]
     summary=[]
@@ -72,7 +76,7 @@ def gpkg_extraction(calling : dict|list[dict]):
                    liste_point[i].update(geometry)
                 summary.extend(liste_point)
             else:
-                geometry=geom_from_list(report,c,geom) #it's called geometry but it isnt a geometry object
+                geometry=geom_from_list(report,c,geom) #it's called geometry but it isn't a geometry object
                 deal.update(geometry)
                 summary.append(deal)
         except (KeyError,TypeError) as e:
@@ -83,28 +87,55 @@ def gpkg_extraction(calling : dict|list[dict]):
     df=pd.DataFrame(summary)
     gdf=gpd.GeoDataFrame(df,geometry=gpd.points_from_xy(df["long"],df["lat"]),crs="EPSG:4326")
     gdf.to_crs("EPSG:3857",inplace=True)
-    return gdf,report
-try:
-    call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
-    call.raise_for_status()
-    data = call.json()
-except requests.exceptions.RequestException as e:
-    print(f"Houston we got an HTML problem : {e}")
-gdf_deals,report=gpkg_extraction(data)
-gdf_deals = gdf_deals.dropna(subset=['crs', 'long', 'lat'])#this is the cleanest version i can get out of my brain to delete deals with no coordinates.
-base_dir = Path(__file__).parents[1]
-gdf_region=gpd.read_file(base_dir / "django_proxy" / "data" / "world_region_light.gpkg")
-gdf_deals=gpd.sjoin(gdf_deals, gdf_region)
-col_to_drop=[col for col in gdf_region.columns if col not in ('admin','geometry')]+['index_right']
-gdf_deals.drop(col_to_drop,axis=1,inplace=True)
-output_path = base_dir / "django_proxy" / "data" / "deals.gpkg"
-output_path.parent.mkdir(parents=True, exist_ok=True)
-gdf_deals.to_file(output_path, driver="GPKG",layer="deals")
-with open(Path("report.json"),"w",encoding='utf-8') as f:
-    json.dump(report,f,ensure_ascii=False,indent=2)#exporting deals without geometrics info into a json
-print(f"The export of deals in geopackage ends well, the script have founded {len(report)} without coordinates.")
+    gdf = gdf.dropna(subset=['crs', 'long', 'lat'])
+    base_dir = Path(__file__).parents[1]
+    gdf_region = gpd.read_file(base_dir / "django_proxy" / "data" / "world_region_light.gpkg")
+    gdf = gpd.sjoin(gdf, gdf_region)
+    col_to_drop = [col for col in gdf_region.columns if col not in ('admin', 'geometry')] + ['index_right']
+    gdf.drop(col_to_drop, axis=1, inplace=True)
+    return gdf,report # it returns something but only for debug, the function handle export
+def api_calling():
+    try:
+        call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
+        call.raise_for_status()
+        data = call.json()
+        return  data
+    except requests.exceptions.RequestException as e:
+        print(f"Houston we got an HTTP problem : {e}")
+        return str(e)
+def deal_exporter(deal : GeoDataFrame,report,dir : Path) ->str :
+    """Export a GeoDataFrame representing deals
+        to the right location and a report on deals with no coordinates
+        for further investigation.
+        It returns a string for logging about deals with no coordinates"""
+    report_dir = dir / "reports"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    deal.to_file(Path(dir/"deals.gpkg"), driver="GPKG", layer="deals")
+    report_name = f"report_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.json"
+    with open(Path(report_dir/report_name), "w", encoding='utf-8') as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)  # exporting deals without location infos into a json
+        print(f"The export of deals to GeoPackage completed successfully. The script found {len(report)} deals without coordinates.")
+    return f"""The export of deals to GeoPackage completed successfully.
+The script found {len(report)} deals without coordinates."""
+def logger(fast_report : str):
+    log_name = f"log_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.txt"
+    log_dir = Path(__file__).parent / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    with open(log_dir/log_name, "w", encoding='utf-8') as f:
+        f.write(fast_report)
+def deal_gpkg_writer(dir : Path,debug=False):
+    data=api_calling()
+    if type(data) != str:
+        gdf_deal,report = geodataframe_writer(data)
+        logging_string= deal_exporter(gdf_deal,report,dir)
+        logger(logging_string)
+        if debug:
+            return gdf_deal,report
+        return None
+    else :
+        logger(data)
+        return None
 
-    
         
         
 
