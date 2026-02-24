@@ -16,6 +16,8 @@
     z-index: 9999;
     border: 2px solid white;
     transition: border-color 0.3s;
+    /* no highlight possible */
+    outline: none;
 }
 
 .layer-switcher-btn:hover {
@@ -105,6 +107,8 @@
     border-radius: 5px;
     margin-bottom: 5px;
     border: 1px solid #ccc;
+    /* no highlight possible */
+    outline: none;
 }
 
 #layers {
