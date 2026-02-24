@@ -312,8 +312,7 @@ document.getElementById('export').addEventListener('click', async () => {
         alert("No geometries on the map !");
         return;
     }
-    // Unfortunately, geojson don't support circle object, i have to transform it into point object
-    // and add a radius property, backend retransform it into a polygone with shapely.buffer 
+
     const processedFeatures = [];
     features.forEach(f => {
         const geom = f.getGeometry();
@@ -322,19 +321,16 @@ document.getElementById('export').addEventListener('click', async () => {
             // Extract center+radius for added circle
             const center = geom.getCenter();
             const radius = geom.getRadius();
-                        // Transformer le cercle → point GeoJSON
             const pointGeom = new Point(center);
 
             // Create new feature for backend sending
             const newF = new Feature({
                 geometry: pointGeom,
-                    radius: radius,           // ← radius
-                    original_type: "Circle"   // ← easier to read for debugging
+                radius: radius,
+                original_type: "Circle"
             });
-                        processedFeatures.push(newF);
-
+            processedFeatures.push(newF);
         } else {
-            // polygon feature extraction
             processedFeatures.push(f);
         }
     });
@@ -350,6 +346,7 @@ document.getElementById('export').addEventListener('click', async () => {
         "height": "70px",
         "fontsize": "20px"
     };
+
     try {
         const query = await fetch(`${API_BASE_URL}/api/geom/`, {
             method: "POST",
@@ -359,28 +356,25 @@ document.getElementById('export').addEventListener('click', async () => {
 
         if (!query.ok) {
             const error = `Server error: ${query.status}.\nPlease contact us below`;
-            topCenterPanel.alerting(yellowTemplate, error,30);
+            topCenterPanel.alerting(yellowTemplate, error, 30);
         }
 
         const response = await query.json();
-        console.log("backend response:", response);
-        const resultStatus = response.status
+        const resultStatus = response.status;
         const resultGeoJSON = response.data;
-        console.log(resultGeoJSON);
+
         if (resultGeoJSON === 0) {
             const emptyMessage = response.status;
-            topCenterPanel.alerting(yellowTemplate, emptyMessage,30);
+            topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
             return;
         }
 
         topCenterPanel.alerting({"background-color" : "#43b6b5"}, resultStatus);
 
-        // deleting last querying (is this good ?)
         if (resultLayer !== null) {
             map.removeLayer(resultLayer);
         }
 
-        // Building the display with backend response
         function layerConstructor(geojsonObject) {
             const featuresTypes = new Set(
                 geojsonObject.features.map(feature => feature.properties.feature_type)
@@ -398,6 +392,7 @@ document.getElementById('export').addEventListener('click', async () => {
                 const vectorSource = new VectorSource({
                     features: filteredFeatures
                 });
+
                 const layer = new VectorLayer({
                     source: vectorSource,
                     style : resultStyle(vectorSource,typeName),
@@ -407,6 +402,7 @@ document.getElementById('export').addEventListener('click', async () => {
                 map.getView().fit(vectorSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
             }
         }
+
         function resultStyle(rawSource, typeName) {
             if (typeName === 'point' || typeName === 'buffer') {
                 const styleCache = {
@@ -429,16 +425,14 @@ document.getElementById('export').addEventListener('click', async () => {
                         })
                     })
                 };
-
                 const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
-
                 return function (feature) {
                     const precision = feature.get('level_of_accuracy') || "";
                     return orangeList.includes(precision) ? styleCache.orange : styleCache.blue;
                 };
             } else if (typeName === 'areas') {
                 return new Style({
-                    stroke: new Stroke({color: "#000000", width: 2}),
+                    stroke: new Stroke({color: "#000000", width: 1}),
                     fill: new Fill({color: "rgba(252, 148, 29, 0.5)"})
                 });
             } else if (typeName === 'administrative_region') {
@@ -457,7 +451,7 @@ document.getElementById('export').addEventListener('click', async () => {
         showLegend();
     } catch (err) {
         console.error("Technical error:", err);
-        topCenterPanel.alerting(redTemplate,"The server is disconnected.",30);
+        topCenterPanel.alerting(redTemplate, "The server is disconnected.", 30);
     }
 });
 const saveBtn = document.getElementById("saveBtn");
@@ -515,4 +509,5 @@ panelToggleBtn.addEventListener('click', () => {
         map.updateSize();
     }, 300);
 });
+
 

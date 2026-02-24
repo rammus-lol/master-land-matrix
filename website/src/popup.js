@@ -1,9 +1,9 @@
 import Overlay from 'ol/Overlay';
 
-// Cache for popup template
+// Cache pour le template de la popup
 let popupTemplate = null;
 
-// Mapping for accuracy display
+// Mapping pour l'affichage de la précision
 const ACCURACY_LABELS = {
   'APPROXIMATE_LOCATION': 'Approximate location',
   'EXACT_LOCATION': 'Exact location',
@@ -13,12 +13,11 @@ const ACCURACY_LABELS = {
 };
 
 /**
- * Format intention data (array or string)
+ * Formate les données d'intention (tableau ou chaîne)
  */
 function formatIntention(intention) {
   if (!intention) return 'N/A';
-  
-  // Parse if it's a stringified array
+
   let data = intention;
   if (typeof intention === 'string' && intention.startsWith('[')) {
     try {
@@ -27,31 +26,30 @@ function formatIntention(intention) {
       return intention.replace(/_/g, ' ');
     }
   }
-  
-  // Format array items
+
   if (Array.isArray(data)) {
     return data
-      .map(item => item.replace(/_/g, ' ').toLowerCase())
-      .map(item => item.charAt(0).toUpperCase() + item.slice(1))
-      .join(', ');
+        .map(item => item.replace(/_/g, ' ').toLowerCase())
+        .map(item => item.charAt(0).toUpperCase() + item.slice(1))
+        .join(', ');
   }
-  
+
   return data.replace(/_/g, ' ');
 }
 
 /**
- * Format deal size with proper units
+ * Formate la taille de la transaction avec les unités appropriées
  */
 function formatDealSize(dealSize) {
   if (!dealSize || dealSize === 'N/A') return 'N/A';
   if (dealSize === 0 || dealSize === '0.0') return 'Not specified';
-  
+
   const size = typeof dealSize === 'number' ? dealSize : parseFloat(dealSize);
   return !isNaN(size) && size > 0 ? `${size.toLocaleString()} ha` : 'N/A';
 }
 
 /**
- * Load popup template from HTML file
+ * Charge le template HTML de la popup
  */
 async function loadPopupTemplate() {
   if (!popupTemplate) {
@@ -67,12 +65,9 @@ async function loadPopupTemplate() {
 }
 
 /**
- * Initialize and configure the popup overlay for displaying deal information
- * @param {Map} map - The OpenLayers map instance
- * @returns {Overlay} The configured overlay instance
+ * Initialise l'overlay de la popup et gère les clics
  */
 export function initializePopup(map) {
-  // Setup popup overlay
   const container = document.getElementById('popup');
   const content = document.getElementById('popup-content');
   const closer = document.getElementById('popup-closer');
@@ -80,24 +75,27 @@ export function initializePopup(map) {
   const overlay = new Overlay({
     element: container,
     autoPan: {
-      animation: {
-        duration: 250,
-      },
+      animation: { duration: 250 },
     },
   });
 
   map.addOverlay(overlay);
 
-  // Close popup when clicking the X
   closer.onclick = function () {
     overlay.setPosition(undefined);
     closer.blur();
     return false;
   };
 
-  // Add click handler to display popup on feature click
   map.on('click', async function (evt) {
-    const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
+
+    const dealpopup = ['point', 'areas', 'buffer'];
+
+    const feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
+      if (layer && dealpopup.includes(layer.get('layerName'))) {
+        return feat;
+      }
+    });
 
     if (!feature) {
       overlay.setPosition(undefined);
@@ -106,34 +104,30 @@ export function initializePopup(map) {
 
     const properties = feature.getProperties();
     const dealId = properties.deal_id || properties.id;
-    
-    // Only show popup for result features (those with deal data)
+
     if (!dealId) return;
 
-    // Extract and format properties
     const accuracy = properties.level_of_accuracy || 'N/A';
     const accuracyDisplay = ACCURACY_LABELS[accuracy] || accuracy;
     const intention = formatIntention(properties.intention);
     const dealSizeDisplay = formatDealSize(properties.deal_size);
     const facilityName = properties.facility_name || properties.name;
-    
-    // Build facility name section if it exists
+
     const facilityNameSection = facilityName ? `
       <div class="popup-field">
         <div class="popup-field-label">Facility / Area name</div>
         <div class="popup-field-value" style="color: #fc941d;">${facilityName}</div>
       </div>
     ` : '';
-    
-    // Load template and populate content
+
     const template = await loadPopupTemplate();
     content.innerHTML = template
-      .replace(/{{dealId}}/g, dealId)
-      .replace(/{{accuracyDisplay}}/g, accuracyDisplay)
-      .replace(/{{intention}}/g, intention)
-      .replace(/{{dealSizeDisplay}}/g, dealSizeDisplay)
-      .replace(/{{facilityNameSection}}/g, facilityNameSection);
-    
+        .replace(/{{dealId}}/g, dealId)
+        .replace(/{{accuracyDisplay}}/g, accuracyDisplay)
+        .replace(/{{intention}}/g, intention)
+        .replace(/{{dealSizeDisplay}}/g, dealSizeDisplay)
+        .replace(/{{facilityNameSection}}/g, facilityNameSection);
+
     overlay.setPosition(evt.coordinate);
   });
 
