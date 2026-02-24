@@ -30,6 +30,8 @@ const topCenterPanel = new AlertPanel()
 
 const source = new VectorSource();
 
+
+
 //for the moment I keep the initialization at the beginning, if it's appear it's slows down the app for
 const scaleControl = new ScaleLine({
     className: 'ol-scale-line',
@@ -312,7 +314,8 @@ document.getElementById('export').addEventListener('click', async () => {
         alert("No geometries on the map !");
         return;
     }
-
+    // Unfortunately, geojson don't support circle object, i have to transform it into point object
+    // and add a radius property, backend retransform it into a polygone with shapely.buffer 
     const processedFeatures = [];
     features.forEach(f => {
         const geom = f.getGeometry();

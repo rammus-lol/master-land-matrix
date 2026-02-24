@@ -2,29 +2,29 @@ import{OSM, XYZ} from 'ol/source';
 import Map from 'ol/Map'
 class LayerSwitcherModal {
     /**
-     * @param {import('ol/Map').default} map - Instance de la carte OpenLayers
-     * @param {Object} layersConfig - Configuration des couches disponibles
-     * @param {string} modalId - ID de l'élément modal (par défaut: 'layer-modal')
-     * @param {string} buttonId - ID du bouton d'ouverture (par défaut: 'layer-switcher-btn')
+     * @param {import('ol/Map').default} map
+     * @param {Object} layersConfig
+     * @param {string} modalId - default: 'layer-modal')
+     * @param {string} buttonId - default: 'layer-switcher-btn')
      */
     constructor(map, layersConfig = null, modalId = 'layer-modal', buttonId = 'layer-switcher-btn') {
         this.map = map;
         this.modalId = modalId;
         this.buttonId = buttonId;
         
-        // Configuration des couches par défaut ou personnalisée
+        // Passing a layer configuration or the default which is the used based maps
         this.layers = layersConfig || this.getDefaultLayers();
         
-        // Initialisation des éléments DOM
+
         this.initializeElements();
         
-        // Mise en place des écouteurs d'événements
+
         this.setupEventListeners();
     }
     
     /**
-     * Retourne la configuration par défaut des couches
-     * @returns {Object} Configuration des couches
+
+     * @returns {Object}
      */
     getDefaultLayers() {
         return {
@@ -41,7 +41,7 @@ class LayerSwitcherModal {
     }
     
     /**
-     * Initialise les éléments DOM nécessaires
+     * Initialise DOM elements
      */
     initializeElements() {
         this.layerSwitcherBtn = document.getElementById(this.buttonId);
@@ -53,32 +53,23 @@ class LayerSwitcherModal {
             console.error('Éléments DOM manquants pour le LayerSwitcherModal');
         }
     }
-    
-    /**
-     * Configure tous les écouteurs d'événements
-     */
+
     setupEventListeners() {
-        // Ouvrir le modal
+
         this.layerSwitcherBtn?.addEventListener('click', () => this.openModal());
 
-        
-        // Fermer le modal avec le bouton de fermeture
         this.closeModalSpan?.addEventListener('click', () => this.closeModal());
         
-        // Fermer le modal en cliquant à l'extérieur
+        // Closing modal by clicking outside of it
         window.addEventListener('click', (event) => {
             if (event.target === this.layerModal) {
                 this.closeModal();
             }
         });
-        
-        // Gestion du changement de couches
+
         this.setupLayerSwitching();
     }
-    
-    /**
-     * Configure les écouteurs pour le changement de couches
-     */
+
     setupLayerSwitching() {
         if (!this.layerOptions) return;
         
@@ -86,26 +77,22 @@ class LayerSwitcherModal {
             option.addEventListener('click', () => {
                 const layerType = option.getAttribute('data-layer');
                 this.switchLayer(layerType);
-                
-                // Mise à jour de l'état actif dans le modal
+
                 this.updateActiveOption(option);
-                
-                // Fermer le modal
+
                 this.closeModal();
             });
         });
     }
     
     /**
-     * Change la source de la couche de base
-     * @param {string} layerType - Type de couche à activer
+     * @param {string} layerType
      */
     switchLayer(layerType) {
         const newSource = this.layers[layerType];
         
         
         if (newSource) {
-            // La couche de base est supposée être la première couche (index 0)
             const baseLayer = this.map.getLayers().item(0);
             baseLayer.setSource(newSource);
         } else {
@@ -114,26 +101,19 @@ class LayerSwitcherModal {
     }
     
     /**
-     * Met à jour l'option active dans le modal
-     * @param {HTMLElement} activeOption - Option à activer
+     * @param {HTMLElement} activeOption
      */
     updateActiveOption(activeOption) {
         this.layerOptions.forEach(opt => opt.classList.remove('active'));
         activeOption.classList.add('active');
     }
-    
-    /**
-     * Ouvre le modal
-     */
+
     openModal() {
         if (this.layerModal) {
             this.layerModal.style.display = 'block';
         }
     }
-    
-    /**
-     * Ferme le modal
-     */
+
     closeModal() {
         if (this.layerModal) {
             this.layerModal.style.display = 'none';
@@ -141,8 +121,8 @@ class LayerSwitcherModal {
     }
     
     /**
-     * Ajoute une nouvelle couche à la configuration
-     * @param {string} key - Clé d'identification de la couche
+     *
+     * @param {string} key
      * @param {import('ol/source/Source').default} source - Source OpenLayers
      */
     addLayer(key, source) {
@@ -150,19 +130,15 @@ class LayerSwitcherModal {
     }
     
     /**
-     * Supprime une couche de la configuration
-     * @param {string} key - Clé de la couche à supprimer
+     *
+     * @param {string} key
      */
     removeLayer(key) {
         delete this.layers[key];
     }
-    
-    /**
-     * Nettoie les écouteurs d'événements (utile pour la destruction)
-     */
+
     destroy() {
-        // Cette méthode peut être étendue pour nettoyer tous les listeners
-        console.log('LayerSwitcherModal détruit');
+        console.log('LayerSwitcherModal destroyed');
     }
 }
 
