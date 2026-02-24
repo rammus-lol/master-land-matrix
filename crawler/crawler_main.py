@@ -14,7 +14,8 @@ def main(making_areas=True):
     into GeoDataFrame, you can set making_areas to False,
     this way it will skip area updating."""
     # First create the folder.
-    output_dir = Path("../django_proxy/data")
+    base_dir = Path(__file__).parents[1]
+    output_dir = base_dir / "django_proxy" / "data"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Second manage point represented deals the function.Usually it returns None but you can set debug to True if you wanna chack something.
@@ -22,13 +23,14 @@ def main(making_areas=True):
 
     # Third manage polygon represented deals.
     if making_areas:
-        areas : GeoDataFrame = crawling_areas()
+        areas : GeoDataFrame = crawling_areas(output_dir/"world_region_light.gpkg")
         areas.to_file(output_dir / "areas.gpkg",driver="GPKG",layer="areas")
         for ext in ["*.geojson", "*.tmp"]:
             for file in Path(__file__).parent.glob(ext):
                 file.unlink()
 if __name__ == "__main__":
     main()
+
 
 
 

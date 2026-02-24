@@ -110,7 +110,7 @@ def deal_exporter(deal : GeoDataFrame,report,dir : Path) ->str :
         It returns a string for logging about deals with no coordinates"""
     report_dir = dir / "reports"
     report_dir.mkdir(parents=True, exist_ok=True)
-    deal.to_file(Path(dir/"deals.gpkg"), driver="GPKG", layer="deals")
+    deal.to_file(dir /"deals.gpkg", driver="GPKG", layer="deals")
     report_name = f"report_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.json"
     with open(Path(report_dir/report_name), "w", encoding='utf-8') as f:
         json.dump(report, f, ensure_ascii=False, indent=2)  # exporting deals without location infos into a json
@@ -135,8 +135,6 @@ def deal_gpkg_writer(dir : Path,debug=False):
     else :
         logger(data)
         return None
-
-        
         
 
 
