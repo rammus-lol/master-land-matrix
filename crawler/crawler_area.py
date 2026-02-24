@@ -2,29 +2,29 @@ import wget
 import requests
 import geopandas as gpd
 import json
+from pathlib import Path
+import time
+import pprint as pri
 
-def intention_finder(row_data, index, deal_id : int):
-    """brut forcing threw api exit : 1 seconds
-    with indexing 0.015 seconds"""
-    return row_data[index[deal_id]]['selected_version']['current_intention_of_investment']
-
-
-def crawling_areas():
-    #areas = gpd.read_file(wget.download("https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json")
-                          #,engine="pyogrio")#using pyogrio accelerate the reading time
-    areas = gpd.read_file("areas.geojson")
+def crawling_areas(region_file : Path | str):
+    areas = gpd.read_file(wget.download("https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json")
+                          ,engine="pyogrio")
     areas.to_crs("EPSG:3857", inplace=True)
-    world_regions = gpd.read_file("../django_proxy/data/world_region_light.gpkg", engine="pyogrio")
+    world_regions = gpd.read_file(region_file, engine="pyogrio")
     areas.rename(columns={"id": "nid", "deal_id": "id"}, inplace=True)
     areas["intention"] = None
+    areas["deal_size"] = 0.0
     deal_base = requests.get(f"https://landmatrix.org/api/deals/")#brut force but faster than api/deals/{id} method
     if deal_base.status_code == 200:
         data = deal_base.json()
         deal_id_index={}
         for idx,d in enumerate(data):
             deal_id_index[d["id"]]=idx
-        areas["intention"] = areas.apply(
-            lambda row: intention_finder(data,deal_id_index,row["id"]), axis=1)
+        mapping = {deal_id:{'deal_size' : data[idx]['selected_version']['deal_size'],
+                            'intention': data[idx]['selected_version']['current_intention_of_investment']}
+                            for deal_id,idx in deal_id_index.items()}
+        areas['deal_size'] = areas['id'].map(lambda x: mapping[x]['deal_size'])
+        areas['intention'] = areas['id'].map(lambda x: mapping[x]['intention'])
         areas.reset_index(inplace=True, drop=True)
         joined = gpd.sjoin(areas, world_regions[['iso_3166_2', 'geometry']],
                            how='left', predicate='intersects')
@@ -33,23 +33,14 @@ def crawling_areas():
         )
         areas["region_list"] = region_lists.reindex(areas.index, fill_value=None)
         areas["region_list"] = areas["region_list"].apply(json.dumps)
+        areas["intention"] = areas["intention"].apply(json.dumps)
+        """Unfortunately SQLite doesn't allow to store list type data as JSON 
+        but you can store string looking alike a json object
+        I was tricked by Qgis.
+        so I use .dumps() method which transform an Iterable in json-like string
+        for reading I use .loads() which does the opposite.
+        For further PostGIS export of the database, a jsonb column
+        will do the job."""
         return areas
     else:
-       return f"Houston we got an HTML problem :{deal_base.status_code}"
-gdf_test=crawling_areas()
-
-
-
-"""For a reason I don't understand it's incredibly slow to update the GeoDataFrame
-this way, since it's more elegant I keep it
-def intention_finder(deal_id : int):
-    try:
-        calling=requests.get(f"https://landmatrix.org/api/deals/{deal_id}/")
-        if calling.status_code == 200:
-            data = calling.json()
-            return data["selected_version"]["current_intention_of_investment"]
-    except requests.exceptions.RequestException as e:
-        print(f"Houston we got an HTML problem : {e}")
-
-areas_test["intention"]=areas_test.apply(lambda row:intention_finder(row["id"]),axis=1)
-print(areas_test["intention"])"""
+       return f"Houston we got an HTTP problem :{deal_base.status_code}"

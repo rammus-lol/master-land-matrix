@@ -1,7 +1,25 @@
+import os
+import sys
+import django
+from pathlib import Path
+#This is for direct testing
+BASE_PATH = Path(__file__).resolve().parents[3]
+
+if str(BASE_PATH) not in sys.path:
+    sys.path.insert(0, str(BASE_PATH))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proxy_project.settings')
+
+try:
+    django.setup()
+    print("Django setup successful!")
+except Exception as e:
+    print(f"Django setup failed: {e}")
+
 import geopandas as gpd
 import pandas as pd
 import numpy as np
-from pathlib import Path
+import json
 from django.conf import settings
 """Spatial processing of data sqlless using geopandas it can return
 -A GeoDataFrame comporting evry shapes you need to bring back to frontend.
@@ -20,8 +38,6 @@ def which_regions(query, projects, regions):
 def which_areas(query, regions, polygone_projects):
 
     def region_checker(region_list : list,region_id_list : list):
-        clean_string = region_list.strip('[]')
-        region_list = [item.strip("'") for item in clean_string.split(',')]
         bool_list=[]
         for region in region_list:
             if region in region_id_list:
@@ -59,14 +75,12 @@ def final_filtering(query, regions, projects, selected_projects):
     return final_projects
 
 DEALS = gpd.read_file(
-    settings.BASE_DIR.parent / "django_proxy" / "data" / "deals.gpkg")  # good for production, bad for dev
+    settings.BASE_DIR.parent / "django_proxy" / "data" / "deals.gpkg")
 REGIONS = gpd.read_file(
     settings.BASE_DIR.parent / "django_proxy" / "data" / "world_region_light.gpkg")
 AREAS = gpd.read_file(
     settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg")
-# DEALS = gpd.read_file((Path("..")/ ".." / "django_proxy" / "data" / "deals.gpkg"))
-# REGIONS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "world_region_light.gpkg") #for testing locally
-# AREAS = gpd.read_file(Path("..") / ".." / "django_proxy" / "data" / "areas.gpkg")
+AREAS["region_list"]=AREAS["region_list"].apply(json.loads) #Managing SQLite goofy JSON type logic.
 def geom_constructor(query):
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
@@ -86,7 +100,6 @@ def geom_constructor(query):
     combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
-
 
 
 

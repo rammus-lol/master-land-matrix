@@ -10,6 +10,7 @@
     left: -50px;
     min-width: 280px;
     max-width: 350px;
+    z-index: 1002;
 }
 
 .ol-popup:after, .ol-popup:before {

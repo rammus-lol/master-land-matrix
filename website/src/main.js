@@ -22,8 +22,8 @@ import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 
 // API Base URL - change for production/development
-const API_BASE_URL = 'https://landmatrix.artxypro.org';
-// const API_BASE_URL = 'http://localhost:8000';
+// const API_BASE_URL = 'https://landmatrix.artxypro.org';
+const API_BASE_URL = 'http://localhost:8000';
 const sqlJsWasmDir = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/' + sql_js_version;
 let sqlInitializer=null;
 const topCenterPanel = new AlertPanel()
@@ -324,19 +324,16 @@ document.getElementById('export').addEventListener('click', async () => {
             // Extract center+radius for added circle
             const center = geom.getCenter();
             const radius = geom.getRadius();
-                        // Transformer le cercle → point GeoJSON
             const pointGeom = new Point(center);
 
             // Create new feature for backend sending
             const newF = new Feature({
                 geometry: pointGeom,
-                    radius: radius,           // ← radius
-                    original_type: "Circle"   // ← easier to read for debugging
+                radius: radius,
+                original_type: "Circle"
             });
-                        processedFeatures.push(newF);
-
+            processedFeatures.push(newF);
         } else {
-            // polygon feature extraction
             processedFeatures.push(f);
         }
     });
@@ -352,6 +349,7 @@ document.getElementById('export').addEventListener('click', async () => {
         "height": "70px",
         "fontsize": "20px"
     };
+
     try {
         const query = await fetch(`${API_BASE_URL}/api/geom/`, {
             method: "POST",
@@ -361,93 +359,102 @@ document.getElementById('export').addEventListener('click', async () => {
 
         if (!query.ok) {
             const error = `Server error: ${query.status}.\nPlease contact us below`;
-            topCenterPanel.alerting(yellowTemplate, error,30);
+            topCenterPanel.alerting(yellowTemplate, error, 30);
         }
 
         const response = await query.json();
-        console.log("backend response:", response);
-        const resultStatus = response.status
+        const resultStatus = response.status;
         const resultGeoJSON = response.data;
-        console.log(resultGeoJSON);
+
         if (resultGeoJSON === 0) {
             const emptyMessage = response.status;
-            topCenterPanel.alerting(yellowTemplate, emptyMessage,30);
+            topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
             return;
         }
 
         topCenterPanel.alerting({"background-color" : "#43b6b5"}, resultStatus);
 
-        // deleting last querying (is this good ?)
         if (resultLayer !== null) {
             map.removeLayer(resultLayer);
         }
 
-        // Building the display with backend response
+        function layerConstructor(geojsonObject) {
+            const featuresTypes = new Set(
+                geojsonObject.features.map(feature => feature.properties.feature_type)
+            );
 
-    const resultSource = new VectorSource({ 
-        features: new GeoJSON().readFeatures(resultGeoJSON, { featureProjection: "EPSG:3857" }) });
-    const resultStyle = (feature) => {
-        const props = feature.getProperties();
-        const featureType = props["feature_type"];
-        let precision = props.level_of_accuracy || "";
-        let orangeList = "";
-        let isOrange = "";
-        let strokeColor = "";
-        let fillColor = "";
-        let pointColor = "";
-        let widthAdministrativeRegion = "";
-        if (featureType === 'point' || featureType === 'buffer') {
-            precision = props.level_of_accuracy || "";
-            orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
-            isOrange = orangeList.includes(precision);
-            strokeColor = isOrange ? "#fc941d" : "#43b6b5";
-            fillColor = isOrange ? "rgba(252, 148, 29, 0.3)" : "rgba(67, 182, 181, 0.3)";
-            pointColor = strokeColor;
-        }
-        else if (featureType === 'areas') {
-            strokeColor = "#000000";
-            fillColor = "rgba(252, 148, 29, 0.5)";
-        }
-        else if (featureType === 'administrative_region') {
-            strokeColor = '#000000';
-            fillColor = "rgba(0,0,0,0)";
-            widthAdministrativeRegion = 0.5;
+            const allFeatures = new GeoJSON().readFeatures(geojsonObject, {
+                featureProjection: "EPSG:3857"
+            });
+
+            for (let typeName of featuresTypes) {
+                const filteredFeatures = allFeatures.filter(
+                    feature => feature.get('feature_type') === typeName
+                );
+
+                const vectorSource = new VectorSource({
+                    features: filteredFeatures
+                });
+
+                const layer = new VectorLayer({
+                    source: vectorSource,
+                    style : resultStyle(vectorSource,typeName),
+                    properties: { layerName: typeName }
+                });
+                map.addLayer(layer);
+                map.getView().fit(vectorSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
+            }
         }
 
-        return new Style({
-            stroke: new Stroke({
-                color: strokeColor,
-                width: widthAdministrativeRegion || 2,
-            }),
-            fill: new Fill({
-                color: fillColor
-            }),
-            image: new CircleStyle({
-                radius: 6,
-                fill: new Fill({ color: pointColor }),
-                stroke: new Stroke({ color: "white", width: 1 })
-            })
-        });
-    };
+        function resultStyle(rawSource, typeName) {
+            if (typeName === 'point' || typeName === 'buffer') {
+                const styleCache = {
+                    orange: new Style({
+                        stroke: new Stroke({color: "#fc941d", width: 2}),
+                        fill: new Fill({color: "rgba(252, 148, 29, 0.3)"}),
+                        image: new CircleStyle({
+                            radius: 6,
+                            fill: new Fill({color: "#fc941d"}),
+                            stroke: new Stroke({color: "white", width: 1})
+                        })
+                    }),
+                    blue: new Style({
+                        stroke: new Stroke({color: "#43b6b5", width: 2}),
+                        fill: new Fill({color: "rgba(67, 182, 181, 0.3)"}),
+                        image: new CircleStyle({
+                            radius: 6,
+                            fill: new Fill({color: "#43b6b5"}),
+                            stroke: new Stroke({color: "white", width: 1})
+                        })
+                    })
+                };
+                const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
+                return function (feature) {
+                    const precision = feature.get('level_of_accuracy') || "";
+                    return orangeList.includes(precision) ? styleCache.orange : styleCache.blue;
+                };
+            } else if (typeName === 'areas') {
+                return new Style({
+                    stroke: new Stroke({color: "#000000", width: 1}),
+                    fill: new Fill({color: "rgba(252, 148, 29, 0.5)"})
+                });
+            } else if (typeName === 'administrative_region') {
+                return new Style({
+                    stroke: new Stroke({color: '#000000', width: 0.5}),
+                    fill: new Fill({color: "rgba(0,0,0,0)"})
+                });
+            }
+        }
 
-        // New layer
-        resultLayer = new VectorLayer({
-            source: resultSource,
-            style: resultStyle,
-            name: 'results'  // Mark layer for legend detection
-        });
 
-        map.addLayer(resultLayer);
-        
+        // New layers
+        layerConstructor(resultGeoJSON);
+
         // Show legend when results are displayed
         showLegend();
-
-        // Automatic zoom on results (don't think it's good)
-        map.getView().fit(resultSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
-
     } catch (err) {
         console.error("Technical error:", err);
-        topCenterPanel.alerting(redTemplate,"The server is disconnected.",30);
+        topCenterPanel.alerting(redTemplate, "The server is disconnected.", 30);
     }
 });
 const saveBtn = document.getElementById("saveBtn");
@@ -505,4 +512,5 @@ panelToggleBtn.addEventListener('click', () => {
         map.updateSize();
     }, 300);
 });
+
 
