@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="my-deal-icon" viewBox="0 0 88 88">
+    <circle cx="44" cy="44" r="42"
+            fill="var(--bg-color, rgba(0,0,0,0.1))"
+            stroke="var(--stroke-color, black)"
+            stroke-width="2.7" />
+    <circle cx="44" cy="44" r="12"
+            fill="var(--stroke-color, black)"
+            stroke="#fff"
+            stroke-width="0.8" />
+  </symbol>
+</svg>
