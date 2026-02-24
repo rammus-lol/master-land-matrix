@@ -10,7 +10,13 @@ from pathlib import Path
 from django.conf import settings
 from land_matrix_function import export
 from api.spatial_service.spatial_function import  geom_constructor
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
+from .serializers import GeoJSONInputSerializer, GeomResponseSerializer
 #test = gpd.read_file(Path("..") / "data" / "polygone_test.geojson") #works only for dev on my computer
+@extend_schema(exclude=True)
+@api_view(['GET'])
 @csrf_exempt
 def generic_proxy(request, endpoint):
     """
@@ -32,14 +38,32 @@ def generic_proxy(request, endpoint):
             status=500
         )
 @csrf_exempt
+@extend_schema(
+    summary="Spatial analysis and geometry processing",
+    description="""
+        Processes a standard GeoJSON FeatureCollection to perform spatial queries.
+
+        The endpoint performs the following operations:
+        1. **Parsing**: Validates the incoming GeoJSON structure.
+        2. **Geometry Reconstruction**: Handles standard geometries (Points, Polygons, etc.).
+        3. **Extended Properties**: Detects custom spatial definitions within the 'properties' object 
+           (e.g., handles 'Circle' types by utilizing the 'radius' and 'original_type' attributes).
+        4. **Spatial Querying**: Forwards the cleaned geometries to the internal spatial engine 
+           to generate a contextual response.
+        """,
+    request=GeoJSONInputSerializer,
+    responses={
+        200: GeomResponseSerializer,
+    },
+    tags=['geography']
+)
+@api_view(['POST'])
 def geom(request):
-    """Receive the calling from frontend
-    and clean it for spatial querying
-    then give it back to the frontend"""
-    if request.method != "POST":
-        return JsonResponse({"error": "You have to make a POST request"}, status=400)
+    input_serializer = GeoJSONInputSerializer(data=request.data)
+    if not input_serializer.is_valid():
+        return Response({"error": "Invalid format for geom endpoint"}, status=400)
     try:
-        geojson = json.loads(request.body)  # ← load json
+        geojson=request.data
         geoms = [shape(f["geometry"]) for f in geojson["features"]]
         props = [f.get("properties") or {} for f in geojson["features"]]
 
