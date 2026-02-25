@@ -19,7 +19,7 @@
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
       <!-- when clicking on the logo redirect to the home page -->
-    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
+    <img class="main-logo" src="../images/landmatrix.png" alt="LM logo" onclick="window.location.href='../index.html'">
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -89,7 +89,7 @@
 
       <!-- Drawing tools -->
       <div class="left-group">
-        <h5 class="text-center mb-2">Drawing Tools</h5>
+        <h5 class="text-center">Drawing Tools</h5>
         <div class="drawing-tools-buttons">
           <button class="btn btn-tool" data-type="Polygon" title="Draw a polygon">
             <img src="../images/polygone.png" alt="Polygon" width="20" height="20">
@@ -106,24 +106,32 @@
         </div>
       </div>
 
-      <div class="left-group mt-2">
+      <div class="left-group">
         <button class="btn btn-light" id="undo">Undo</button>
         <button class="btn btn-light" id="clear">Clear</button>
       </div>
 
-      <div class="left-group mt-2">
+      <div class="left-group">
         <button class="btn btn-light" id="export">Querying our database</button>
       </div>
 
       <!-- Save file -->
-      <div class="left-group mt-3">
+      <div class="left-group">
         <button class="btn btn-light" id="saveBtn">Save your work</button>
       </div>
 
-      <div id="saveFilenameBox" class="mt-2" style="display: none;">
+      <div id="saveFilenameBox" style="display: none;">
         <input id="saveFilenameInput" type="text" placeholder="Enter filename…" />
-        <button id="saveOkBtn" class="btn btn-primary btn-sm">OK</button>
+        <button id="saveOkBtn" class="btn btn-primary">OK</button>
       </div>
+
+      <!-- button for excel download -->
+      <div class="double-btn-group">
+        <button class="btn btn-light" id="downloadExcel">Download Excel</button>
+        <button class="btn btn-light" id="downloadCSV">Download CSV</button>
+
+      </div>
+
 
       <hr>
 

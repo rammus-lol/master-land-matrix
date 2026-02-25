@@ -136,6 +136,15 @@ html, body {
     gap: 10px;
 }
 
+.double-btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.double-btn-group .btn {
+    flex: 1;
+}
+
 
 .input-group-text {
     background: var(--background-white);
