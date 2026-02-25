@@ -107,12 +107,6 @@ hr {
     background-color: var(--secondary-brown-hover);
 }
 
-#header-btn {
-    margin-top: 1%;
-    background-color: var(--secondary-brown);
-    color: var(--btn-toolkit-color);
-    border: none;
-}
 
 /* goToDocumentationBtn see map center horizontale / vertical */
 #goToDocumentationBtn {
@@ -125,13 +119,13 @@ hr {
     font-size: 1.2rem;
     color: #fff;
     transform: translate(-50%, -50%);
-    background-color: #967149;
+    background-color: var(--secondary-brown);
     border: none;
 }
 
 /* goToDocumentationBtn hover */
 #goToDocumentationBtn:hover {
-    background-color: #b07f4a;
+    background-color: var(--secondary-brown-hover);
 }
 
 .logo-simple {
