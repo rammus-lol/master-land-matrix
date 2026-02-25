@@ -150,8 +150,12 @@ document.getElementById('undo').addEventListener('click', function () {
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
-    source.clear(); 
+    source.clear();
+    map.getLayers().getArray()
+        .filter(layer => layer.get('layerName'))
+        .forEach(layer => map.removeLayer(layer));
 }
+
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 
