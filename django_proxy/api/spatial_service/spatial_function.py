@@ -29,7 +29,7 @@ but is certain their is no one inside this polygons or any deals with APPROXIMAT
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
-    col_to_drop=[col for col in filtered_regions.columns if col not in ("admin","geometry")]
+    col_to_drop=[col for col in filtered_regions.columns if col not in ("admin","geometry","name","name_en","type","type_en")]
     col_to_drop+=["admin_right",'index_right']
     selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
     selected_projects.rename(columns={"admin_left":'admin'},inplace=True)
@@ -92,7 +92,7 @@ def geom_constructor(query):
     filtered_regions['feature_type'] = 'administrative_region'# I modify this files here because this way sjoin wouldn't break things
     nb_deals = len(final_areas)+len(final_deals)
     buffers= final_deals.copy()
-    area = final_deals["deal_size"].replace(0, 2000000)
+    area = final_deals["deal_size"].replace(0, 200)
     buffers_geoms = final_deals["geometry"].buffer(
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     buffers["geometry"] = buffers_geoms
