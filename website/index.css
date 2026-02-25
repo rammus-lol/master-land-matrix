@@ -16,12 +16,6 @@
     z-index: -1;
 }
 
-header {
-    text-align: center;
-    background-color: #ffffff;
-    padding: 1% 1%;
-}
-
 .title-page {
     margin: 0;
     color: #222;
@@ -96,7 +90,7 @@ hr {
 #goToMapBtn {
     position: absolute;
     top: 65%;
-    left: 50%;
+    left: 40%;
     width: 14%;
     height: 7%;
     font-weight: bold;
@@ -112,6 +106,26 @@ hr {
     background-color: #b07f4a;
 }
 
+/* goToDocumentationBtn see map center horizontale / vertical */
+#goToDocumentationBtn {
+    position: absolute;
+    top: 65%;
+    left: 60%;
+    width: 14%;
+    height: 7%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    background-color: #967149;
+    border: none;
+}
+
+/* goToDocumentationBtn hover */
+#goToDocumentationBtn:hover {
+    background-color: #b07f4a;
+}
+
 .logo-simple {
     top: 27%;
     left: 50%;
@@ -120,17 +134,6 @@ hr {
     display: block;
     max-width: 40%;
     height: auto;
-}
-
-#header-btn {
-    margin-top: 1%;
-    background-color: #967149;
-    border: none;
-}
-
-/* header-btn hover */
-#header-btn:hover {
-    background-color: #b07f4a;
 }
 
 .slogan {
@@ -172,14 +175,14 @@ hr {
     z-index: 1000;
 }
 
-/* div list btn */
+/* div list btn
 .list-btn {
     display: flex;
     justify-content: flex-start;
     position: relative;
     gap: 10px;
     margin-left: 10px;
-}
+} */
 
 /* About Section */
 .about-section {
@@ -191,6 +194,7 @@ hr {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     position: relative; /* Ensures it sits correctly in the flow */
     z-index: 1;
+    margin-top: 8%;
 }
 
 .about-section h2 {
@@ -204,4 +208,140 @@ hr {
     line-height: 1.6;
     margin-bottom: 1rem;
     text-align: justify;
+}
+
+/* ========== Media Queries for Responsive Design ========== */
+
+/* Tablettes (écrans moyens) */
+@media (max-width: 768px) {
+
+    /* Bouton central principal */
+    #goToMapBtn {
+        width: 50%;
+        max-width: 250px;
+        height: auto;
+        padding: 15px 20px;
+        font-size: 1rem;
+        left: 50%;
+    }
+
+    #goToDocumentationBtn {
+        width: 50%;
+        max-width: 250px;
+        height: auto;
+        padding: 15px 20px;
+        font-size: 1rem;
+        left: 50%;
+        top: 75%;
+    }
+
+    /* Logos */
+    .logo-simple {
+        max-width: 60%;
+        top: 20%;
+    }
+
+    .university-logo-front {
+        width: 15%;
+        left: 82%;
+    }
+
+    .master-geonum-logo-front {
+        width: 8%;
+        left: -12%;
+    }
+
+    /* Slogan */
+    .slogan {
+        font-size: 1.1rem;
+        top: 42%;
+        width: 90%;
+    }
+}
+
+/* Smartphones (petits écrans) */
+@media (max-width: 480px) {
+
+    /* Boutons centraux */
+    #goToMapBtn {
+        width: 70%;
+        max-width: 200px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        top: 68%;
+    }
+
+    #goToDocumentationBtn {
+        width: 70%;
+        max-width: 200px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        top: 78%;
+    }
+
+    /* Logo principal */
+    .logo-simple {
+        max-width: 75%;
+        top: 18%;
+    }
+
+    /* Logos footer/header */
+    .university-logo-front {
+        width: 20%;
+        left: 75%;
+    }
+
+    .master-geonum-logo-front {
+        width: 12%;
+        left: -18%;
+    }
+
+    /* Slogan */
+    .slogan {
+        font-size: 0.95rem;
+        top: 40%;
+        width: 95%;
+    }
+
+    .slogan h2 {
+        font-size: 1.3rem;
+    }
+
+    .slogan p {
+        font-size: 0.9rem;
+    }
+
+    /* Footer logos */
+    .footer-logo {
+        height: 35px;
+        margin-left: 8px;
+    }
+
+    /* About section */
+    .about-section {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 360px) {
+    #goToMapBtn,
+    #goToDocumentationBtn {
+        width: 80%;
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+
+    .logo-simple {
+        max-width: 85%;
+    }
+
+    .slogan h2 {
+        font-size: 1.1rem;
+    }
+
+    .slogan p {
+        font-size: 0.85rem;
+    }
 }
