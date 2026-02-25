@@ -126,7 +126,7 @@ html, body {
 }
 
 .panel-toggle-btn:hover {
-    background-color: #e8841a;
+    background-color: var(--secondary-brown-hover);
 }
 
 .left-group,

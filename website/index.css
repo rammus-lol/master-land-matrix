@@ -1,14 +1,12 @@
-
 /* --- Home page header & layout (index.html) --- */
+
 .background-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    /* Replace the gradient by an image if you have one: url("./path/to/image.jpg") */
     background: url("images/fond.png") no-repeat;
-    /* transparence */
     opacity: 0.4;
     background-color: var(--main-bg-color);
     background-size: cover;
@@ -36,6 +34,8 @@ main {
     min-height: calc(100vh - 180px);
     padding: 20px;
 }
+
+/* --- Footer Section --- */
 
 .site-footer {
     background-color: var(--background-lighter);
@@ -83,20 +83,16 @@ main {
     border-radius: 4px;
 }
 
-.copyright-text {
-    margin: 0;
-}
-
 hr {
     border-top-color: var(--border-color-dark);
     opacity: 0.5;
 }
 
-/* goToMapBtn see map center horizontale / vertical */
-#goToMapBtn {
+/* --- Buttons --- */
+
+#goToMapBtn, #goToDocumentationBtn {
     position: absolute;
     top: 65%;
-    left: 50%;
     width: 14%;
     height: 7%;
     font-weight: bold;
@@ -105,12 +101,25 @@ hr {
     transform: translate(-50%, -50%);
     background-color: var(--secondary-brown);
     border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* goToMapBtn hover */
-#goToMapBtn:hover {
+#goToMapBtn { left: 40%; }
+#goToDocumentationBtn { left: 60%; }
+
+#goToMapBtn:hover, #goToDocumentationBtn:hover, #header-btn:hover {
     background-color: var(--secondary-brown-hover);
 }
+
+#header-btn {
+    margin-top: 1%;
+    background-color: var(--secondary-brown);
+    color: var(--btn-toolkit-color);
+    border: none;
+}
+
+/* --- Content & Logos --- */
 
 .logo-simple {
     top: 27%;
@@ -122,17 +131,6 @@ hr {
     height: auto;
 }
 
-#header-btn {
-    margin-top: 1%;
-    background-color: var(--secondary-brown);
-    border: none;
-}
-
-/* header-btn hover */
-#header-btn:hover {
-    background-color: var(--secondary-brown-hover);
-}
-
 .slogan {
     top: 47%;
     left: 50%;
@@ -142,54 +140,35 @@ hr {
     text-align: center;
     width: 80%;
     max-width: 720px;
+    color: var(--text-color-dark);
 }
 
-/* logo université */
 .university-logo-front {
     position: relative;
     width: 10%;
-    height:10%;
+    height: auto;
     left: 88%;
     margin-top: 1%;
 }
 
-
-/* logo master geonum */
 .master-geonum-logo-front {
     position: relative;
     width: 5%;
-    height: 5%;
+    height: auto;
     margin-top: 1%;
     left: -8%;    
 }
 
+/* --- About Section --- */
 
-/* btn layers */
-#layers {
-    position: absolute;
-    top: 90%;
-    right: 93%;
-    z-index: 1000;
-}
-
-/* div list btn */
-.list-btn {
-    display: flex;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    margin-left: 10px;
-}
-
-/* About Section */
 .about-section {
     background-color: var(--background-almost-white);
     padding: 2rem;
-    margin: 2rem auto;
+    margin: 5% auto 2rem;
     max-width: 800px;
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-light);
-    position: relative; /* Ensures it sits correctly in the flow */
+    position: relative;
     z-index: 1;
 }
 
@@ -204,4 +183,40 @@ hr {
     line-height: 1.6;
     margin-bottom: 1rem;
     text-align: justify;
+}
+
+/* ========== Media Queries pour le Responsive ========== */
+
+@media (max-width: 768px) {
+    #goToMapBtn, #goToDocumentationBtn {
+        width: 50%;
+        max-width: 250px;
+        height: auto;
+        padding: 15px 20px;
+        font-size: 1rem;
+        left: 50%;
+    }
+
+    #goToDocumentationBtn { top: 75%; }
+
+    .logo-simple { max-width: 60%; top: 20%; }
+    .university-logo-front { width: 15%; left: 82%; }
+    .master-geonum-logo-front { width: 8%; left: -12%; }
+    .slogan { font-size: 1.1rem; top: 42%; }
+}
+
+@media (max-width: 480px) {
+    #goToMapBtn, #goToDocumentationBtn {
+        width: 70%;
+        max-width: 200px;
+        font-size: 0.9rem;
+    }
+    #goToMapBtn { top: 68%; }
+    #goToDocumentationBtn { top: 78%; }
+
+    .logo-simple { max-width: 75%; top: 18%; }
+    .university-logo-front { width: 20%; left: 75%; }
+    .slogan { font-size: 0.95rem; top: 40%; }
+    
+    .about-section { padding: 1.5rem; margin: 1rem; }
 }
