@@ -1,16 +1,14 @@
-
 /* --- Home page header & layout (index.html) --- */
+
 .background-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    /* Replace the gradient by an image if you have one: url("./path/to/image.jpg") */
     background: url("images/fond.png") no-repeat;
-    /* transparence */
     opacity: 0.4;
-    background-color: #fc941d;
+    background-color: var(--main-bg-color);
     background-size: cover;
     background-position: left;
     z-index: -1;
@@ -18,7 +16,7 @@
 
 .title-page {
     margin: 0;
-    color: #222;
+    color: var(--text-color-dark);
     font-size: 2rem;
     line-height: 1.1;
 }
@@ -31,18 +29,20 @@ main {
     padding: 20px;
 }
 
+/* --- Footer Section --- */
+
 .site-footer {
-    background-color: #f8f9fa;
+    background-color: var(--background-lighter);
     padding: 45px 0 20px;
     font-size: 15px;
     line-height: 24px;
-    color: #333333;
+    color: var(--text-color);
     margin-top: auto;
-    border-top: 1px solid #e7e7e7;
+    border-top: 1px solid var(--border-color-lighter);
 }
 
 .site-footer h5 {
-    color: #2c3e50;
+    color: var(--text-color-heading);
     font-size: 16px;
     text-transform: uppercase;
     margin-top: 5px;
@@ -50,12 +50,12 @@ main {
 }
 
 .site-footer a {
-    color: #555555;
+    color: var(--text-color-medium);
     text-decoration: none;
 }
 
 .site-footer a:hover {
-    color: #967149;
+    color: var(--secondary-brown);
     text-decoration: none;
 }
 
@@ -77,17 +77,14 @@ main {
     border-radius: 4px;
 }
 
-.copyright-text {
-    margin: 0;
-}
-
 hr {
-    border-top-color: #bbb;
+    border-top-color: var(--border-color-dark);
     opacity: 0.5;
 }
 
-/* goToMapBtn see map center horizontale / vertical */
-#goToMapBtn {
+/* --- Buttons --- */
+
+#goToMapBtn, #goToDocumentationBtn {
     position: absolute;
     top: 65%;
     left: 40%;
@@ -95,15 +92,26 @@ hr {
     height: 7%;
     font-weight: bold;
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--btn-toolkit-color);
     transform: translate(-50%, -50%);
-    background-color: #967149;
+    background-color: var(--secondary-brown);
     border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* goToMapBtn hover */
-#goToMapBtn:hover {
-    background-color: #b07f4a;
+#goToMapBtn { left: 40%; }
+#goToDocumentationBtn { left: 60%; }
+
+#goToMapBtn:hover, #goToDocumentationBtn:hover, #header-btn:hover {
+    background-color: var(--secondary-brown-hover);
+}
+
+#header-btn {
+    margin-top: 1%;
+    background-color: var(--secondary-brown);
+    color: var(--btn-toolkit-color);
+    border: none;
 }
 
 /* goToDocumentationBtn see map center horizontale / vertical */
@@ -145,27 +153,26 @@ hr {
     text-align: center;
     width: 80%;
     max-width: 720px;
+    color: var(--text-color-dark);
 }
 
-/* logo université */
 .university-logo-front {
     position: relative;
     width: 10%;
-    height:10%;
+    height: auto;
     left: 88%;
     margin-top: 1%;
 }
 
-
-/* logo master geonum */
 .master-geonum-logo-front {
     position: relative;
     width: 5%;
-    height: 5%;
+    height: auto;
     margin-top: 1%;
     left: -8%;    
 }
 
+/* --- About Section --- */
 
 /* btn layers */
 #layers {
@@ -186,25 +193,25 @@ hr {
 
 /* About Section */
 .about-section {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: var(--background-almost-white);
     padding: 2rem;
-    margin: 2rem auto;
+    margin: 5% auto 2rem;
     max-width: 800px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    position: relative; /* Ensures it sits correctly in the flow */
+    box-shadow: 0 10px 25px var(--shadow-light);
+    position: relative;
     z-index: 1;
     margin-top: 8%;
 }
 
 .about-section h2 {
-    color: #2c3e50;
+    color: var(--text-color-heading);
     margin-bottom: 1rem;
     text-align: center;
 }
 
 .about-section p {
-    color: #555;
+    color: var(--text-color-medium);
     line-height: 1.6;
     margin-bottom: 1rem;
     text-align: justify;

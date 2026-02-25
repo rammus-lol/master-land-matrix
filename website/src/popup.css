@@ -1,11 +1,11 @@
 
 .ol-popup {
     position: absolute;
-    background-color: white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    background-color: var(--background-white);
+    box-shadow: 0 1px 4px var(--shadow-medium);
     padding: 0;
     border-radius: 10px;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--border-color-light);
     bottom: 12px;
     left: -50px;
     min-width: 280px;
@@ -24,14 +24,14 @@
 }
 
 .ol-popup:after {
-    border-top-color: white;
+    border-top-color: var(--background-white);
     border-width: 10px;
     left: 48px;
     margin-left: -10px;
 }
 
 .ol-popup:before {
-    border-top-color: #cccccc;
+    border-top-color: var(--border-color-light);
     border-width: 11px;
     left: 48px;
     margin-left: -11px;
@@ -43,7 +43,7 @@
     top: 8px;
     right: 8px;
     font-size: 20px;
-    color: #666;
+    color: var(--text-color-light);
     font-weight: bold;
     cursor: pointer;
 }
@@ -53,7 +53,7 @@
 }
 
 .ol-popup-closer:hover {
-    color: #000;
+    color: var(--text-color-black);
 }
 
 #popup-content {
@@ -66,7 +66,7 @@
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
-    color: #000;
+    color: var(--text-color-black);
 }
 
 .popup-field {
@@ -76,13 +76,13 @@
 .popup-field-label {
     font-weight: bold;
     font-size: 14px;
-    color: #000;
+    color: var(--text-color-black);
     margin-bottom: 2px;
 }
 
 .popup-field-value {
     font-size: 14px;
-    color: #333;
+    color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -94,8 +94,8 @@
 }
 
 .popup-more-btn {
-    background-color: #fc941d;
-    color: white;
+    background-color: var(--main-bg-color);
+    color: var(--btn-toolkit-color);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -107,5 +107,5 @@
 }
 
 .popup-more-btn:hover {
-    background-color: #e67e0a;
+    background-color: var(--main-bg-hover-dark);
 }
