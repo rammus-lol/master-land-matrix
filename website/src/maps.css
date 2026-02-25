@@ -139,10 +139,16 @@ html, body {
 .double-btn-group {
     display: flex;
     gap: 10px;
+    margin-top: 5%;
 }
 
 .double-btn-group .btn {
     flex: 1;
+    background-color:var(--main-bg-color);
+
+}
+.double-btn-group .btn:hover {
+    background-color: var(--secondary-brown-hover);
 }
 
 
