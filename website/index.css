@@ -14,12 +14,6 @@
     z-index: -1;
 }
 
-header {
-    text-align: center;
-    background-color: var(--background-white);
-    padding: 1% 1%;
-}
-
 .title-page {
     margin: 0;
     color: var(--text-color-dark);
@@ -93,6 +87,7 @@ hr {
 #goToMapBtn, #goToDocumentationBtn {
     position: absolute;
     top: 65%;
+    left: 40%;
     width: 14%;
     height: 7%;
     font-weight: bold;
@@ -119,7 +114,25 @@ hr {
     border: none;
 }
 
-/* --- Content & Logos --- */
+/* goToDocumentationBtn see map center horizontale / vertical */
+#goToDocumentationBtn {
+    position: absolute;
+    top: 65%;
+    left: 60%;
+    width: 14%;
+    height: 7%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    background-color: #967149;
+    border: none;
+}
+
+/* goToDocumentationBtn hover */
+#goToDocumentationBtn:hover {
+    background-color: #b07f4a;
+}
 
 .logo-simple {
     top: 27%;
@@ -161,6 +174,24 @@ hr {
 
 /* --- About Section --- */
 
+/* btn layers */
+#layers {
+    position: absolute;
+    top: 90%;
+    right: 93%;
+    z-index: 1000;
+}
+
+/* div list btn
+.list-btn {
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    margin-left: 10px;
+} */
+
+/* About Section */
 .about-section {
     background-color: var(--background-almost-white);
     padding: 2rem;
@@ -170,6 +201,7 @@ hr {
     box-shadow: 0 10px 25px var(--shadow-light);
     position: relative;
     z-index: 1;
+    margin-top: 8%;
 }
 
 .about-section h2 {
@@ -185,10 +217,13 @@ hr {
     text-align: justify;
 }
 
-/* ========== Media Queries pour le Responsive ========== */
+/* ========== Media Queries for Responsive Design ========== */
 
+/* Tablettes (écrans moyens) */
 @media (max-width: 768px) {
-    #goToMapBtn, #goToDocumentationBtn {
+
+    /* Bouton central principal */
+    #goToMapBtn {
         width: 50%;
         max-width: 250px;
         height: auto;
@@ -197,26 +232,123 @@ hr {
         left: 50%;
     }
 
-    #goToDocumentationBtn { top: 75%; }
+    #goToDocumentationBtn {
+        width: 50%;
+        max-width: 250px;
+        height: auto;
+        padding: 15px 20px;
+        font-size: 1rem;
+        left: 50%;
+        top: 75%;
+    }
 
-    .logo-simple { max-width: 60%; top: 20%; }
-    .university-logo-front { width: 15%; left: 82%; }
-    .master-geonum-logo-front { width: 8%; left: -12%; }
-    .slogan { font-size: 1.1rem; top: 42%; }
+    /* Logos */
+    .logo-simple {
+        max-width: 60%;
+        top: 20%;
+    }
+
+    .university-logo-front {
+        width: 15%;
+        left: 82%;
+    }
+
+    .master-geonum-logo-front {
+        width: 8%;
+        left: -12%;
+    }
+
+    /* Slogan */
+    .slogan {
+        font-size: 1.1rem;
+        top: 42%;
+        width: 90%;
+    }
 }
 
+/* Smartphones (petits écrans) */
 @media (max-width: 480px) {
-    #goToMapBtn, #goToDocumentationBtn {
+
+    /* Boutons centraux */
+    #goToMapBtn {
         width: 70%;
         max-width: 200px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        top: 68%;
+    }
+
+    #goToDocumentationBtn {
+        width: 70%;
+        max-width: 200px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        top: 78%;
+    }
+
+    /* Logo principal */
+    .logo-simple {
+        max-width: 75%;
+        top: 18%;
+    }
+
+    /* Logos footer/header */
+    .university-logo-front {
+        width: 20%;
+        left: 75%;
+    }
+
+    .master-geonum-logo-front {
+        width: 12%;
+        left: -18%;
+    }
+
+    /* Slogan */
+    .slogan {
+        font-size: 0.95rem;
+        top: 40%;
+        width: 95%;
+    }
+
+    .slogan h2 {
+        font-size: 1.3rem;
+    }
+
+    .slogan p {
         font-size: 0.9rem;
     }
-    #goToMapBtn { top: 68%; }
-    #goToDocumentationBtn { top: 78%; }
 
-    .logo-simple { max-width: 75%; top: 18%; }
-    .university-logo-front { width: 20%; left: 75%; }
-    .slogan { font-size: 0.95rem; top: 40%; }
-    
-    .about-section { padding: 1.5rem; margin: 1rem; }
+    /* Footer logos */
+    .footer-logo {
+        height: 35px;
+        margin-left: 8px;
+    }
+
+    /* About section */
+    .about-section {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 360px) {
+    #goToMapBtn,
+    #goToDocumentationBtn {
+        width: 80%;
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+
+    .logo-simple {
+        max-width: 85%;
+    }
+
+    .slogan h2 {
+        font-size: 1.1rem;
+    }
+
+    .slogan p {
+        font-size: 0.85rem;
+    }
 }
