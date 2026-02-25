@@ -6,22 +6,22 @@
     left: 20px;
     width: 60px;
     height: 60px;
-    background: white;
+    background: var(--background-white);
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 6px var(--shadow-dark);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     z-index: 9999;
-    border: 2px solid white;
+    border: 2px solid var(--background-white);
     transition: border-color 0.3s;
     /* no highlight possible */
     outline: none;
 }
 
 .layer-switcher-btn:hover {
-    border-color: #fc941d;
+    border-color: var(--main-bg-color);
 }
 
 .layer-switcher-btn img {
@@ -43,17 +43,17 @@
 }
 
 .layer-modal-content {
-    background-color: #fefefe;
+    background-color: var(--background-lightest);
     margin: 0;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color-light);
     width: auto;
     border-radius: 15px;
     position: absolute;
     bottom: 20px;
     left: 90px;
     right: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px var(--shadow-dark);
     animation: slideUp 0.3s ease-out;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .close-modal {
-    color: #aaa;
+    color: var(--border-color-close);
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -72,7 +72,7 @@
 
 .close-modal:hover,
 .close-modal:focus {
-    color: black;
+    color: var(--text-color-black);
     text-decoration: none;
     cursor: pointer;
 }
@@ -96,8 +96,8 @@
 }
 
 .layer-option:hover, .layer-option.active {
-    border-color: #fc941d;
-    background-color: #f9f9f9;
+    border-color: var(--main-bg-color);
+    background-color: var(--background-color);
 }
 
 .layer-option img {
@@ -106,7 +106,7 @@
     object-fit: cover;
     border-radius: 5px;
     margin-bottom: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color-light);
     /* no highlight possible */
     outline: none;
 }

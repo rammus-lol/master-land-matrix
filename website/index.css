@@ -10,7 +10,7 @@
     background: url("images/fond.png") no-repeat;
     /* transparence */
     opacity: 0.4;
-    background-color: #fc941d;
+    background-color: var(--main-bg-color);
     background-size: cover;
     background-position: left;
     z-index: -1;
@@ -18,13 +18,13 @@
 
 header {
     text-align: center;
-    background-color: #ffffff;
+    background-color: var(--background-white);
     padding: 1% 1%;
 }
 
 .title-page {
     margin: 0;
-    color: #222;
+    color: var(--text-color-dark);
     font-size: 2rem;
     line-height: 1.1;
 }
@@ -38,17 +38,17 @@ main {
 }
 
 .site-footer {
-    background-color: #f8f9fa;
+    background-color: var(--background-lighter);
     padding: 45px 0 20px;
     font-size: 15px;
     line-height: 24px;
-    color: #333333;
+    color: var(--text-color);
     margin-top: auto;
-    border-top: 1px solid #e7e7e7;
+    border-top: 1px solid var(--border-color-lighter);
 }
 
 .site-footer h5 {
-    color: #2c3e50;
+    color: var(--text-color-heading);
     font-size: 16px;
     text-transform: uppercase;
     margin-top: 5px;
@@ -56,12 +56,12 @@ main {
 }
 
 .site-footer a {
-    color: #555555;
+    color: var(--text-color-medium);
     text-decoration: none;
 }
 
 .site-footer a:hover {
-    color: #967149;
+    color: var(--secondary-brown);
     text-decoration: none;
 }
 
@@ -88,7 +88,7 @@ main {
 }
 
 hr {
-    border-top-color: #bbb;
+    border-top-color: var(--border-color-dark);
     opacity: 0.5;
 }
 
@@ -101,15 +101,15 @@ hr {
     height: 7%;
     font-weight: bold;
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--btn-toolkit-color);
     transform: translate(-50%, -50%);
-    background-color: #967149;
+    background-color: var(--secondary-brown);
     border: none;
 }
 
 /* goToMapBtn hover */
 #goToMapBtn:hover {
-    background-color: #b07f4a;
+    background-color: var(--secondary-brown-hover);
 }
 
 .logo-simple {
@@ -124,13 +124,13 @@ hr {
 
 #header-btn {
     margin-top: 1%;
-    background-color: #967149;
+    background-color: var(--secondary-brown);
     border: none;
 }
 
 /* header-btn hover */
 #header-btn:hover {
-    background-color: #b07f4a;
+    background-color: var(--secondary-brown-hover);
 }
 
 .slogan {
@@ -183,24 +183,24 @@ hr {
 
 /* About Section */
 .about-section {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: var(--background-almost-white);
     padding: 2rem;
     margin: 2rem auto;
     max-width: 800px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 25px var(--shadow-light);
     position: relative; /* Ensures it sits correctly in the flow */
     z-index: 1;
 }
 
 .about-section h2 {
-    color: #2c3e50;
+    color: var(--text-color-heading);
     margin-bottom: 1rem;
     text-align: center;
 }
 
 .about-section p {
-    color: #555;
+    color: var(--text-color-medium);
     line-height: 1.6;
     margin-bottom: 1rem;
     text-align: justify;

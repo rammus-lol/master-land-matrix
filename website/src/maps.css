@@ -5,8 +5,6 @@
     box-sizing: border-box;
 }
 
-:root {--main-bg-color : #fc941d; }
-
 html, body {
     height: 100%;
     width: 100%;
@@ -87,9 +85,9 @@ html, body {
     right: 0;
     top: 70px;
     width: 307px;
-    background: #f9f9f9;
+    background: var(--background-color);
     padding: 15px;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--border-color);
     height: calc(100vh - 70px);
     overflow-y: auto;
     transition: right 0.3s ease;
@@ -140,7 +138,7 @@ html, body {
 
 
 .input-group-text {
-    background: #fff;
+    background: var(--background-white);
     border-radius: 6px;
     padding: 4px 8px;
 }
@@ -159,15 +157,15 @@ html, body {
 
 #drop-area {
     padding: 12px;
-    background: #f8f8f8;
-    border: 2px dashed #999;
+    background: var(--background-light);
+    border: 2px dashed var(--border-color-medium);
     border-radius: 10px;
     text-align: center;
 }
 
 #drop-area.highlight {
     border-color: var(--main-bg-color);
-    background: #eef6ff;
+    background: var(--background-blue-light);
 }
 #map {
     position: absolute;
@@ -184,8 +182,8 @@ html, body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(238, 246, 255, 0.3);
-    border: 3px solid #43b6b5;
+    background: var(--background-blue-transparent);
+    border: 3px solid var(--secondary-blue);
     pointer-events: none;
     z-index: 1000;
 }
@@ -198,9 +196,9 @@ html, body {
 }
 
 .scale-line-container .ol-scale-line-inner {
-    border: 1px solid #000000;
+    border: 1px solid var(--text-color-black);
     border-top: none;
-    color: #000000;
+    color: var(--text-color-black);
     font-size: 15px;
     text-align: center;
     margin: 1px;
@@ -210,9 +208,9 @@ html, body {
 
 #known-point-panel {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: white;
+    background: var(--background-white);
     margin-top: 10px;
     display: none; 
 }
@@ -239,25 +237,25 @@ html, body {
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
-    background: white;
-    border: 2px solid #ddd;
+    background: var(--background-white);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 16px;
-    color: #333;
+    color: var(--text-color);
 }
 
 .btn-tool:hover {
     border-color: var(--main-bg-color);
-    background: #fff5eb;
+    background: var(--background-orange-light);
     transform: translateX(3px);
 }
 
 .btn-tool.active {
     background: var(--main-bg-color);
     border-color: var(--main-bg-color);
-    color: white;
+    color: var(--btn-toolkit-color);
 }
 
 .btn-tool svg,

@@ -1,0 +1,52 @@
+:root {
+    /* Primary colors */
+    --main-bg-color: #fc941d;
+    --main-bg-color-transparent: rgba(252, 148, 29, 0.3);
+    --main-bg-hover: #e8841a;
+    --main-bg-hover-dark: #e67e0a;
+    
+    /* Secondary colors */
+    --secondary-brown: #967149;
+    --secondary-brown-hover: #b07f4a;
+    --secondary-blue: #43b6b5;
+    --secondary-blue-transparent: rgba(67, 182, 181, 0.3);
+    
+    /* Background colors */
+    --background-color: #f9f9f9;
+    --background-light: #f8f8f8;
+    --background-lighter: #f8f9fa;
+    --background-lightest: #fefefe;
+    --background-white: #ffffff;
+    --background-almost-white: rgba(255, 255, 255, 0.95);
+    --background-hover: #f5f5f5;
+    --background-orange-light: #fff5eb;
+    --background-blue-light: #eef6ff;
+    --background-blue-transparent: rgba(238, 246, 255, 0.3);
+    
+    /* Text colors */
+    --text-color: #333;
+    --text-color-dark: #222;
+    --text-color-medium: #555;
+    --text-color-light: #666;
+    --text-color-black: #000;
+    --text-color-heading: #2c3e50;
+    
+    /* Border colors */
+    --border-color: #ddd;
+    --border-color-light: #ccc;
+    --border-color-medium: #999;
+    --border-color-lighter: #e7e7e7;
+    --border-color-dark: #bbb;
+    --border-color-close: #aaa;
+    
+    /* Shadow colors */
+    --shadow-light: rgba(0, 0, 0, 0.15);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    
+    /* Overlay colors */
+    --overlay-white: rgba(255, 255, 255, 0.2);
+    
+    /* Button colors */
+    --btn-toolkit-color: white;
+}
