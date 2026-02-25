@@ -109,13 +109,13 @@ body:has(.side-panel.collapsed) .map-legend {
 }
 /*For styling,the point svg we need to use css variables*/
 .legend-orange {
-  --stroke-color: var(--main-bg-color);
-  --bg-color: var(--main-bg-color-transparent);
+  --stroke-color: #fc941d;
+  --bg-color: rgba(252, 148, 29, 0.3);
 }
 
 .legend-blue {
-  --stroke-color: var(--secondary-blue);
-  --bg-color: var(--secondary-blue-transparent);
+  --stroke-color: #43b6b5;
+  --bg-color: rgba(67, 182, 181, 0.3);
 }
 
 /* Legend button */
