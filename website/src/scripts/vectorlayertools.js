@@ -1,7 +1,10 @@
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
+import Point from 'ol/geom/Point';
+import Feature from "ol/Feature";
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
+import { getCenter } from 'ol/extent';
 export function resultStyle(typeName) {
     if (typeName === "high_accuracy_location") {
         return new Style({
@@ -98,12 +101,23 @@ export function layerUpdator(geojsonObject) {
 
     for (let feature of allFeatures) {
         const type = feature.get('feature_type');
-        if (!layerSources[type]) {
+        const source = layerSources[type]
+        if (!source) {
             console.warn(`Type de couche inconnu : "${type}". Vérifiez le mapping backend/frontend.'${new GeoJSON(feature)}'`);
         }
         else {
-            layerSources[type].addFeature(feature)
-            console.log(`feature ajouté dans ${type}`);
+            if (type.includes('accuracy')) {
+                const geometry = feature.getGeometry();
+                let center;
+                const extent  = geometry.getExtent()
+                center = getCenter(extent)
+                const pointFeature = new Feature({
+                    geometry: new Point(center),
+                    feature_type: type
+                });
+                source.addFeature(pointFeature);
+            }
+            source.addFeature(feature)
         }
     }
 }
