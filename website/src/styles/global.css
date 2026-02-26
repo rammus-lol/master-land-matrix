@@ -11,7 +11,7 @@
     --secondary-blue: #16a085; /* Vert canard / Sarcelle */
     --secondary-blue-transparent: rgba(22, 160, 133, 0.3);
     
-    /* Background colors - Fraîcheur Menthe */
+    /* Background colors - Mint green */
     --background-color: #f4f9f6;
     --background-light: #f0f7f2;
     --background-lighter: #f8faf9;
@@ -19,7 +19,7 @@
     --background-white: #ffffff;
     --background-almost-white: rgba(255, 255, 255, 0.95);
     --background-hover: #eaf4ed;
-    --background-orange-light: #e8f5e9; /* Remplacé par un vert très tendre */
+    --background-orange-light: #e8f5e9;
     --background-blue-light: #e0f2f1;
     --background-blue-transparent: rgba(224, 242, 241, 0.3);
     
@@ -29,7 +29,7 @@
     --text-color-medium: #455a64;
     --text-color-light: #78909c;
     --text-color-black: #000;
-    --text-color-heading: #145a32; /* Titres en vert très sombre */
+    --text-color-heading: #145a32;
     --text-color-white: #fff;
     
     /* Border colors */
@@ -42,7 +42,7 @@
     
     /* Shadow colors */
     --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(20, 90, 50, 0.15); /* Ombre avec une pointe de vert */
+    --shadow-medium: rgba(20, 90, 50, 0.15); /* Greenish shadow */
     --shadow-dark: rgba(0, 0, 0, 0.2);
     
     /* Overlay colors */

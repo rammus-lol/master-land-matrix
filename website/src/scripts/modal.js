@@ -14,16 +14,19 @@ class LayerSwitcherModal {
         
         // Passing a layer configuration or the default which is the used based maps
         this.layers = layersConfig || this.getDefaultLayers();
-        
 
         this.initializeElements();
-        
 
         this.setupEventListeners();
+        window.addEventListener('modalOpened', (event) => {
+            if (event.detail.modalId !== this.modalId) {
+                this.closeModal();
+            }
+        });
     }
     
     /**
-
+        Define a the basic base map configuration
      * @returns {Object}
      */
     getDefaultLayers() {
@@ -111,6 +114,10 @@ class LayerSwitcherModal {
     openModal() {
         if (this.layerModal) {
             this.layerModal.style.display = 'block';
+            const event = new CustomEvent('modalOpened', {
+                detail: { modalId: this.modalId }
+            });
+            window.dispatchEvent(event);
         }
     }
 

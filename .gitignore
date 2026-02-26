@@ -7,12 +7,13 @@ django_proxy/data/areas.gpkg
 django_proxy/data/deals.gpkg
 django_proxy/data/reports
 .idea
+.vscode
 .package-lock.json
 website/dist
 *.geojson
-*.txt
 # Dependencies
 *.pyc
 __pycache__/
 report.json
 R_script/.gitignore
+crawler/logs
