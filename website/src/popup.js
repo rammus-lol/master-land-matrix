@@ -1,7 +1,8 @@
 import Overlay from 'ol/Overlay';
 
-// Cache pour le template de la popup
+// Cache pour les templates de la popup
 let popupTemplate = null;
+let popupRegionTemplate = null;
 
 // Mapping pour l'affichage de la précision
 const ACCURACY_LABELS = {
@@ -41,7 +42,7 @@ function formatIntention(intention) {
  * Formate la taille de la transaction avec les unités appropriées
  */
 function formatDealSize(dealSize) {
-  if (!dealSize || dealSize === 'N/A') return 'N/A';
+  if (!dealSize || dealSize === 'N/A') return 'Not specified';
   if (dealSize === 0 || dealSize === '0.0') return 'Not specified';
 
   const size = typeof dealSize === 'number' ? dealSize : parseFloat(dealSize);
@@ -49,7 +50,7 @@ function formatDealSize(dealSize) {
 }
 
 /**
- * Charge le template HTML de la popup
+ * Charge le template HTML de la popup pour les deals
  */
 async function loadPopupTemplate() {
   if (!popupTemplate) {
@@ -62,6 +63,22 @@ async function loadPopupTemplate() {
     }
   }
   return popupTemplate;
+}
+
+/**
+ * Charge le template HTML de la popup pour les régions
+ */
+async function loadPopupRegionTemplate() {
+  if (!popupRegionTemplate) {
+    try {
+      const response = await fetch('/src/popup-content-region.html');
+      popupRegionTemplate = await response.text();
+    } catch (error) {
+      console.error('Error loading region popup template:', error);
+      popupRegionTemplate = '<div class="popup-deal-title">Region</div><p>Error loading template</p>';
+    }
+  }
+  return popupRegionTemplate;
 }
 
 /**
@@ -90,19 +107,57 @@ export function initializePopup(map) {
   map.on('click', async function (evt) {
 
     const dealpopup = ['point', 'areas', 'buffer'];
+    const regionpopup = ['administrative_region'];
 
-    const feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
-      if (layer && dealpopup.includes(layer.get('layerName'))) {
-        return feat;
+    // Priorité 1 : Rechercher d'abord les deals (points, polygones)
+    let feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
+      const layerName = layer ? layer.get('layerName') : null;
+      if (layer && dealpopup.includes(layerName)) {
+        return { feature: feat, layerType: layerName };
       }
     });
+
+    // Priorité 2 : Si aucun deal trouvé, chercher les régions
+    if (!feature) {
+      feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
+        const layerName = layer ? layer.get('layerName') : null;
+        if (layer && regionpopup.includes(layerName)) {
+          return { feature: feat, layerType: layerName };
+        }
+      });
+    }
 
     if (!feature) {
       overlay.setPosition(undefined);
       return;
     }
 
-    const properties = feature.getProperties();
+    const { feature: selectedFeature, layerType } = feature;
+    const properties = selectedFeature.getProperties();
+
+    // Gérer les popups pour les régions administratives
+    if (regionpopup.includes(layerType)) {
+      const regionName = properties.admin || 'Not specified';
+      const isoCode = properties.iso_3166_2 || 'Not specified';
+      const name = properties.name || 'Not specified';
+      const nameEn = properties.name_en || 'Not specified';
+      const type = properties.type || 'Not specified';
+      const typeEn = properties.type_en || 'Not specified';
+
+      const template = await loadPopupRegionTemplate();
+      content.innerHTML = template
+          .replace(/{{regionName}}/g, regionName)
+          .replace(/{{isoCode}}/g, isoCode)
+          .replace(/{{name}}/g, name)
+          .replace(/{{nameEn}}/g, nameEn)
+          .replace(/{{type}}/g, type)
+          .replace(/{{typeEn}}/g, typeEn);
+
+      overlay.setPosition(evt.coordinate);
+      return;
+    }
+
+    // Gérer les popups pour les deals (comportement existant)
     const dealId = properties.deal_id || properties.id;
 
     if (!dealId) return;
