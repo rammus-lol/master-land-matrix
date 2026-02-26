@@ -358,3 +358,18 @@ top: 50%;
 transform: translateY(-50%);
 z-index: 10;
 }
+
+#dont-show-again {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-color);
+    border: none;
+    color: var(--btn-toolkit-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
