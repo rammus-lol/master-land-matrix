@@ -101,11 +101,9 @@ def geodataframe_writer(calling : list[dict]):
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     gdf["geometry"] = buffers_geoms
     accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
-    gdf['feature_type'] = np.where(
-        gdf['level_of_accuracy'].isin(accurate_points),
-        "high_accuracy_location",
-        "low_accuracy_location"
-    )
+    mask = gdf['level_of_accuracy'].isin(accurate_points)
+    gdf['feature_type'] = np.where(mask, "high_accuracy_location", "low_accuracy_location")
+    gdf['quality_of_precision'] = np.where(mask, "high accuracy location without shape provided", "low accuracy location")
     return gdf,report # it returns something but only for debug, the function handle export
 def api_calling():
     try:
