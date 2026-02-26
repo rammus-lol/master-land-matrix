@@ -28,11 +28,11 @@ but is certain their is no one inside this polygons or any deals with APPROXIMAT
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
-    col_to_keep = ("admin","name","name_en","type","type_en","geometry")
+    col_to_keep = ("admin","geometry")
     col_to_drop=[col for col in filtered_regions.columns if col not in col_to_keep]
-    col_to_drop+=["admin_right",'index_right']
+    col_to_drop+=["admin_right",'index_right',"feature_type_right"]
     selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
-    selected_projects.rename(columns={"admin_left":'admin'},inplace=True)
+    selected_projects.rename(columns={"admin_left":'admin',"feature_type_left":"feature_type"},inplace=True)
     return selected_projects,filtered_regions
 
 def which_areas(query, regions, polygone_projects):
@@ -48,9 +48,8 @@ def which_areas(query, regions, polygone_projects):
 
     regions_ids = list(regions["iso_3166_2"])
     filtered_areas = polygone_projects[
-        polygone_projects["region_list"].apply(lambda x: region_checker(x, regions_ids))]
-    selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["id_right","index_right"],errors="ignore")
-    selected_areas.rename(columns={"id_left":"id"},inplace=True)
+    polygone_projects["region_list"].apply(lambda x: region_checker(x, regions_ids))]
+    selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["index_right"],errors="ignore")
     return selected_areas
 
 def final_filtering(query, regions, projects, selected_projects):
@@ -65,7 +64,6 @@ def final_filtering(query, regions, projects, selected_projects):
         .isin(accurate_points)]
     projects_inside = (gpd.sjoin(selected_projects, query, how='inner')
                     .drop(columns=["id_right", "index_right"],errors="ignore"))
-
     final_projects = (gpd.GeoDataFrame(
         pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
         .drop_duplicates())
