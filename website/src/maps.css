@@ -131,7 +131,7 @@ html, body {
 }
 
 .panel-toggle-btn:hover {
-    background-color: var(--secondary-brown-hover);
+    background-color: var(--main-bg-hover-dark);
 }
 
 .left-group,
@@ -150,10 +150,11 @@ html, body {
 .double-btn-group .btn {
     flex: 1;
     background-color:var(--main-bg-color);
+    color: var(--text-color-white);
 
 }
 .double-btn-group .btn:hover {
-    background-color: var(--secondary-brown-hover);
+    background-color: var(--main-bg-hover-dark);
 }
 
 
@@ -333,9 +334,21 @@ html, body {
 }
 
 .close {
-    background-color: var(--secondary-brown);
+    background-color: var(--main-bg-color);
     border: none;
-    color: var(--btn-toolkit-color);
+    color: var(--text-color-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+    position: relative;
+}
+
+.close:hover {
+    background-color: var(--main-bg-hover-dark);
+    border: none;
+    color: var(--text-color-white);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
@@ -350,6 +363,17 @@ html, body {
     top: 50%; 
     transform: translateY(-50%);
     z-index: 10;
+    background-color: var(--main-bg-color);
+    color: var(--text-color-white);
+}
+
+#next:hover {
+    position: absolute; 
+    right: 10px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-hover-dark);
 }
 #previous {
 position: absolute; 
@@ -357,7 +381,19 @@ left: 10px;
 top: 50%; 
 transform: translateY(-50%);
 z-index: 10;
+background-color: var(--main-bg-color);
+color: var(--text-color-white);
 }
+
+#previous:hover {
+position: absolute; 
+left: 10px; 
+top: 50%; 
+transform: translateY(-50%);
+z-index: 10;
+background-color: var(--main-bg-hover-dark);
+}
+
 
 #dont-show-again {
     position: absolute;
@@ -367,7 +403,22 @@ z-index: 10;
     z-index: 10;
     background-color: var(--main-bg-color);
     border: none;
-    color: var(--btn-toolkit-color);
+    color: var(--text-color-white);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#dont-show-again:hover {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-hover-dark);
+    border: none;
+    color: var(--text-color-white);
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
