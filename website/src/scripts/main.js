@@ -1,4 +1,4 @@
-import './maps.css';
+import '../styles/maps.css';
 import Map from 'ol/Map';
 import View from 'ol/View.js';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';

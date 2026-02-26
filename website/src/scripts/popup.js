@@ -55,7 +55,7 @@ function formatDealSize(dealSize) {
 async function loadPopupTemplate() {
   if (!popupTemplate) {
     try {
-      const response = await fetch('/src/popup-content.html');
+      const response = await fetch('/src/templates/popup-content.html');
       popupTemplate = await response.text();
     } catch (error) {
       console.error('Error loading popup template:', error);
@@ -71,7 +71,7 @@ async function loadPopupTemplate() {
 async function loadPopupRegionTemplate() {
   if (!popupRegionTemplate) {
     try {
-      const response = await fetch('/src/popup-content-region.html');
+      const response = await fetch('/src/templates/popup-content-region.html');
       popupRegionTemplate = await response.text();
     } catch (error) {
       console.error('Error loading region popup template:', error);

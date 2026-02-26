@@ -1,7 +1,7 @@
   let currentSlide = 0;
   const slides = [
-    '../images/tutorial/test.png',
-    '../images/tutorial/test2.png',
+    '../../images/tutorial/test.png',
+    '../../images/tutorial/test2.png',
     // add more slide image paths as needed
   ];
 
@@ -10,7 +10,7 @@
 
   if (!tutorialClosed) {
     // Load the tutorial content from the template
-    fetch('../src/tutorial-content.html')
+    fetch('../src/templates/tutorial-content.html')
       .then(response => response.text())
       .then(html => {
         const tutorialDiv = document.getElementById('tutorial-content');
@@ -78,7 +78,7 @@
     localStorage.removeItem('tutorialClosed');
     
     // Load the tutorial content
-    fetch('../src/tutorial-content.html')
+    fetch('../src/templates/tutorial-content.html')
       .then(response => response.text())
       .then(html => {
         const tutorialDiv = document.getElementById('tutorial-content');

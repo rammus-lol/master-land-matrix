@@ -99,7 +99,7 @@ export function layerUpdator(geojsonObject) {
     for (let feature of allFeatures) {
         const type = feature.get('feature_type');
         if (!layerSources[type]) {
-            console.warn(`Type de couche inconnu : "${type}". Vérifiez le mapping backend/frontend.`);
+            console.warn(`Type de couche inconnu : "${type}". Vérifiez le mapping backend/frontend.'${new GeoJSON(feature)}'`);
         }
         else {
             layerSources[type].addFeature(feature)

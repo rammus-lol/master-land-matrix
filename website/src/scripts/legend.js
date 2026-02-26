@@ -13,7 +13,7 @@ export async function initializeLegend(map) {
   
   // Load legend content from HTML file
   try {
-    const response = await fetch('/src/legend-content.html');
+    const response = await fetch('/src/templates/legend-content.html');
     const html = await response.text();
     legend.innerHTML = html;
   } catch (error) {
