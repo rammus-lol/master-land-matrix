@@ -13,8 +13,12 @@
   <link rel="stylesheet" href="../src/legend.css" />
   <link rel="stylesheet" href="../src/fond.css" />
 </head>
-
+  <!-- load template : tutorial-content.html -->
+  <div id="tutorial-content" class="hidden">
+    <!-- Content will be loaded here -->
+  </div>
 <body>
+
   <div class="top-bar">
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
@@ -132,6 +136,13 @@
 
       <hr>
 
+      <!-- Show tutorial again -->
+      <div class="left-group">
+        <button class="btn btn-light" id="showTutorial">Show Tutorial</button>
+      </div>
+
+      <hr>
+
       <!-- Known-point panel -->
       <div id="known-point-panel">
         <h5>Known point</h5>
@@ -149,5 +160,7 @@
       </div>
   <script type= "module" src="../src/main.js"></script>
   <script type= "module" src="../src/modal.js"></script>
+  <script type= "module" src="../src/load_tutorial.js"></script>
+  
 </body>
 </html>

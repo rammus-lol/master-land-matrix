@@ -30,6 +30,7 @@
     --text-color-light: #78909c;
     --text-color-black: #000;
     --text-color-heading: #145a32; /* Titres en vert très sombre */
+    --text-color-white: #fff;
     
     /* Border colors */
     --border-color: #c8e6c9;

@@ -13,3 +13,4 @@ website/dist
 *.pyc
 __pycache__/
 report.json
+R_script/.gitignore

@@ -131,7 +131,7 @@ html, body {
 }
 
 .panel-toggle-btn:hover {
-    background-color: var(--secondary-brown-hover);
+    background-color: var(--main-bg-hover-dark);
 }
 
 .left-group,
@@ -150,10 +150,11 @@ html, body {
 .double-btn-group .btn {
     flex: 1;
     background-color:var(--main-bg-color);
+    color: var(--text-color-white);
 
 }
 .double-btn-group .btn:hover {
-    background-color: var(--secondary-brown-hover);
+    background-color: var(--main-bg-hover-dark);
 }
 
 
@@ -286,4 +287,140 @@ html, body {
 .btn-tool.active svg,
 .btn-tool.active img {
     filter: brightness(0) invert(1);
+}
+
+/* Tutorial content - fullscreen */
+#tutorial-content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--background-white);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#tutorial-content.hidden {
+    display: none;
+}
+
+#tutorial-content.visible {
+    display: flex;
+}
+
+/* Slide container */
+.slide-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* image slide */
+.slide-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    z-index: 0;
+}
+
+.close {
+    background-color: var(--main-bg-color);
+    border: none;
+    color: var(--text-color-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+    position: relative;
+}
+
+.close:hover {
+    background-color: var(--main-bg-hover-dark);
+    border: none;
+    color: var(--text-color-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+    position: relative;
+}
+
+#next {
+    position: absolute; 
+    right: 10px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-color);
+    color: var(--text-color-white);
+}
+
+#next:hover {
+    position: absolute; 
+    right: 10px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-hover-dark);
+}
+#previous {
+position: absolute; 
+left: 10px; 
+top: 50%; 
+transform: translateY(-50%);
+z-index: 10;
+background-color: var(--main-bg-color);
+color: var(--text-color-white);
+}
+
+#previous:hover {
+position: absolute; 
+left: 10px; 
+top: 50%; 
+transform: translateY(-50%);
+z-index: 10;
+background-color: var(--main-bg-hover-dark);
+}
+
+
+#dont-show-again {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-color);
+    border: none;
+    color: var(--text-color-white);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#dont-show-again:hover {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--main-bg-hover-dark);
+    border: none;
+    color: var(--text-color-white);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
 }
