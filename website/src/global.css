@@ -1,0 +1,53 @@
+:root {
+    /* Primary colors - Vert Émeraude / Forêt */
+    --main-bg-color: #27ae60;
+    --main-bg-color-transparent: rgba(39, 174, 96, 0.3);
+    --main-bg-hover: #219150;
+    --main-bg-hover-dark: #1e8449;
+    
+    /* Secondary colors - Sauge et Bleu Canard */
+    --secondary-brown: #556b2f; /* Vert olive foncé pour remplacer le marron */
+    --secondary-brown-hover: #6b8e23;
+    --secondary-blue: #16a085; /* Vert canard / Sarcelle */
+    --secondary-blue-transparent: rgba(22, 160, 133, 0.3);
+    
+    /* Background colors - Fraîcheur Menthe */
+    --background-color: #f4f9f6;
+    --background-light: #f0f7f2;
+    --background-lighter: #f8faf9;
+    --background-lightest: #fafffd;
+    --background-white: #ffffff;
+    --background-almost-white: rgba(255, 255, 255, 0.95);
+    --background-hover: #eaf4ed;
+    --background-orange-light: #e8f5e9; /* Remplacé par un vert très tendre */
+    --background-blue-light: #e0f2f1;
+    --background-blue-transparent: rgba(224, 242, 241, 0.3);
+    
+    /* Text colors */
+    --text-color: #2c3e50;
+    --text-color-dark: #1b2631;
+    --text-color-medium: #455a64;
+    --text-color-light: #78909c;
+    --text-color-black: #000;
+    --text-color-heading: #145a32; /* Titres en vert très sombre */
+    --text-color-white: #fff;
+    
+    /* Border colors */
+    --border-color: #c8e6c9;
+    --border-color-light: #a5d6a7;
+    --border-color-medium: #81c784;
+    --border-color-lighter: #e8f5e9;
+    --border-color-dark: #66bb6a;
+    --border-color-close: #4caf50;
+    
+    /* Shadow colors */
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(20, 90, 50, 0.15); /* Ombre avec une pointe de vert */
+    --shadow-dark: rgba(0, 0, 0, 0.2);
+    
+    /* Overlay colors */
+    --overlay-white: rgba(255, 255, 255, 0.25);
+    
+    /* Button colors */
+    --btn-toolkit-color: white;
+}

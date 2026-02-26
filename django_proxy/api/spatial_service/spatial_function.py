@@ -28,7 +28,7 @@ but is certain their is no one inside this polygons or any deals with APPROXIMAT
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
-    col_to_keep = ("admin","geometry")
+    col_to_keep = ("admin","geometry","name","name_en","type","type_en")
     col_to_drop=[col for col in filtered_regions.columns if col not in col_to_keep]
     col_to_drop+=["admin_right",'index_right',"feature_type_right"]
     selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
@@ -64,6 +64,7 @@ def final_filtering(query, regions, projects, selected_projects):
         .isin(accurate_points)]
     projects_inside = (gpd.sjoin(selected_projects, query, how='inner')
                     .drop(columns=["id_right", "index_right"],errors="ignore"))
+
     final_projects = (gpd.GeoDataFrame(
         pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
         .drop_duplicates())

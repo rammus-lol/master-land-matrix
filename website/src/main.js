@@ -159,7 +159,11 @@ addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
     drawingSource.clear();
+    map.getLayers().getArray()
+        .filter(layer => layer.get('layerName'))
+        .forEach(layer => map.removeLayer(layer));
 }
+
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 
@@ -373,7 +377,7 @@ document.getElementById('export').addEventListener('click', async () => {
         const response = await query.json();
         const resultStatus = response.status;
         const resultGeoJSON = response.data;
-        console.log(resultGeoJSON);
+
         if (resultGeoJSON === 0) {
             const emptyMessage = response.status;
             topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
