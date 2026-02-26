@@ -14,7 +14,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from .serializers import GeoJSONInputSerializer, GeomResponseSerializer
-#test = gpd.read_file(Path("..") / "data" / "polygone_test.geojson") #works only for dev on my computer
 @extend_schema(exclude=True)
 @api_view(['GET'])
 @csrf_exempt

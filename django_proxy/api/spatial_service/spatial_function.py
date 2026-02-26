@@ -18,7 +18,6 @@ except Exception as e:
 
 import geopandas as gpd
 import pandas as pd
-import numpy as np
 import json
 from django.conf import settings
 """Spatial processing of data sqlless using geopandas it can return
@@ -29,10 +28,11 @@ but is certain their is no one inside this polygons or any deals with APPROXIMAT
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
-    col_to_drop=[col for col in filtered_regions.columns if col not in ("admin","geometry")]
-    col_to_drop+=["admin_right",'index_right']
+    col_to_keep = ("admin","geometry","name","name_en","type","type_en")
+    col_to_drop=[col for col in filtered_regions.columns if col not in col_to_keep]
+    col_to_drop+=["admin_right",'index_right',"feature_type_right"]
     selected_projects.drop(col_to_drop,axis=1,inplace=True,errors="ignore")
-    selected_projects.rename(columns={"admin_left":'admin'},inplace=True)
+    selected_projects.rename(columns={"admin_left":'admin',"feature_type_left":"feature_type"},inplace=True)
     return selected_projects,filtered_regions
 
 def which_areas(query, regions, polygone_projects):
@@ -48,10 +48,8 @@ def which_areas(query, regions, polygone_projects):
 
     regions_ids = list(regions["iso_3166_2"])
     filtered_areas = polygone_projects[
-        polygone_projects["region_list"].apply(lambda x: region_checker(x, regions_ids))]
-    selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["id_right","index_right"],errors="ignore")
-    selected_areas.rename(columns={"id_left":"id"},inplace=True)
-    selected_areas['feature_type'] = 'areas'
+    polygone_projects["region_list"].apply(lambda x: region_checker(x, regions_ids))]
+    selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["index_right"],errors="ignore")
     return selected_areas
 
 def final_filtering(query, regions, projects, selected_projects):
@@ -70,8 +68,6 @@ def final_filtering(query, regions, projects, selected_projects):
     final_projects = (gpd.GeoDataFrame(
         pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
         .drop_duplicates())
-
-    final_projects['feature_type'] = 'point'
     return final_projects
 
 DEALS = gpd.read_file(
@@ -89,15 +85,8 @@ def geom_constructor(query):
     final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals)
     if final_deals.empty:
         return "code_2", 0
-    filtered_regions['feature_type'] = 'administrative_region'# I modify this files here because this way sjoin wouldn't break things
     nb_deals = len(final_areas)+len(final_deals)
-    buffers= final_deals.copy()
-    area = final_deals["deal_size"].replace(0, 2000000)
-    buffers_geoms = final_deals["geometry"].buffer(
-        np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
-    buffers["geometry"] = buffers_geoms
-    buffers['feature_type'] = 'buffer'
-    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, buffers,final_areas,filtered_regions]
+    combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
 

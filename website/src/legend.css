@@ -3,9 +3,9 @@
   position: fixed;
   bottom: 20px;
   right: 380px;
-  background: white;
+  background: var(--background-white);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--shadow-light);
   padding: 0;
   z-index: 1400;
   max-width: 300px;
@@ -23,8 +23,8 @@ body:has(.side-panel.collapsed) .map-legend {
   justify-content: space-between;
   align-items: center;
   padding: 12px 15px;
-  background-color: #fc941d;
-  color: white;
+  background-color: var(--main-bg-color);
+  color: var(--btn-toolkit-color);
   border-radius: 8px 8px 0 0;
 }
 
@@ -37,7 +37,7 @@ body:has(.side-panel.collapsed) .map-legend {
 .legend-toggle {
   background: none;
   border: none;
-  color: white;
+  color: var(--btn-toolkit-color);
   font-size: 24px;
   cursor: pointer;
   padding: 0;
@@ -50,7 +50,7 @@ body:has(.side-panel.collapsed) .map-legend {
 }
 
 .legend-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--overlay-white);
   border-radius: 4px;
 }
 
@@ -69,7 +69,7 @@ body:has(.side-panel.collapsed) .map-legend {
 .legend-section h5 {
   font-size: 13px;
   font-weight: bold;
-  color: #333;
+  color: var(--text-color);
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -97,7 +97,7 @@ body:has(.side-panel.collapsed) .map-legend {
 
 .legend-label {
   font-size: 13px;
-  color: #555;
+  color: var(--text-color-medium);
   line-height: 1.4;
 }
 
@@ -125,10 +125,10 @@ body:has(.side-panel.collapsed) .map-legend {
   right: 330px;
   width: 60px;
   height: 60px;
-  background-color: white;
+  background-color: var(--background-white);
   border: none;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px var(--shadow-light);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -143,17 +143,17 @@ body:has(.side-panel.collapsed) .legend-btn {
 }
 
 .legend-btn:hover {
-  background-color: #f5f5f5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: var(--background-hover);
+  box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
 .legend-btn.active {
-  background-color: #fc941d;
-  color: white;
+  background-color: var(--main-bg-color);
+  color: var(--btn-toolkit-color);
 }
 
 .legend-btn.active svg {
-  stroke: white;
+  stroke: var(--btn-toolkit-color);
 }
 
 /* When legend is visible, hide the button */

@@ -1,0 +1,18 @@
+# Virtual environments
+.venv/
+venv/
+env/
+node_modules/
+django_proxy/data/areas.gpkg
+django_proxy/data/deals.gpkg
+django_proxy/data/reports
+.idea
+.package-lock.json
+website/dist
+*.geojson
+*.txt
+# Dependencies
+*.pyc
+__pycache__/
+report.json
+R_script/.gitignore

@@ -8,17 +8,22 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.7.0/ol.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="../src/maps.css" />
+  <link rel="stylesheet" href="../src/global.css" />
   <link rel="stylesheet" href="../src/popup.css" />
   <link rel="stylesheet" href="../src/legend.css" />
   <link rel="stylesheet" href="../src/fond.css" />
 </head>
-
+  <!-- load template : tutorial-content.html -->
+  <div id="tutorial-content" class="hidden">
+    <!-- Content will be loaded here -->
+  </div>
 <body>
+
   <div class="top-bar">
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
       <!-- when clicking on the logo redirect to the home page -->
-    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
+    <img class="main-logo" src="../images/landmatrix.png" alt="LM logo" onclick="window.location.href='../index.html'">
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -37,23 +42,24 @@
       <div id="map"></div>
       <div id="scale-line-container" class="scale-line-container"></div>
 
-
-      
       <!-- Popup overlay for deal information -->
       <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
       </div>
-        <div id="layer-switcher-btn" class="layer-switcher-btn">
-    <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
-  </div>
+      <div id="base-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+      </div>
+      <div id="vector-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+      </div>
 
-  <!-- Layer Modal -->
-  <div id="layer-modal" class="layer-modal">
-    <div class="layer-modal-content">
+  <!-- Base layer manager -->
+  <div id="base-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
       <span class="close-modal">&times;</span>
       <h3>Base Maps</h3>
-      <div class="layer-options">
+      <div class="base-layer-options">
         <div class="layer-option" data-layer="osm">
           <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg" alt="OSM">
           <span>Standard</span>
@@ -66,6 +72,40 @@
           <img src="../images/terrain.png" alt="Terrain">
           <span>Terrain</span>
         </div>
+      </div>
+    </div>
+  </div>
+  <!-- Vector layer manager -->
+  <div id="vector-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
+      <span class="close-modal">&times;</span>
+      <h4>layer displaying manager</h4>
+      <div class="base-layer-options">
+        <label class="layer-option-radio" id="drawing-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+            <img src="../images/drawing_layer.svg" alt="drawing layer">
+            <span class="layer-label">Drawing layer</span>
+        </label>
+        <label class="layer-option-radio queried" id="area-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="../images/areas.svg" class="legend-area" alt="Area shape">
+          <span class="layer-label">Deals with a shape provided by partners</span>
+        </label>
+        <label class="layer-option-radio queried" id="high-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-orange"><use href="../images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">High accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="low-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-blue"><use href="../images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">Low accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="admin-reg-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="../images/administrative_region.svg" class="legend-region" alt="Administrative region shape">
+          <span class="layer-label">Administrative regions crossing polygon(s)</span>
+        </label>
       </div>
     </div>
   </div>
@@ -88,7 +128,7 @@
 
       <!-- Drawing tools -->
       <div class="left-group">
-        <h5 class="text-center mb-2">Drawing Tools</h5>
+        <h5 class="text-center">Drawing Tools</h5>
         <div class="drawing-tools-buttons">
           <button class="btn btn-tool" data-type="Polygon" title="Draw a polygon">
             <img src="../images/polygone.png" alt="Polygon" width="20" height="20">
@@ -105,23 +145,38 @@
         </div>
       </div>
 
-      <div class="left-group mt-2">
+      <div class="left-group">
         <button class="btn btn-light" id="undo">Undo</button>
         <button class="btn btn-light" id="clear">Clear</button>
       </div>
 
-      <div class="left-group mt-2">
+      <div class="left-group">
         <button class="btn btn-light" id="export">Querying our database</button>
       </div>
 
       <!-- Save file -->
-      <div class="left-group mt-3">
+      <div class="left-group">
         <button class="btn btn-light" id="saveBtn">Save your work</button>
       </div>
 
-      <div id="saveFilenameBox" class="mt-2" style="display: none;">
+      <div id="saveFilenameBox" style="display: none;">
         <input id="saveFilenameInput" type="text" placeholder="Enter filename…" />
-        <button id="saveOkBtn" class="btn btn-primary btn-sm">OK</button>
+        <button id="saveOkBtn" class="btn btn-primary">OK</button>
+      </div>
+
+      <!-- button for excel download -->
+      <div class="double-btn-group">
+        <button class="btn btn-light" id="downloadExcel">Download Excel</button>
+        <button class="btn btn-light" id="downloadCSV">Download CSV</button>
+
+      </div>
+
+
+      <hr>
+
+      <!-- Show tutorial again -->
+      <div class="left-group">
+        <button class="btn btn-light" id="showTutorial">Show Tutorial</button>
       </div>
 
       <hr>
@@ -143,5 +198,7 @@
       </div>
   <script type= "module" src="../src/main.js"></script>
   <script type= "module" src="../src/modal.js"></script>
+  <script type= "module" src="../src/load_tutorial.js"></script>
+
 </body>
 </html>
