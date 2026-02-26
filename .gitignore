@@ -1,0 +1,15 @@
+# Virtual environments
+.venv/
+venv/
+env/
+node_modules/
+django_proxy/data/
+.idea
+.package-lock.json
+website/dist
+*.geojson
+*.txt
+# Dependencies
+*.pyc
+__pycache__/
+report.json
