@@ -8,6 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from geopandas.geodataframe import GeoDataFrame
 import pprint as pri
+import numpy as np
 
 def deal_dict(deal : dict):
     """Summarize a deal into a smaller dict well-fitted for spatial querying"""
@@ -88,11 +89,23 @@ def geodataframe_writer(calling : list[dict]):
     gdf=gpd.GeoDataFrame(df,geometry=gpd.points_from_xy(df["long"],df["lat"]),crs="EPSG:4326")
     gdf.to_crs("EPSG:3857",inplace=True)
     gdf = gdf.dropna(subset=['crs', 'long', 'lat'])
+    gdf["x"]=gdf["geometry"].x
+    gdf["y"]=gdf["geometry"].y
     base_dir = Path(__file__).parents[1]
     gdf_region = gpd.read_file(base_dir / "django_proxy" / "data" / "world_region_light.gpkg")
     gdf = gpd.sjoin(gdf, gdf_region)
     col_to_drop = [col for col in gdf_region.columns if col not in ('admin', 'geometry')] + ['index_right']
     gdf.drop(col_to_drop, axis=1, inplace=True)
+    area = gdf["deal_size"].replace(0, 200)
+    buffers_geoms = gdf["geometry"].buffer(
+        np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
+    gdf["geometry"] = buffers_geoms
+    accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
+    gdf['feature_type'] = np.where(
+        gdf['level_of_accuracy'].isin(accurate_points),
+        "high_accuracy_location",
+        "low_accuracy_location"
+    )
     return gdf,report # it returns something but only for debug, the function handle export
 def api_calling():
     try:
