@@ -20,6 +20,7 @@ import AlertPanel from "./alert_panel.js";
 import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
+import {layerUpdator, resultStyle, vectorSources,layerConstructor} from "./vectorlayertools.js";
 
 // API Base URL - change for production/development
 // const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -28,10 +29,7 @@ const sqlJsWasmDir = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/' + sql_js_v
 let sqlInitializer=null;
 const topCenterPanel = new AlertPanel()
 
-const source = new VectorSource();
-
-
-
+const drawingSource = new VectorSource();
 //for the moment I keep the initialization at the beginning, if it's appear it's slows down the app for
 const scaleControl = new ScaleLine({
     className: 'ol-scale-line',
@@ -39,10 +37,9 @@ const scaleControl = new ScaleLine({
 });
 
 const controls = defaultControls().extend([scaleControl]);
-
-
-const vectorLayer = new VectorLayer({
-  source: source,
+const checkbox = document.getElementById("drawing-btn");
+const drawingLayer = new VectorLayer({
+  source: drawingSource,
   style: new Style({
     fill: new Fill({
       color: 'rgba(255, 255, 255, 0.2)',
@@ -58,21 +55,32 @@ const vectorLayer = new VectorLayer({
       }),
     }),
   }),
+    visible :checkbox.checked,
+});
+
+
+checkbox.addEventListener('change', (e) => {
+    drawingLayer.setVisible(e.target.checked)
 });
 const map = new Map({
     controls: controls,
   target: 'map',
   layers: [
     new TileLayer({
-      source: new OSM(),
+      source: new OSM()
     }),
-    vectorLayer,
+      drawingLayer
   ],
   view: new View({
     center: fromLonLat([2.35, 48.85]),
     zoom: 10,
   }),
 });
+let vectorLayerList = [drawingLayer]
+vectorLayerList = layerConstructor(map, vectorLayerList);
+
+const baseLayerSwitcher = new LayerSwitcherModal(map, null,'base-layer-modal', 'base-layer-switcher-btn');
+const displayManager = new LayerSwitcherModal(map,vectorLayerList,"vector-layer-modal","vector-layer-switcher-btn")
 
 // Initialize popup overlay
 initializePopup(map);
@@ -91,7 +99,7 @@ function addInteraction(type) {
   if (type && type !== 'None') {
     currentDrawType = type;
     draw = new Draw({
-      source: source,
+      source: drawingSource,
       type: type,
     });
     map.addInteraction(draw);
@@ -135,12 +143,12 @@ document.getElementById('undo').addEventListener('click', function () {
     if (!draw) return;
     
     const type = draw.type_ || currentDrawType; 
-    // If the selected tool is known point or circle erase the last drawed feature
+    // If the selected tool is known point or circle erase the last drawn feature
     if (['Circle', 'Point'].includes(type)) {
-      const features = source.getFeatures();
+      const features = drawingSource.getFeatures();
       if (features.length>0) {
         const last=features[features.length-1];
-        source.removeFeature(last);}        
+        drawingSource.removeFeature(last);}
       }
     else {
         // Else remove the last point of the polygone
@@ -150,7 +158,7 @@ document.getElementById('undo').addEventListener('click', function () {
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
-    source.clear(); 
+    drawingSource.clear();
 }
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
@@ -223,7 +231,7 @@ dropZone.addEventListener('drop', async e => {
     }
 
     if (e.dataTransfer.files.length > 0) {
-        await loadFile(e.dataTransfer.files,source,map);
+        await loadFile(e.dataTransfer.files,drawingSource,map);
     }
 });
 
@@ -255,7 +263,7 @@ dropArea.addEventListener("drop", async (e) => {
     dropArea.classList.remove("highlight");
     topCenterPanel.dropModification();
     if (e.dataTransfer.files.length > 0) {
-        await loadFile(e.dataTransfer.files,source,map);
+        await loadFile(e.dataTransfer.files,drawingSource,map);
     }
 });
 
@@ -271,7 +279,7 @@ dropArea.addEventListener("click", (e) => {
 
 fileInput.addEventListener("change", async (e) => {
     if (e.target.files.length > 0) {
-        await loadFile(e.target.files,source,map);
+        await loadFile(e.target.files,drawingSource,map);
         topCenterPanel.dropModification();
     }
 });// Knowing point
@@ -296,7 +304,7 @@ kpDrawBtn.addEventListener("click", () => {
     const feature = new Feature(circle);
 
  
-    source.addFeature(feature);
+    drawingSource.addFeature(feature);
 
     // Zoom on circle
     const extent = circle.getExtent();
@@ -308,13 +316,13 @@ let resultLayer = null;
 
 document.getElementById('export').addEventListener('click', async () => {
     const format = new GeoJSON();
-    const features = source.getFeatures();
+    const features = drawingSource.getFeatures();
 
     if (features.length === 0) {
         alert("No geometries on the map !");
         return;
     }
-    // Unfortunately, geojson don't support circle object, i have to transform it into point object
+    // Unfortunately, geojson don't support circle object, we have to transform it into point object
     // and add a radius property, backend retransform it into a polygone with shapely.buffer 
     const processedFeatures = [];
     features.forEach(f => {
@@ -365,7 +373,7 @@ document.getElementById('export').addEventListener('click', async () => {
         const response = await query.json();
         const resultStatus = response.status;
         const resultGeoJSON = response.data;
-
+        console.log(resultGeoJSON);
         if (resultGeoJSON === 0) {
             const emptyMessage = response.status;
             topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
@@ -377,85 +385,14 @@ document.getElementById('export').addEventListener('click', async () => {
         if (resultLayer !== null) {
             map.removeLayer(resultLayer);
         }
-
-        function layerConstructor(geojsonObject) {
-            const featuresTypes = new Set(
-                geojsonObject.features.map(feature => feature.properties.feature_type)
-            );
-
-            const allFeatures = new GeoJSON().readFeatures(geojsonObject, {
-                featureProjection: "EPSG:3857"
-            });
-
-            for (let typeName of featuresTypes) {
-                const filteredFeatures = allFeatures.filter(
-                    feature => feature.get('feature_type') === typeName
-                );
-
-                const vectorSource = new VectorSource({
-                    features: filteredFeatures
-                });
-
-                const layer = new VectorLayer({
-                    source: vectorSource,
-                    style : resultStyle(vectorSource,typeName),
-                    properties: { layerName: typeName }
-                });
-                map.addLayer(layer);
-                map.getView().fit(vectorSource.getExtent(), { padding: [20,20,20,20], duration: 800 });
-            }
-        }
-
-        function resultStyle(rawSource, typeName) {
-            if (typeName === 'point' || typeName === 'buffer') {
-                const styleCache = {
-                    orange: new Style({
-                        stroke: new Stroke({color: "#fc941d", width: 2}),
-                        fill: new Fill({color: "rgba(252, 148, 29, 0.3)"}),
-                        image: new CircleStyle({
-                            radius: 6,
-                            fill: new Fill({color: "#fc941d"}),
-                            stroke: new Stroke({color: "white", width: 1})
-                        })
-                    }),
-                    blue: new Style({
-                        stroke: new Stroke({color: "#43b6b5", width: 2}),
-                        fill: new Fill({color: "rgba(67, 182, 181, 0.3)"}),
-                        image: new CircleStyle({
-                            radius: 6,
-                            fill: new Fill({color: "#43b6b5"}),
-                            stroke: new Stroke({color: "white", width: 1})
-                        })
-                    })
-                };
-                const orangeList = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"];
-                return function (feature) {
-                    const precision = feature.get('level_of_accuracy') || "";
-                    return orangeList.includes(precision) ? styleCache.orange : styleCache.blue;
-                };
-            } else if (typeName === 'areas') {
-                return new Style({
-                    stroke: new Stroke({color: "#000000", width: 1}),
-                    fill: new Fill({color: "rgba(252, 148, 29, 0.5)"})
-                });
-            } else if (typeName === 'administrative_region') {
-                return new Style({
-                    stroke: new Stroke({color: '#000000', width: 0.5}),
-                    fill: new Fill({color: "rgba(0,0,0,0)"})
-                });
-            }
-        }
-
-
-        // New layers
-        layerConstructor(resultGeoJSON);
-
+        layerUpdator(resultGeoJSON);
         // Show legend when results are displayed
         showLegend();
     } catch (err) {
         console.error("Technical error:", err);
         topCenterPanel.alerting(redTemplate, "The server is disconnected.", 30);
     }
+
 });
 const saveBtn = document.getElementById("saveBtn");
 const filenameBox = document.getElementById("saveFilenameBox");
@@ -490,14 +427,12 @@ function triggerSave() {
         return;
     }
 
-    saveGeoJSON(source.getFeatures(), filename);
+    saveGeoJSON(drawingSource.getFeatures(), filename);
 
     // back to welcoming ui
     filenameBox.style.display = "none";
     saveBtn.style.display = "inline-block";
 }
-
-const layerSwitcher = new LayerSwitcherModal(map);
 
 // Panel toggle functionality
 const panelToggleBtn = document.getElementById('panelToggle');

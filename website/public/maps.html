@@ -18,7 +18,7 @@
     <div id="top-left" class="top-content">
       <h2>Spatial querying for </h2>
       <!-- when clicking on the logo redirect to the home page -->
-    <img class="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
+    <img id="main-logo" src="../images/logo_lm_dark_custom.png" alt="LM logo" onclick="window.location.href='../index.html'">
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -44,16 +44,19 @@
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
       </div>
-        <div id="layer-switcher-btn" class="layer-switcher-btn">
-    <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
-  </div>
+      <div id="base-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+      </div>
+      <div id="vector-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+      </div>
 
-  <!-- Layer Modal -->
-  <div id="layer-modal" class="layer-modal">
-    <div class="layer-modal-content">
+  <!-- Base layer manager -->
+  <div id="base-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
       <span class="close-modal">&times;</span>
       <h3>Base Maps</h3>
-      <div class="layer-options">
+      <div class="base-layer-options">
         <div class="layer-option" data-layer="osm">
           <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg" alt="OSM">
           <span>Standard</span>
@@ -69,7 +72,41 @@
       </div>
     </div>
   </div>
+  <!-- Vector layer manager -->
+  <div id="vector-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
+      <span class="close-modal">&times;</span>
+      <h4>layer displaying manager</h4>
+      <div class="base-layer-options">
+        <label class="layer-option-radio" id="drawing-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+            <img src="../images/drawing_layer.svg" alt="drawing layer">
+            <span class="layer-label">Drawing layer</span>
+        </label>
+        <label class="layer-option-radio queried" id="area-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="../images/areas.svg" class="legend-area" alt="Area shape">
+          <span class="layer-label">Deals with a shape provided by partners</span>
+        </label>
+        <label class="layer-option-radio queried" id="high-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-orange"><use href="../images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">High accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="low-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-blue"><use href="../images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">Low accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="admin-reg-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="../images/administrative_region.svg" class="legend-region" alt="Administrative region shape">
+          <span class="layer-label">Administrative regions crossing polygon(s)</span>
+        </label>
+      </div>
     </div>
+  </div>
+</div>
 
     <!-- ----------- SIDE PANEL ----------- -->
     <div class="side-panel">

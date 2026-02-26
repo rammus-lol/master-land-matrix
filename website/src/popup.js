@@ -89,7 +89,9 @@ export function initializePopup(map) {
 
   map.on('click', async function (evt) {
 
-    const dealpopup = ['point', 'areas', 'buffer'];
+    const dealpopup = ["low_accuracy_location",
+      "high_accuracy_location",
+        "areas"];
 
     const feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
       if (layer && dealpopup.includes(layer.get('layerName'))) {
