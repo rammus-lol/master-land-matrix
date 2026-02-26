@@ -353,7 +353,7 @@ document.getElementById('export').addEventListener('click', async () => {
         featureProjection: "EPSG:3857",
         dataProjection: "EPSG:3857"
     });
-    
+
     const redTemplate = {
         "background-color" : "#b61010",
         "height": "70px",
