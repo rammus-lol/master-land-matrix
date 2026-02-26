@@ -58,7 +58,7 @@ html, body {
     justify-content: flex-end; 
 }
 
-#main-logo {
+.main-logo {
     height: 45px;
     border-radius: 5px;
 }

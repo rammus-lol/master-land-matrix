@@ -158,10 +158,9 @@ document.getElementById('undo').addEventListener('click', function () {
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
-    drawingSource.clear();
-    map.getLayers().getArray()
-        .filter(layer => layer.get('layerName'))
-        .forEach(layer => map.removeLayer(layer));
+    const allLayers = map.getLayers().getArray()
+    const vectorLayers = allLayers.filter(layer => layer instanceof VectorLayer);
+    for (const layer of vectorLayers) {layer.getSource().clear();}
 }
 
 const dropArea = document.getElementById("drop-area");
