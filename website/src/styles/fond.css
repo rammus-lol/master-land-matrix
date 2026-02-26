@@ -15,23 +15,26 @@
     z-index: 9999;
     border: 2px solid var(--background-white);
     transition: border-color 0.3s;
-    /* no highlight possible */
     outline: none;
 }
 
 .layer-switcher-btn:hover {
     border-color: var(--main-bg-color);
+
 }
 
 .layer-switcher-btn img {
     width: 30px;
     height: 30px;
+    user-select: none;
 }
 #base-layer-switcher-btn {
     bottom: 20px;
+
 }
 #vector-layer-switcher-btn {
     bottom: 90px;
+
 }
 
 /* Layer Modal */
@@ -44,6 +47,8 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    pointer-events: none;
+
 }
 
 .base-layer-modal-content {
@@ -59,6 +64,8 @@
     right: auto;
     box-shadow: 0 4px 20px var(--shadow-dark);
     animation: slideUp 0.3s ease-out;
+    pointer-events: auto;
+
 }
 
 @keyframes slideUp {
@@ -87,14 +94,15 @@
     margin-top: 20px;
     flex-wrap: wrap;
     gap: 10px;
+
 }
 
 .layer-option {
-    background: none;       /* Supprime le gris par défaut */
-    color: inherit;         /* Garde la couleur de texte du parent */
-    font: inherit;          /* Évite le changement de police */
-    outline: none;          /* Supprime le contour bleu/noir au clic */
-    box-shadow: none;       /* Enlève les ombres internes par défaut de certains navigateurs */
+    background: none;
+    color: inherit;
+    font: inherit;
+
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -117,7 +125,7 @@
     border-radius: 5px;
     margin-bottom: 5px;
     border: 1px solid var(--border-color-light);
-    outline: none;
+    user-select: none;
 }
 #vector-layer-modal .base-layer-modal-content {
     width: 250px;
@@ -149,7 +157,7 @@
     -webkit-appearance: none;
     width: 18px;
     height: 18px;
-    border: 2px solid #ccc;
+    border: 2px solid var(--border-color-light);
     border-radius: 4px;
     margin: 0;
     display: grid;
@@ -158,20 +166,9 @@
     flex-shrink: 0;
 }
 
-.layer-option-radio input[type="checkbox"]::before {
-    content: "";
-    /* On passe de 10px à 100% */
-    width: 100%;
-    height: 100%;
-
-    transform: scale(0);
-    transition: 120ms transform ease-in-out;
-    /*background-color: #fc941d;*/
-}
-
 .layer-option-radio input[type="checkbox"]:checked {
-    border-color: #fc941d;
-    background-color: #fc941d;
+    border-color: var(--main-bg-hover-dark);
+    background-color: var(--main-bg-color);
 }
 
 .layer-option-radio input[type="checkbox"]:checked::before {
@@ -184,10 +181,11 @@
     height: 40px;
     object-fit: contain;
     border-radius: 4px;
+    user-select: none;
 }
 
 .layer-option-radio:hover {
-    background-color: #f9f9f9;
+    background-color: var(--background-blue-transparent);
 }
 #layers {
     display: none !important;
