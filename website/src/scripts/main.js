@@ -1,4 +1,4 @@
-import '../styles/maps.css';
+import  '../styles/maps.css';
 import Map from 'ol/Map';
 import View from 'ol/View.js';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
@@ -353,8 +353,7 @@ document.getElementById('export').addEventListener('click', async () => {
         featureProjection: "EPSG:3857",
         dataProjection: "EPSG:3857"
     });
-
-    console.log("geojson send :", geojsonObject);
+    
     const redTemplate = {
         "background-color" : "#b61010",
         "height": "70px",
@@ -389,6 +388,9 @@ document.getElementById('export').addEventListener('click', async () => {
             map.removeLayer(resultLayer);
         }
         layerUpdator(resultGeoJSON);
+        map.getView().fit(map.getLayers().item(2).getSource().getExtent(),
+            {padding: [20, 20, 20, 20],
+                duration: 1000});
         // Show legend when results are displayed
         showLegend();
     } catch (err) {
