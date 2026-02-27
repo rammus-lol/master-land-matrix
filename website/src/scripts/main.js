@@ -123,7 +123,7 @@ toolButtons.forEach(btn => {
       addInteraction(null);
       kpPanel.style.display = 'none';
     } else {
-      // Activate new tool
+      // Activate a new tool
       btn.classList.add('active');
       addInteraction(type);
       
@@ -157,6 +157,7 @@ document.getElementById('undo').addEventListener('click', function () {
 addInteraction();
 document.getElementById('clear').addEventListener('click', clearMap);
 function clearMap() {
+    topCenterPanel.dropModification();
     const allLayers = map.getLayers().getArray()
     const vectorLayers = allLayers.filter(layer => layer instanceof VectorLayer);
     for (const layer of vectorLayers) {layer.getSource().clear();}
@@ -317,6 +318,7 @@ map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
 let resultLayer = null;
 
 document.getElementById('export').addEventListener('click', async () => {
+    map.removeInteraction(draw);
     const format = new GeoJSON();
     const features = drawingSource.getFeatures();
 
@@ -386,7 +388,9 @@ document.getElementById('export').addEventListener('click', async () => {
         if (resultLayer !== null) {
             map.removeLayer(resultLayer);
         }
+        //toolButtons.forEach(b => b.classList.remove('active'));
         layerUpdator(resultGeoJSON);
+        toolButtons.forEach(b => b.classList.remove('active'));
         map.getView().fit(map.getLayers().item(2).getSource().getExtent(),
             {padding: [20, 20, 20, 20],
                 duration: 1000});

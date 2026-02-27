@@ -130,15 +130,15 @@
       <div class="left-group">
         <h5 class="text-center">Drawing Tools</h5>
         <div class="drawing-tools-buttons">
-          <button class="btn btn-tool" data-type="Polygon" title="Draw a polygon">
+          <button class="btn-tool" data-type="Polygon" title="Draw a polygon">
             <img src="../../images/polygone.png" alt="Polygon" width="20" height="20">
             <span>Polygon</span>
           </button>
-          <button class="btn btn-tool" data-type="Circle" title="Draw a circle">
+          <button class="btn-tool" data-type="Circle" title="Draw a circle">
             <img src="../../images/cercle.png" alt="Circle" width="20" height="20">
             <span>Circle</span>
           </button>
-          <button class="btn btn-tool" data-type="Point" title="Known point location">
+          <button class="btn-tool" data-type="Point" title="Known point location">
             <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
             <span>Known Point</span>
           </button>
@@ -192,10 +192,12 @@
         <input type="number" id="kp_lat" step="0.000001">
 
         <label>Radius (meters):</label>
-        <input type="number" id="kp_radius" step="1" style="margin-bottom: 5%;">
+        <label for="kp_radius"></label><input type="number" id="kp_radius" step="1" style="margin-bottom: 5%;">
 
         <button class="btn-tool" id="kp_draw">Draw circle</button>
       </div>
+    </div>
+  </div>
   <script type= "module" src="../src/scripts/main.js"></script>
   <script type= "module" src="../src/scripts/modal.js"></script>
   <script type= "module" src="../src/scripts/load_tutorial.js"></script>
