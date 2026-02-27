@@ -14,7 +14,7 @@
   "type": "module",
   "dependencies": {
     "ol": "^10.7.0",
-    "ol-load-geopackage": "^2.1.0",
+    "ol-load-geopackage": "~2.1.0",
     "shpjs": "^6.2.0"
   },
   "devDependencies": {
