@@ -1,0 +1,108 @@
+/*
+:root {
+    !* Primary colors - emerald / forest green *!
+    --main-bg-color: oklch(0.663 0.16 152.371);
+    --main-bg-color-transparent: oklch(0.663 0.16 152.371 / 0.3);
+    --main-bg-hover: oklch(0.58 0.139 152.505);
+    --main-bg-hover-dark: oklch(0.542 0.129 152.676);
+
+    
+    !* Secondary colors - Sauge et Bleu Canard *!
+    --secondary-brown: oklch(0.496 0.09 126.186);
+    --secondary-brown-hover: oklch(0.599 0.137 126.322);
+    --secondary-blue: oklch(0.632 0.116 174.518); !* Vert canard / Sarcelle *!
+    --secondary-blue-transparent: oklch(0.632 0.116 174.518 / 0.3);
+    
+    !* Background colors - Mint green *!
+    --background-color: oklch(0.978 0.007 160.078);
+    --background-light: oklch(0.969 0.01 155.098);
+    --background-lighter: oklch(0.983 0.002 165.077);
+    --background-lightest: oklch(0.996 0.006 170.454);
+    --background-white: oklch(1 0 89.876);
+    --background-almost-white: oklch(1 0 89.876 / 0.95);
+    --background-hover: oklch(0.958 0.014 155.587);
+    --background-green-light: oklch(0.957 0.021 147.636);
+    --background-blue-light: oklch(0.948 0.019 192.809);
+    --background-blue-transparent: oklch(0.948 0.019 192.809 / 0.3);
+    
+    !* Text colors *!
+    --text-color: oklch(0.356 0.039 248.975);
+    --text-color-dark: oklch(0.263 0.026 248.836);
+    --text-color-medium: oklch(0.454 0.03 228.623);
+    --text-color-light: oklch(0.639 0.033 229.545);
+    --text-color-black: oklch(0 0 0);
+    --text-color-heading: oklch(0.415 0.095 153.379);
+    --text-color-white: oklch(1 0 89.876);
+    
+    !* Border colors *!
+    --border-color: oklch(0.895 0.05 146.037);
+    --border-color-light: oklch(0.829 0.083 145.817);
+    --border-color-medium: oklch(0.766 0.118 145.295);
+    --border-color-lighter: oklch(0.957 0.021 147.636);
+    --border-color-dark: oklch(0.718 0.142 144.889);
+    --border-color-close: oklch(0.673 0.162 144.208);
+    
+    !* Shadow colors *!
+    --shadow-light: oklch(0 0 0 / 0.1);
+    --shadow-medium: oklch(0.415 0.095 153.379 / 0.15); !* Greenish shadow *!
+    --shadow-dark: oklch(0 0 0 / 0.2);
+    
+    !* Overlay colors *!
+    --overlay-white: oklch(1 0 89.876 / 0.25);
+    
+    !* Button colors *!
+    --btn-toolkit-color: oklch(1 0 89.876);
+}*/
+:root {
+    /* Primary colors - Red / Terracotta (Based on 26.37) */
+    --main-bg-color: oklch(0.663 0.16 26.37);
+    --main-bg-color-transparent: oklch(0.663 0.16 26.37 / 0.3);
+    --main-bg-hover: oklch(0.58 0.139 26.50);
+    --main-bg-hover-dark: oklch(0.542 0.129 26.67);
+
+    /* Secondary colors - Warm Earth & Muted Purple */
+    --secondary-brown: oklch(0.496 0.09 0.18); /* Brownish red */
+    --secondary-brown-hover: oklch(0.599 0.137 0.32);
+    --secondary-blue: oklch(0.632 0.116 48.51); /* Warm Orange-Red */
+    --secondary-blue-transparent: oklch(0.632 0.116 48.51 / 0.3);
+
+    /* Background colors - Soft Rose / Shell */
+    --background-color: oklch(0.978 0.007 34.07);
+    --background-light: oklch(0.969 0.01 29.09);
+    --background-lighter: oklch(0.983 0.002 39.07);
+    --background-lightest: oklch(0.996 0.006 44.45);
+    --background-white: oklch(1 0 89.87);
+    --background-almost-white: oklch(1 0 89.87 / 0.95);
+    --background-hover: oklch(0.958 0.014 29.58);
+    --background-green-light: oklch(0.957 0.021 21.63);
+    --background-blue-light: oklch(0.948 0.019 66.80);
+    --background-blue-transparent: oklch(0.948 0.019 66.80 / 0.3);
+
+    /* Text colors - Warm Greys / Deep Purples */
+    --text-color: oklch(0.356 0.039 122.97);
+    --text-color-dark: oklch(0.263 0.026 122.83);
+    --text-color-medium: oklch(0.454 0.03 102.62);
+    --text-color-light: oklch(0.639 0.033 103.54);
+    --text-color-black: oklch(0 0 0);
+    --text-color-heading: oklch(0.415 0.095 27.37);
+    --text-color-white: oklch(1 0 89.87);
+
+    /* Border colors - Soft Coral / Brick */
+    --border-color: oklch(0.895 0.05 20.03);
+    --border-color-light: oklch(0.829 0.083 19.81);
+    --border-color-medium: oklch(0.766 0.118 19.29);
+    --border-color-lighter: oklch(0.957 0.021 21.63);
+    --border-color-dark: oklch(0.718 0.142 18.88);
+    --border-color-close: oklch(0.673 0.162 18.20);
+
+    /* Shadow colors */
+    --shadow-light: oklch(0 0 0 / 0.1);
+    --shadow-medium: oklch(0.415 0.095 27.37 / 0.15); /* Reddish shadow */
+    --shadow-dark: oklch(0 0 0 / 0.2);
+
+    /* Overlay colors */
+    --overlay-white: oklch(1 0 89.87 / 0.25);
+
+    /* Button colors */
+    --btn-toolkit-color: oklch(1 0 89.87);
+}
