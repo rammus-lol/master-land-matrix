@@ -2,6 +2,8 @@ import Map from 'ol/Map';
 import View from 'ol/View.js';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
 import Draw from 'ol/interaction/Draw.js';
+import Select from 'ol/interaction/Select.js';
+import Modify from 'ol/interaction/Modify.js';
 import { fromLonLat,transform,get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import OSM from 'ol/source/OSM.js';
@@ -12,6 +14,7 @@ import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import {defaults as defaultControls,ScaleLine} from 'ol/control';
 import {sql_js_version} from 'ol-load-geopackage';
+import {defaults as defaultInteractions} from 'ol/interaction/defaults';
 
 //custom scripts
 import LayerSwitcherModal from './modal.js';
@@ -61,7 +64,9 @@ const drawingLayer = new VectorLayer({
 checkbox.addEventListener('change', (e) => {
     drawingLayer.setVisible(e.target.checked)
 });
+
 const map = new Map({
+    interactions: defaultInteractions(),
     controls: controls,
   target: 'map',
   layers: [
@@ -77,6 +82,40 @@ const map = new Map({
 });
 let vectorLayerList = [drawingLayer]
 vectorLayerList = layerConstructor(map, vectorLayerList);
+
+// force the select only on the drawing layer to avoid confusion with the result layer
+//select feature only if button pen is active
+
+const select = new Select({ 
+  layers: [drawingLayer],
+  active: false, // Start with select interaction inactive
+});
+
+const modify = new Modify({
+features: select.getFeatures(),
+active: false, // Start with modify interaction inactive
+});
+
+//1. Add interactions to the map
+map.addInteraction(select);
+map.addInteraction(modify);
+
+// 2. Logic to toggle based on the Pen button
+const penBtn = document.querySelector('.btn-tool[data-type="pen"]');
+
+penBtn.addEventListener('click', () => {
+  // Toggle a class for visual feedback
+  const isActive = penBtn.classList.toggle('active');
+
+  // Sync the interactions with the button state
+  select.setActive(isActive);
+  modify.setActive(isActive);
+// Optional: Clear selection when deactivating tool
+  if (!isActive) {
+    select.getFeatures().clear();
+  }
+});
+
 
 const baseLayerSwitcher = new LayerSwitcherModal(map, null,'base-layer-modal', 'base-layer-switcher-btn');
 const displayManager = new LayerSwitcherModal(map,vectorLayerList,"vector-layer-modal","vector-layer-switcher-btn")

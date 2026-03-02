@@ -5,6 +5,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { getCenter } from 'ol/extent';
+
 export function resultStyle(typeName) {
     if (typeName === "high_accuracy_location") {
         return new Style({
