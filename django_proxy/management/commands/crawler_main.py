@@ -14,8 +14,8 @@ def main(making_areas=True):
     into GeoDataFrame, you can set making_areas to False,
     this way it will skip area updating."""
     # First create the folder.
-    base_dir = Path(__file__).parents[1]
-    output_dir = base_dir / "django_proxy" / "data"
+    base_dir = Path(__file__).parents[2]
+    output_dir = base_dir /  "data"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Second manage point represented deals the function.Usually it returns None but you can set debug to True if you wanna chack something.
@@ -30,6 +30,8 @@ def main(making_areas=True):
                 file.unlink()
 if __name__ == "__main__":
     main()
+
+
 
 
 

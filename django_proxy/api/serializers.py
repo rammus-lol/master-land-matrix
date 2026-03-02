@@ -38,6 +38,29 @@ class GeoJSONInputSerializer(serializers.Serializer):
         child=serializers.DictField(),
         help_text="A list of GeoJSON Features containing geometries and optional spatial properties (like radius for circles)."
     )
+
 class GeomResponseSerializer(serializers.Serializer):
     message = serializers.CharField(help_text=" a string for frontend explaining if spatial query works or not")
     data = serializers.DictField(required=False, help_text="the geojson with all the deals related to the calling")
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Exhaustive JSON Example',
+            summary='Example with list of deals for an Excel file',
+            value={
+                "id_list" : [42,69,666],
+                "format" : "xlsx"
+            }
+        )
+    ]
+)
+class SheetInputSerializer(serializers.Serializer):
+
+    id_list = serializers.ListField(
+        child=serializers.IntegerField(),
+        help_text="A list of integers representing the ID of each deal.",
+    )
+    format = serializers.ChoiceField(
+        choices=["xlsx", "csv"],
+        help_text="The format of the output file. csv are separated by a semicolon (;)",
+    )

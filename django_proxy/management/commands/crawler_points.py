@@ -10,11 +10,68 @@ from geopandas.geodataframe import GeoDataFrame
 import pprint as pri
 import numpy as np
 
-def deal_dict(deal : dict):
-    """Summarize a deal into a smaller dict well-fitted for spatial querying"""
-    return {"id":deal["id"],"deal_size":deal['selected_version']['deal_size'],
-            "intention":deal["selected_version"]["current_intention_of_investment"]}
-def geom_from_list(report_list,row_deal,location : list,index : int=0):
+def key_extraction(js, key, path=None)->str | None:
+    if path is None:
+        path = []
+
+    # String management
+    if isinstance(js, str):
+        return None
+
+    # Dictionary management
+    if isinstance(js, dict):
+        for k, v in js.items():
+            current_path = path + [k]
+            if k == key:
+                return current_path
+            result = key_extraction(v, key, current_path)
+            if result:
+                return result
+
+    # List-like management
+    elif isinstance(js, (list, tuple, set)):
+        for i, item in enumerate(js):
+            current_path = path + [i]
+            result = key_extraction(item, key, current_path)
+            if result:
+                return result
+
+    return None
+
+def path_construction(path_list : list)->str:
+    if not path_list or not isinstance(path_list, list):
+        return ""
+
+    address = "root"
+    for step in path_list:
+        if isinstance(step, int):
+            address += f"[{step}]"
+        else:
+            address += f"['{step}']"
+    return address
+def logger(fast_report : str):
+    log_name = f"log_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.txt"
+    log_dir = Path(__file__).parent / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    with open(log_dir/log_name, "w", encoding='utf-8') as f:
+        f.write(fast_report)
+
+def deal_dict(deal : dict )->dict | None:
+    """Summarize a deal into a smaller dict containing all the non-spatial data that we need"""
+    try:
+        return {"id":deal["id"],
+                "country_id":deal["country_id"],
+                "deal_size":deal['selected_version']['deal_size'],
+                "current_intention_of_investment":deal["selected_version"]["current_intention_of_investment"],
+                'current_implementation_status':deal['selected_version']['current_implementation_status'],
+                'current_negotiation_status' : deal['selected_version']['current_negotiation_status'],
+                'initiation_year' :deal['selected_version']['initiation_year']
+                }
+    except KeyError as e:
+        logger(str(e))
+        print(e)
+        return None
+def geom_from_list(report_list,row_deal,location : list,index : int=0)->dict:
     """extract the geometric information from a list with an index
     if no geometric information are provided, take the entire dictionary and ad it into a report
     list for further investigation"""
@@ -34,37 +91,18 @@ def geom_from_list(report_list,row_deal,location : list,index : int=0):
             "crs": None,
             "long": None,
             "lat": None,
-            "level_of_accuracy": location[index]['level_of_accuracy']
+            "level_of_accuracy": location[index].get('level_of_accuracy')
+            #When I read JSON most of the time points without coordinates comes with a level_of_accuracy but if it's not the case  it will return None
         }
-def key_extraction(js, key, path=[]):
-    """Because of the complexity of the /api/deals/ exit, I use this recursion
-    for finding a key I want and format it with [] for dictionary searching"""
-    def path_construction(path_in_list):
-        #format a list for dictionaries searching
-        return '["'+'"]["'.join(path_in_list)+'"]'#Yeah, it's a weird string but it works
-    if isinstance(js, dict):
-        for k, v in js.items():
-            current_path = path + [k]
-            if k == key:
-                return current_path 
-            result = key_extraction(v, key, current_path)
-            if result:
-                # return result #sometimes i get bug with return path_construction(result) so I keep this just in case
-                return path_construction(result)
-    elif isinstance(js, (tuple,list,set,frozenset)):
-        for i, item in enumerate(js):
-            current_path = path + [f"[{i}]"]
-            result = key_extraction(item, key, current_path)
-            if result:
-                # return result
-                return path_construction(result)
-    return "This key doesn't exist"
-def geodataframe_writer(calling : list[dict]):
-    """Take an Iterable from API and format it into a GeoDataFrame"""
+
+def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
+    """Take an Iterable from API and format it into a GeoDataFrame using the functions above"""
     report=[]
     summary=[]
     for c in calling:
         deal=deal_dict(c)
+        if type(deal)==KeyError:
+            logger(str(deal))
         try:
             geom = c['selected_version']["locations"]
             nb_geom=len(geom)
@@ -77,7 +115,7 @@ def geodataframe_writer(calling : list[dict]):
                    liste_point[i].update(geometry)
                 summary.extend(liste_point)
             else:
-                geometry=geom_from_list(report,c,geom) #it's called geometry but it isn't a geometry object
+                geometry=geom_from_list(report,c,geom) #it's called geometry, but it isn't a geometry object
                 deal.update(geometry)
                 summary.append(deal)
         except (KeyError,TypeError) as e:
@@ -91,21 +129,29 @@ def geodataframe_writer(calling : list[dict]):
     gdf = gdf.dropna(subset=['crs', 'long', 'lat'])
     gdf["x"]=gdf["geometry"].x
     gdf["y"]=gdf["geometry"].y
-    base_dir = Path(__file__).parents[1]
-    gdf_region = gpd.read_file(base_dir / "django_proxy" / "data" / "world_region_light.gpkg")
+    base_dir = Path(__file__).parents[2]
+    gdf_region = gpd.read_file(base_dir /  "data" / "world_region_light.gpkg")
     gdf = gpd.sjoin(gdf, gdf_region)
     col_to_drop = [col for col in gdf_region.columns if col not in ('admin', 'geometry')] + ['index_right']
     gdf.drop(col_to_drop, axis=1, inplace=True)
     area = gdf["deal_size"].replace(0, 200)
+    type_casting = ['deal_size', 'initiation_year']
+    for col in type_casting:
+        if col in gdf.columns:
+            gdf[col] = gdf[col].fillna(0).astype('int32')
     buffers_geoms = gdf["geometry"].buffer(
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     gdf["geometry"] = buffers_geoms
-    accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
-    mask = gdf['level_of_accuracy'].isin(accurate_points)
-    gdf['feature_type'] = np.where(mask, "high_accuracy_location", "low_accuracy_location")
-    gdf['quality_of_precision'] = np.where(mask, "high accuracy location without shape provided", "low accuracy location")
-    return gdf,report # it returns something but only for debug, the function handle export
-def api_calling():
+    conditions = [
+        (gdf['level_of_accuracy'].isin(["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"])),
+        (gdf['level_of_accuracy']=="ADMINISTRATIVE_REGION"),
+        (gdf['level_of_accuracy'] == "COUNTRY"),
+    ]
+    choices = ["High accuracy location without shape provided","Regionally accurate","Nationally accurate"]
+    gdf['quality_of_precision'] = np.select(conditions,choices,"No accuracy qualification provided")
+    gdf
+    return gdf,report
+def api_calling()->list[dict] | str:
     try:
         call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
         call.raise_for_status()
@@ -114,9 +160,9 @@ def api_calling():
     except requests.exceptions.RequestException as e:
         print(f"Houston we got an HTTP problem : {e}")
         return str(e)
-def deal_exporter(deal : GeoDataFrame,report,dir : Path) ->str :
+def deal_exporter(deal : GeoDataFrame,report : list[dict],dir : Path) ->str :
     """Export a GeoDataFrame representing deals
-        to the right location and a report on deals with no coordinates
+        to the right path and a report on deals with no coordinates
         for further investigation.
         It returns a string for logging about deals with no coordinates"""
     report_dir = dir / "reports"
@@ -128,12 +174,7 @@ def deal_exporter(deal : GeoDataFrame,report,dir : Path) ->str :
         print(f"The export of deals to GeoPackage completed successfully. The script found {len(report)} deals without coordinates.")
     return f"""The export of deals to GeoPackage completed successfully.
 The script found {len(report)} deals without coordinates."""
-def logger(fast_report : str):
-    log_name = f"log_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.txt"
-    log_dir = Path(__file__).parent / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    with open(log_dir/log_name, "w", encoding='utf-8') as f:
-        f.write(fast_report)
+
 def deal_gpkg_writer(dir : Path,debug=False):
     data=api_calling()
     if type(data) != str:
@@ -141,12 +182,14 @@ def deal_gpkg_writer(dir : Path,debug=False):
         logging_string= deal_exporter(gdf_deal,report,dir)
         logger(logging_string)
         if debug:
-            return gdf_deal,report
+            return gdf_deal,report #return something in case you want to debug in another script
         return None
     else :
         logger(data)
         return None
-        
+if __name__=="__main__":
+    v=5
+
 
 
         
