@@ -406,11 +406,12 @@ const saveBtn = document.getElementById("saveBtn");
 const filenameBox = document.getElementById("saveFilenameBox");
 const filenameInput = document.getElementById("saveFilenameInput");
 const saveOkBtn = document.getElementById("saveOkBtn");
+const saveCancelBtn = document.getElementById("saveCancelBtn");
 
 // Managing display button
 saveBtn.addEventListener("click", () => {
     saveBtn.style.display = "none";
-    filenameBox.style.display = "inline-flex";
+    filenameBox.style.display = "flex";
     filenameInput.value = "";
     filenameInput.focus();
 });
@@ -420,12 +421,26 @@ saveOkBtn.addEventListener("click", () => {
     triggerSave();
 });
 
+// cancel button
+saveCancelBtn.addEventListener("click", () => {
+    resetSaveUI();
+});
+
 // validating with enter
 filenameInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         triggerSave();
+    } else if (e.key === "Escape") {
+        resetSaveUI();
     }
 });
+
+// Function to reset UI to initial state
+function resetSaveUI() {
+    filenameBox.style.display = "none";
+    saveBtn.style.display = "";
+    filenameInput.value = "";
+}
 
 // Triggering function
 function triggerSave() {
@@ -438,8 +453,7 @@ function triggerSave() {
     saveGeoJSON(drawingSource.getFeatures(), filename);
 
     // back to welcoming ui
-    filenameBox.style.display = "none";
-    saveBtn.style.display = "inline-block";
+    resetSaveUI();
 }
 
 // Panel toggle functionality
