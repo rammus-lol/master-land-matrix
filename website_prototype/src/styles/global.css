@@ -53,56 +53,162 @@
     !* Button colors *!
     --btn-toolkit-color: oklch(1 0 89.876);
 }*/
+/*:root {*/
+/*    !* Primary colors - Red / Terracotta (Based on 26.37) *!*/
+/*    --main-bg-color: oklch(0.663 0.16 26.37);*/
+/*    --main-bg-color-transparent: oklch(0.663 0.16 26.37 / 0.3);*/
+/*    --main-bg-hover: oklch(0.58 0.139 26.50);*/
+/*    --main-bg-hover-dark: oklch(0.542 0.129 26.67);*/
+
+/*    !* Secondary colors - Warm Earth & Muted Purple *!*/
+/*    --secondary-brown: oklch(0.496 0.09 0.18); !* Brownish red *!*/
+/*    --secondary-brown-hover: oklch(0.599 0.137 0.32);*/
+/*    --secondary-blue: oklch(0.632 0.116 48.51); !* Warm Orange-Red *!*/
+/*    --secondary-blue-transparent: oklch(0.632 0.116 48.51 / 0.3);*/
+
+/*    !* Background colors - Soft Rose / Shell *!*/
+/*    --background-color: oklch(0.978 0.007 34.07);*/
+/*    --background-light: oklch(0.969 0.01 29.09);*/
+/*    --background-lighter: oklch(0.983 0.002 39.07);*/
+/*    --background-lightest: oklch(0.996 0.006 44.45);*/
+/*    --background-white: oklch(1 0 89.87);*/
+/*    --background-almost-white: oklch(1 0 89.87 / 0.95);*/
+/*    --background-hover: oklch(0.958 0.014 29.58);*/
+/*    --background-green-light: oklch(0.957 0.021 21.63);*/
+/*    --background-blue-light: oklch(0.948 0.019 66.80);*/
+/*    --background-blue-transparent: oklch(0.948 0.019 66.80 / 0.3);*/
+
+/*    !* Text colors - Warm Greys / Deep Purples *!*/
+/*    --text-color: oklch(0.356 0.039 122.97);*/
+/*    --text-color-dark: oklch(0.263 0.026 122.83);*/
+/*    --text-color-medium: oklch(0.454 0.03 102.62);*/
+/*    --text-color-light: oklch(0.639 0.033 103.54);*/
+/*    --text-color-black: oklch(0 0 0);*/
+/*    --text-color-heading: oklch(0.415 0.095 27.37);*/
+/*    --text-color-white: oklch(1 0 89.87);*/
+
+/*    !* Border colors - Soft Coral / Brick *!*/
+/*    --border-color: oklch(0.895 0.05 20.03);*/
+/*    --border-color-light: oklch(0.829 0.083 19.81);*/
+/*    --border-color-medium: oklch(0.766 0.118 19.29);*/
+/*    --border-color-lighter: oklch(0.957 0.021 21.63);*/
+/*    --border-color-dark: oklch(0.718 0.142 18.88);*/
+/*    --border-color-close: oklch(0.673 0.162 18.20);*/
+
+/*    !* Shadow colors *!*/
+/*    --shadow-light: oklch(0 0 0 / 0.1);*/
+/*    --shadow-medium: oklch(0.415 0.095 27.37 / 0.15); !* Reddish shadow *!*/
+/*    --shadow-dark: oklch(0 0 0 / 0.2);*/
+
+/*    !* Overlay colors *!*/
+/*    --overlay-white: oklch(1 0 89.87 / 0.25);*/
+
+/*    !* Button colors *!*/
+/*    --btn-toolkit-color: oklch(1 0 89.87);*/
+/*}*/
+/*:root {*/
+/*    !* Primary colors - Taupe / Brown (Based on #896952 -> oklch(0.53 0.05 65)) *!*/
+/*    --main-bg-color: oklch(0.53 0.05 65);*/
+/*    --main-bg-color-transparent: oklch(0.53 0.05 65 / 0.3);*/
+/*    --main-bg-hover: oklch(0.48 0.045 65); !* Assombri proportionnellement *!*/
+/*    --main-bg-hover-dark: oklch(0.44 0.04 65);*/
+
+/*    !* Secondary colors - Muted Earth & Wood *!*/
+/*    --secondary-brown: oklch(0.42 0.03 60);*/
+/*    --secondary-brown-hover: oklch(0.50 0.04 65);*/
+/*    --secondary-blue: oklch(0.55 0.04 75); !* Ajusté pour rester dans les tons terreux *!*/
+/*    --secondary-blue-transparent: oklch(0.55 0.04 75 / 0.3);*/
+
+/*    !* Background colors - Linen / Sand / Warm Stone *!*/
+/*    --background-color: oklch(0.96 0.01 70);*/
+/*    --background-light: oklch(0.94 0.015 65);*/
+/*    --background-lighter: oklch(0.97 0.005 75);*/
+/*    --background-lightest: oklch(0.99 0.005 80);*/
+/*    --background-white: oklch(1 0 0);*/
+/*    --background-almost-white: oklch(1 0 0 / 0.95);*/
+/*    --background-hover: oklch(0.92 0.02 65);*/
+/*    --background-green-light: oklch(0.94 0.02 85); !* Nuance olive très légère *!*/
+/*    --background-blue-light: oklch(0.93 0.015 220); !* Garde un contraste frais très pâle *!*/
+/*    --background-blue-transparent: oklch(0.93 0.015 220 / 0.3);*/
+
+/*    !* Text colors - Deep Umber / Charcoal *!*/
+/*    --text-color: oklch(0.30 0.02 70);*/
+/*    --text-color-dark: oklch(0.20 0.01 70);*/
+/*    --text-color-medium: oklch(0.45 0.02 70);*/
+/*    --text-color-light: oklch(0.60 0.01 70);*/
+/*    --text-color-black: oklch(0 0 0);*/
+/*    --text-color-heading: oklch(0.35 0.04 65);*/
+/*    --text-color-white: oklch(1 0 0);*/
+
+/*    !* Border colors - Muted Clay / Sandstone *!*/
+/*    --border-color: oklch(0.85 0.02 65);*/
+/*    --border-color-light: oklch(0.78 0.03 65);*/
+/*    --border-color-medium: oklch(0.70 0.04 65);*/
+/*    --border-color-lighter: oklch(0.92 0.01 65);*/
+/*    --border-color-dark: oklch(0.65 0.04 65);*/
+/*    --border-color-close: oklch(0.55 0.05 65);*/
+
+/*    !* Shadow colors *!*/
+/*    --shadow-light: oklch(0 0 0 / 0.1);*/
+/*    --shadow-medium: oklch(0.35 0.04 65 / 0.15); !* Ombre brune au lieu de rouge *!*/
+/*    --shadow-dark: oklch(0 0 0 / 0.2);*/
+
+/*    !* Overlay colors *!*/
+/*    --overlay-white: oklch(1 0 0 / 0.25);*/
+
+/*    !* Button colors *!*/
+/*    --btn-toolkit-color: oklch(1 0 0);*/
+/*}*/
 :root {
-    /* Primary colors - Red / Terracotta (Based on 26.37) */
-    --main-bg-color: oklch(0.663 0.16 26.37);
-    --main-bg-color-transparent: oklch(0.663 0.16 26.37 / 0.3);
-    --main-bg-hover: oklch(0.58 0.139 26.50);
-    --main-bg-hover-dark: oklch(0.542 0.129 26.67);
+    /* Primary colors - Vibrant Orange / Amber (Based on #fc941d -> oklch(0.74 0.18 64)) */
+    --main-bg-color: oklch(0.74 0.18 64);
+    --main-bg-color-transparent: oklch(0.74 0.18 64 / 0.3);
+    --main-bg-hover: oklch(0.68 0.17 62); /* Un peu plus sombre et saturé pour le hover */
+    --main-bg-hover-dark: oklch(0.62 0.16 60);
 
-    /* Secondary colors - Warm Earth & Muted Purple */
-    --secondary-brown: oklch(0.496 0.09 0.18); /* Brownish red */
-    --secondary-brown-hover: oklch(0.599 0.137 0.32);
-    --secondary-blue: oklch(0.632 0.116 48.51); /* Warm Orange-Red */
-    --secondary-blue-transparent: oklch(0.632 0.116 48.51 / 0.3);
+    /* Secondary colors - Gold & Warm Honey */
+    --secondary-brown: oklch(0.55 0.14 55); /* Un orange terreux */
+    --secondary-brown-hover: oklch(0.65 0.16 60);
+    --secondary-blue: oklch(0.78 0.15 80); /* Jaune orangé clair */
+    --secondary-blue-transparent: oklch(0.78 0.15 80 / 0.3);
 
-    /* Background colors - Soft Rose / Shell */
-    --background-color: oklch(0.978 0.007 34.07);
-    --background-light: oklch(0.969 0.01 29.09);
-    --background-lighter: oklch(0.983 0.002 39.07);
-    --background-lightest: oklch(0.996 0.006 44.45);
-    --background-white: oklch(1 0 89.87);
-    --background-almost-white: oklch(1 0 89.87 / 0.95);
-    --background-hover: oklch(0.958 0.014 29.58);
-    --background-green-light: oklch(0.957 0.021 21.63);
-    --background-blue-light: oklch(0.948 0.019 66.80);
-    --background-blue-transparent: oklch(0.948 0.019 66.80 / 0.3);
+    /* Background colors - Cream / Papyrus / Warm Glow */
+    --background-color: oklch(0.98 0.015 75);
+    --background-light: oklch(0.96 0.025 70);
+    --background-lighter: oklch(0.985 0.01 80);
+    --background-lightest: oklch(0.995 0.005 85);
+    --background-white: oklch(1 0 0);
+    --background-almost-white: oklch(1 0 0 / 0.95);
+    --background-hover: oklch(0.94 0.03 70);
+    --background-green-light: oklch(0.96 0.03 95); /* Teinte citronnée très pâle */
+    --background-blue-light: oklch(0.95 0.02 210); /* Contraste bleu ciel très léger */
+    --background-blue-transparent: oklch(0.95 0.02 210 / 0.3);
 
-    /* Text colors - Warm Greys / Deep Purples */
-    --text-color: oklch(0.356 0.039 122.97);
-    --text-color-dark: oklch(0.263 0.026 122.83);
-    --text-color-medium: oklch(0.454 0.03 102.62);
-    --text-color-light: oklch(0.639 0.033 103.54);
+    /* Text colors - Deep Amber / Warm Charcoal */
+    --text-color: oklch(0.32 0.03 60);
+    --text-color-dark: oklch(0.22 0.04 55);
+    --text-color-medium: oklch(0.48 0.02 65);
+    --text-color-light: oklch(0.65 0.02 65);
     --text-color-black: oklch(0 0 0);
-    --text-color-heading: oklch(0.415 0.095 27.37);
-    --text-color-white: oklch(1 0 89.87);
+    --text-color-heading: oklch(0.45 0.15 60); /* Titre bien chaud */
+    --text-color-white: oklch(1 0 0);
 
-    /* Border colors - Soft Coral / Brick */
-    --border-color: oklch(0.895 0.05 20.03);
-    --border-color-light: oklch(0.829 0.083 19.81);
-    --border-color-medium: oklch(0.766 0.118 19.29);
-    --border-color-lighter: oklch(0.957 0.021 21.63);
-    --border-color-dark: oklch(0.718 0.142 18.88);
-    --border-color-close: oklch(0.673 0.162 18.20);
+    /* Border colors - Soft Amber / Apricot */
+    --border-color: oklch(0.88 0.06 65);
+    --border-color-light: oklch(0.82 0.09 64);
+    --border-color-medium: oklch(0.76 0.12 62);
+    --border-color-lighter: oklch(0.94 0.04 68);
+    --border-color-dark: oklch(0.70 0.14 60);
+    --border-color-close: oklch(0.65 0.16 58);
 
     /* Shadow colors */
     --shadow-light: oklch(0 0 0 / 0.1);
-    --shadow-medium: oklch(0.415 0.095 27.37 / 0.15); /* Reddish shadow */
-    --shadow-dark: oklch(0 0 0 / 0.2);
+    --shadow-medium: oklch(0.50 0.15 64 / 0.15); /* Ombre chaude orangée */
+    --shadow-dark: oklch(0 0 0 / 0.25);
 
     /* Overlay colors */
-    --overlay-white: oklch(1 0 89.87 / 0.25);
+    --overlay-white: oklch(1 0 0 / 0.25);
 
     /* Button colors */
-    --btn-toolkit-color: oklch(1 0 89.87);
+    --btn-toolkit-color: oklch(1 0 0);
 }

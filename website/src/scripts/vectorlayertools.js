@@ -5,6 +5,12 @@ import GeoJSON from 'ol/format/GeoJSON';
 import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { getCenter } from 'ol/extent';
+
+/**
+ * Create style based on the layer name (type of feature
+ * @param {string} typeName
+ * @returns {{import('ol/Style').default}
+ * */
 export function resultStyle(typeName) {
     if (typeName === "high_accuracy_location") {
         return new Style({
@@ -85,8 +91,9 @@ export function layerConstructor(map,vectorLayerList) {
     return vectorLayerList;
 }
 /**
- * takes a geojson object and update the layers based on their feature type property
+ * takes a geojson object and update the layers based on their feature_type property
  * @param {Object} geojsonObject
+ * @returns {void}
  * */
 export function layerUpdator(geojsonObject) {
     if (!geojsonObject || !geojsonObject.features) return;

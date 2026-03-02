@@ -14,7 +14,10 @@ const ACCURACY_LABELS = {
 };
 
 /**
- * intention datas formating
+ * Take current_intention_of_investment value  normally it's an Array (but Django magic can happen)
+ * and format it to a readable string.
+ * @param {string|Array} intention the data fetched from backend for the field current_intention_of_investment
+ * @returns {string}
  */
 function formatIntention(intention) {
   if (!intention) return 'N/A';
@@ -40,6 +43,7 @@ function formatIntention(intention) {
 
 /**
  * Format deals size with appropriate unites
+ * @param {number} dealSize the deal_size value of the feature
  */
 function formatDealSize(dealSize) {
   if (!dealSize || dealSize === 'N/A') return 'Not specified';
@@ -111,7 +115,7 @@ export function initializePopup(map) {
         "areas"];
     const regionpopup = ['administrative_region'];
 
-    // Priorité 1 : Rechercher d'abord les deals (points, polygones)
+    // 1. search for deals or areas
     let feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
       const layerName = layer ? layer.get('layerName') : null;
       if (layer && dealpopup.includes(layerName)) {
@@ -119,7 +123,7 @@ export function initializePopup(map) {
       }
     });
 
-    // Priorité 2 : Si aucun deal trouvé, chercher les régions
+    // 2. search for administrative region
     if (!feature) {
       feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
         const layerName = layer ? layer.get('layerName') : null;
@@ -137,7 +141,7 @@ export function initializePopup(map) {
     const { feature: selectedFeature, layerType } = feature;
     const properties = selectedFeature.getProperties();
 
-    // Gérer les popups pour les régions administratives
+    // Popup for administrative regions
     if (regionpopup.includes(layerType)) {
       const regionName = properties.admin || 'Not specified';
       const isoCode = properties.iso_3166_2 || 'Not specified';
@@ -159,7 +163,7 @@ export function initializePopup(map) {
       return;
     }
 
-    // Gérer les popups pour les deals (comportement existant)
+    // Manage popup for deals
     const dealId = properties.deal_id || properties.id;
 
     if (!dealId) return;
