@@ -110,7 +110,16 @@ penBtn.addEventListener('click', () => {
   // Sync the interactions with the button state
   select.setActive(isActive);
   modify.setActive(isActive);
-// Optional: Clear selection when deactivating tool
+
+  // Deactivate drawing tools when pen is active
+  if (isActive) {
+    addInteraction(null);
+    toolButtons.forEach(b => {
+      if (b !== penBtn) b.classList.remove('active');
+    });
+  }
+
+  // Optional: Clear selection when deactivating tool
   if (!isActive) {
     select.getFeatures().clear();
   }
@@ -152,6 +161,16 @@ toolButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const type = btn.getAttribute('data-type');
     const kpPanel = document.getElementById('known-point-panel');
+
+    // If this is the pen button, skip this handler (it has its own logic)
+    if (type === 'pen') {
+      return;
+    }
+
+    // Deactivate select/modify when using other drawing tools
+    select.setActive(false);
+    modify.setActive(false);
+    select.getFeatures().clear();
 
     // Toggle active state
     toolButtons.forEach(b => b.classList.remove('active'));
@@ -351,6 +370,7 @@ kpDrawBtn.addEventListener("click", () => {
     // Zoom on circle
     const extent = circle.getExtent();
     map.getView().fit(extent, { padding: [20, 20, 20, 20] });
+    
 
 });
 map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
@@ -430,6 +450,11 @@ document.getElementById('export').addEventListener('click', async () => {
         //toolButtons.forEach(b => b.classList.remove('active'));
         layerUpdator(resultGeoJSON);
         toolButtons.forEach(b => b.classList.remove('active'));
+        // deactive penBtn
+        penBtn.classList.remove('active');
+        select.setActive(false);
+        modify.setActive(false);
+        select.getFeatures().clear();
         map.getView().fit(map.getLayers().item(2).getSource().getExtent(),
             {padding: [20, 20, 20, 20],
                 duration: 1000});
