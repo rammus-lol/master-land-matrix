@@ -22,7 +22,8 @@ export async function initializeLegend(map) {
   }
   
   // Add legend to map
-  document.getElementById('map').appendChild(legend);
+  const mapElement = document.getElementById('map');
+  mapElement.appendChild(legend);
   
   // Create legend button to show/hide
   const legendButton = document.createElement('button');
@@ -38,12 +39,68 @@ export async function initializeLegend(map) {
   `;
   legendButton.title = 'Show legend';
   
-  document.getElementById('map').appendChild(legendButton);
+  mapElement.appendChild(legendButton);
   
   // Toggle legend visibility
   const toggleLegendVisibility = (show) => {
     legend.style.display = show ? 'block' : 'none';
     legendButton.classList.toggle('active', show);
+  };
+
+  const LEGEND_LAYER_KEYS = new Set([
+    'high_accuracy_location',
+    'low_accuracy_location',
+    'areas',
+    'administrative_region'
+  ]);
+
+  const hasVisibleDataForLayer = (layerKey) => {
+    const layer = map.getLayers().getArray().find((candidate) => candidate.get('layerName') === layerKey);
+    if (!layer || !layer.getVisible()) {
+      return false;
+    }
+
+    const source = layer.getSource?.();
+    const features = source?.getFeatures?.();
+    return Array.isArray(features) && features.length > 0;
+  };
+
+  const updateLegendItems = () => {
+    const legendItems = legend.querySelectorAll('.legend-item[data-layer]');
+    let visibleItems = 0;
+
+    legendItems.forEach((item) => {
+      const layerKey = item.getAttribute('data-layer');
+      const isVisible = hasVisibleDataForLayer(layerKey);
+      item.style.display = isVisible ? 'flex' : 'none';
+      if (isVisible) {
+        visibleItems += 1;
+      }
+    });
+
+    const hasAnyLegendData = visibleItems > 0;
+    const emptyState = legend.querySelector('.legend-empty-state');
+    if (emptyState) {
+      emptyState.style.display = hasAnyLegendData ? 'none' : 'block';
+    }
+
+    if (hasAnyLegendData && legend.style.display === 'none') {
+      toggleLegendVisibility(true);
+    }
+  };
+
+  const bindLegendRefreshToLayer = (layer) => {
+    const layerName = layer.get?.('layerName');
+    if (!LEGEND_LAYER_KEYS.has(layerName)) {
+      return;
+    }
+
+    layer.on('change:visible', updateLegendItems);
+    const source = layer.getSource?.();
+    source?.on('addfeature', updateLegendItems);
+    source?.on('removefeature', updateLegendItems);
+    source?.on('clear', updateLegendItems);
+    source?.on('change', updateLegendItems);
   };
   
   legendButton.addEventListener('click', () => {
@@ -51,19 +108,18 @@ export async function initializeLegend(map) {
   });
   
   // Close button inside legend
-  legend.querySelector('.legend-toggle').addEventListener('click', () => {
+  const closeButton = legend.querySelector('.legend-toggle');
+  closeButton?.addEventListener('click', () => {
     toggleLegendVisibility(false);
   });
-  
-  // Show legend automatically when results are loaded
-  map.on('change', () => {
-    const resultsLayer = map.getLayers().getArray().find(layer => layer.get('name') === 'results');
-    const hasResults = resultsLayer?.getSource()?.getFeatures()?.length > 0;
-    
-    if (hasResults && legend.style.display === 'none') {
-      toggleLegendVisibility(true);
-    }
+
+  map.getLayers().getArray().forEach(bindLegendRefreshToLayer);
+  map.getLayers().on('add', (event) => {
+    bindLegendRefreshToLayer(event.element);
+    updateLegendItems();
   });
+
+  updateLegendItems();
 }
 
 /**
