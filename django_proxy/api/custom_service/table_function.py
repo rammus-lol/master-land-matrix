@@ -26,14 +26,14 @@ DEALS =settings.BASE_DIR.parent / "django_proxy" / "data" / "deals.gpkg"
 AREAS = settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg"
 
 
-def table_constructor(id_list : list[int],format : str):
+def table_constructor(id_list : list[int]):
     ids =", ".join([str(i) for i in id_list])
 
     sql_query = f"""
         SELECT 
             id as deal_id, admin as country, deal_size, current_intention_of_investment,
             current_implementation_status, current_negotiation_status,
-            level_of_accuracy, initiation_year
+            level_of_accuracy,quality_of_precision, initiation_year
         FROM deals
         WHERE id IN ({ids})
         """
@@ -44,3 +44,6 @@ def table_constructor(id_list : list[int],format : str):
 
     return table
 
+if __name__=="__main__":
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(table_constructor([8,11,12,13,14]))

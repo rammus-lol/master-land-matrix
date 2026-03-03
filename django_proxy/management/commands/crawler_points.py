@@ -10,45 +10,6 @@ from geopandas.geodataframe import GeoDataFrame
 import pprint as pri
 import numpy as np
 
-def key_extraction(js, key, path=None)->str | None:
-    if path is None:
-        path = []
-
-    # String management
-    if isinstance(js, str):
-        return None
-
-    # Dictionary management
-    if isinstance(js, dict):
-        for k, v in js.items():
-            current_path = path + [k]
-            if k == key:
-                return current_path
-            result = key_extraction(v, key, current_path)
-            if result:
-                return result
-
-    # List-like management
-    elif isinstance(js, (list, tuple, set)):
-        for i, item in enumerate(js):
-            current_path = path + [i]
-            result = key_extraction(item, key, current_path)
-            if result:
-                return result
-
-    return None
-
-def path_construction(path_list : list)->str:
-    if not path_list or not isinstance(path_list, list):
-        return ""
-
-    address = "root"
-    for step in path_list:
-        if isinstance(step, int):
-            address += f"[{step}]"
-        else:
-            address += f"['{step}']"
-    return address
 def logger(fast_report : str):
     log_name = f"log_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.txt"
     log_dir = Path(__file__).parent / "logs"
@@ -142,14 +103,16 @@ def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
     buffers_geoms = gdf["geometry"].buffer(
         np.sqrt(area * 10000 / np.pi))  # formula for finding radius with area
     gdf["geometry"] = buffers_geoms
+    accurate_point = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
     conditions = [
-        (gdf['level_of_accuracy'].isin(["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"])),
+        (gdf['level_of_accuracy'].isin(accurate_point)),
         (gdf['level_of_accuracy']=="ADMINISTRATIVE_REGION"),
         (gdf['level_of_accuracy'] == "COUNTRY"),
     ]
     choices = ["High accuracy location without shape provided","Regionally accurate","Nationally accurate"]
     gdf['quality_of_precision'] = np.select(conditions,choices,"No accuracy qualification provided")
-    gdf
+    gdf["feature_type"] = np.where(conditions[0],"high_accuracy_location","low_accuracy_location")
+    #field use for frontend rendering (choosing in which layer goes the deal)
     return gdf,report
 def api_calling()->list[dict] | str:
     try:
@@ -187,8 +150,6 @@ def deal_gpkg_writer(dir : Path,debug=False):
     else :
         logger(data)
         return None
-if __name__=="__main__":
-    v=5
 
 
 
