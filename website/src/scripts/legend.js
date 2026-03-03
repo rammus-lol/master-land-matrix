@@ -30,12 +30,7 @@ export async function initializeLegend(map) {
   legendButton.id = 'legend-btn';
   legendButton.className = 'legend-btn';
   legendButton.innerHTML = `
-    <svg width="40" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="3" width="7" height="7"></rect>
-      <rect x="14" y="3" width="7" height="7"></rect>
-      <rect x="14" y="14" width="7" height="7"></rect>
-      <rect x="3" y="14" width="7" height="7"></rect>
-    </svg>
+    <img src="../../images/legend.svg" alt="Legend" width="60%" height="60%">
   `;
   legendButton.title = 'Show legend';
   
