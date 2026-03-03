@@ -1,8 +1,9 @@
-import  '../styles/maps.css';
 import Map from 'ol/Map';
 import View from 'ol/View.js';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
 import Draw from 'ol/interaction/Draw.js';
+import Select from 'ol/interaction/Select.js';
+import Modify from 'ol/interaction/Modify.js';
 import { fromLonLat,transform,get } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import OSM from 'ol/source/OSM.js';
@@ -13,6 +14,7 @@ import {Circle,Point} from 'ol/geom';
 import Feature from 'ol/Feature';
 import {defaults as defaultControls,ScaleLine} from 'ol/control';
 import {sql_js_version} from 'ol-load-geopackage';
+import {defaults as defaultInteractions} from 'ol/interaction/defaults';
 
 //custom scripts
 import LayerSwitcherModal from './modal.js';
@@ -62,7 +64,9 @@ const drawingLayer = new VectorLayer({
 checkbox.addEventListener('change', (e) => {
     drawingLayer.setVisible(e.target.checked)
 });
+
 const map = new Map({
+    interactions: defaultInteractions(),
     controls: controls,
   target: 'map',
   layers: [
@@ -78,6 +82,49 @@ const map = new Map({
 });
 let vectorLayerList = [drawingLayer]
 vectorLayerList = layerConstructor(map, vectorLayerList);
+
+// force the select only on the drawing layer to avoid confusion with the result layer
+//select feature only if button pen is active
+
+const select = new Select({ 
+  layers: [drawingLayer],
+  active: false, // Start with select interaction inactive
+});
+
+const modify = new Modify({
+features: select.getFeatures(),
+active: false, // Start with modify interaction inactive
+});
+
+//1. Add interactions to the map
+map.addInteraction(select);
+map.addInteraction(modify);
+
+// 2. Logic to toggle based on the Pen button
+const penBtn = document.querySelector('.btn-tool[data-type="pen"]');
+
+penBtn.addEventListener('click', () => {
+  // Toggle a class for visual feedback
+  const isActive = penBtn.classList.toggle('active');
+
+  // Sync the interactions with the button state
+  select.setActive(isActive);
+  modify.setActive(isActive);
+
+  // Deactivate drawing tools when pen is active
+  if (isActive) {
+    addInteraction(null);
+    toolButtons.forEach(b => {
+      if (b !== penBtn) b.classList.remove('active');
+    });
+  }
+
+  // Optional: Clear selection when deactivating tool
+  if (!isActive) {
+    select.getFeatures().clear();
+  }
+});
+
 
 const baseLayerSwitcher = new LayerSwitcherModal(map, null,'base-layer-modal', 'base-layer-switcher-btn');
 const displayManager = new LayerSwitcherModal(map,vectorLayerList,"vector-layer-modal","vector-layer-switcher-btn")
@@ -114,6 +161,16 @@ toolButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const type = btn.getAttribute('data-type');
     const kpPanel = document.getElementById('known-point-panel');
+
+    // If this is the pen button, skip this handler (it has its own logic)
+    if (type === 'pen') {
+      return;
+    }
+
+    // Deactivate select/modify when using other drawing tools
+    select.setActive(false);
+    modify.setActive(false);
+    select.getFeatures().clear();
 
     // Toggle active state
     toolButtons.forEach(b => b.classList.remove('active'));
@@ -314,6 +371,7 @@ kpDrawBtn.addEventListener("click", () => {
     // Zoom on circle
     const extent = circle.getExtent();
     map.getView().fit(extent, { padding: [20, 20, 20, 20] });
+    
 
 });
 map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
@@ -393,6 +451,11 @@ document.getElementById('export').addEventListener('click', async () => {
         //toolButtons.forEach(b => b.classList.remove('active'));
         layerUpdator(resultGeoJSON);
         toolButtons.forEach(b => b.classList.remove('active'));
+        // deactive penBtn
+        penBtn.classList.remove('active');
+        select.setActive(false);
+        modify.setActive(false);
+        select.getFeatures().clear();
         map.getView().fit(map.getLayers().item(2).getSource().getExtent(),
             {padding: [20, 20, 20, 20],
                 duration: 1000});
@@ -408,11 +471,12 @@ const saveBtn = document.getElementById("saveBtn");
 const filenameBox = document.getElementById("saveFilenameBox");
 const filenameInput = document.getElementById("saveFilenameInput");
 const saveOkBtn = document.getElementById("saveOkBtn");
+const saveCancelBtn = document.getElementById("saveCancelBtn");
 
 // Managing display button
 saveBtn.addEventListener("click", () => {
     saveBtn.style.display = "none";
-    filenameBox.style.display = "inline-flex";
+    filenameBox.style.display = "flex";
     filenameInput.value = "";
     filenameInput.focus();
 });
@@ -422,12 +486,26 @@ saveOkBtn.addEventListener("click", () => {
     triggerSave();
 });
 
+// cancel button
+saveCancelBtn.addEventListener("click", () => {
+    resetSaveUI();
+});
+
 // validating with enter
 filenameInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         triggerSave();
+    } else if (e.key === "Escape") {
+        resetSaveUI();
     }
 });
+
+// Function to reset UI to initial state
+function resetSaveUI() {
+    filenameBox.style.display = "none";
+    saveBtn.style.display = "";
+    filenameInput.value = "";
+}
 
 // Triggering function
 function triggerSave() {
@@ -440,8 +518,7 @@ function triggerSave() {
     saveGeoJSON(drawingSource.getFeatures(), filename);
 
     // back to welcoming ui
-    filenameBox.style.display = "none";
-    saveBtn.style.display = "inline-block";
+    resetSaveUI();
 }
 
 // Panel toggle functionality

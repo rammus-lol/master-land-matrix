@@ -1,4 +1,6 @@
 import Overlay from 'ol/Overlay';
+import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
+import { resultStyle } from './vectorlayertools.js';
 
 // templates cache
 let popupTemplate = null;
@@ -12,6 +14,32 @@ const ACCURACY_LABELS = {
   'COUNTRY': 'Country',
   'ADMINISTRATIVE_REGION': 'Administrative region'
 };
+
+function getSelectionStyle(layerType, geometryType) {
+  const baseStyle = resultStyle(layerType);
+
+  if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+    const pointColor = layerType === 'high_accuracy_location' ? '#fc941d' : '#43b6b5';
+    return [
+      baseStyle,
+      new Style({
+        image: new CircleStyle({
+          radius: 11,
+          fill: new Fill({ color: 'rgba(255,255,255,0.12)' }),
+          stroke: new Stroke({ color: pointColor, width: 4 })
+        })
+      })
+    ];
+  }
+
+  return [
+    baseStyle,
+    new Style({
+      stroke: new Stroke({ color: '#ffffff', width: 4 }),
+      fill: new Fill({ color: 'rgba(255,255,255,0.10)' })
+    })
+  ];
+}
 
 /**
  * Take current_intention_of_investment value  normally it's an Array (but Django magic can happen)
@@ -92,6 +120,14 @@ export function initializePopup(map) {
   const container = document.getElementById('popup');
   const content = document.getElementById('popup-content');
   const closer = document.getElementById('popup-closer');
+  let selectedFeature = null;
+
+  function clearSelectedFeature() {
+    if (selectedFeature) {
+      selectedFeature.setStyle(undefined);
+      selectedFeature = null;
+    }
+  }
 
   const overlay = new Overlay({
     element: container,
@@ -104,6 +140,7 @@ export function initializePopup(map) {
 
   closer.onclick = function () {
     overlay.setPosition(undefined);
+    clearSelectedFeature();
     closer.blur();
     return false;
   };
@@ -135,11 +172,16 @@ export function initializePopup(map) {
 
     if (!feature) {
       overlay.setPosition(undefined);
+      clearSelectedFeature();
       return;
     }
 
-    const { feature: selectedFeature, layerType } = feature;
-    const properties = selectedFeature.getProperties();
+    const { feature: clickedFeature, layerType } = feature;
+    clearSelectedFeature();
+    const geometryType = clickedFeature.getGeometry()?.getType();
+    clickedFeature.setStyle(getSelectionStyle(layerType, geometryType));
+    selectedFeature = clickedFeature;
+    const properties = clickedFeature.getProperties();
 
     // Popup for administrative regions
     if (regionpopup.includes(layerType)) {
