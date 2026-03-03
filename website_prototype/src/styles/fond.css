@@ -1,0 +1,192 @@
+
+/* Layer Switcher Button */
+.layer-switcher-btn {
+    position: fixed;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    background: var(--background-white);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px var(--shadow-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9999;
+    border: 2px solid var(--background-white);
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+.layer-switcher-btn:hover {
+    border-color: var(--main-bg-color);
+
+}
+
+.layer-switcher-btn img {
+    width: 30px;
+    height: 30px;
+    user-select: none;
+}
+#base-layer-switcher-btn {
+    bottom: 20px;
+
+}
+#vector-layer-switcher-btn {
+    bottom: 90px;
+
+}
+
+/* Layer Modal */
+.layer-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+
+}
+
+.base-layer-modal-content {
+    background-color: var(--background-lightest);
+    margin: 0;
+    padding: 20px;
+    border: 1px solid var(--border-color-light);
+    width: auto;
+    border-radius: 15px;
+    position: absolute;
+    bottom: 20px;
+    left: 90px;
+    right: auto;
+    box-shadow: 0 4px 20px var(--shadow-dark);
+    animation: slideUp 0.3s ease-out;
+    pointer-events: auto;
+
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.close-modal {
+    color: var(--border-color-close);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: var(--text-color-black);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.base-layer-options {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+
+}
+
+.layer-option {
+    background: none;
+    color: inherit;
+    font: inherit;
+
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.layer-option:hover, .layer-option.active {
+    border-color: var(--main-bg-color);
+    background-color: var(--background-color);
+}
+
+.layer-option img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color-light);
+    user-select: none;
+}
+#vector-layer-modal .base-layer-modal-content {
+    width: 250px;
+    min-height: 300px;
+    bottom: 90px;
+}
+
+#vector-layer-modal .base-layer-options {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.layer-option-radio {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    cursor: pointer;
+    padding: 8px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.layer-option-radio input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color-light);
+    border-radius: 4px;
+    margin: 0;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.layer-option-radio input[type="checkbox"]:checked {
+    border-color: var(--main-bg-hover-dark);
+    background-color: var(--main-bg-color);
+}
+
+.layer-option-radio input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.layer-option-radio img,
+.layer-option-radio svg{
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.layer-option-radio:hover {
+    background-color: var(--background-blue-transparent);
+}
+#layers {
+    display: none !important;
+}

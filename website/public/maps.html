@@ -108,7 +108,9 @@
         </label>
       </div>
     </div>
+
   </div>
+
     </div>
 
     <!-- ----------- SIDE PANEL ----------- -->
@@ -142,7 +144,12 @@
             <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
             <span>Known Point</span>
           </button>
-        </div>
+        
+          <button class="btn-tool" data-type="pen" title="Pen tool for freehand drawing">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <span>Pen</span>
+          </button>
+          </div>
       </div>
 
       <div class="left-group">
@@ -159,9 +166,12 @@
         <button class="btn btn-light" id="saveBtn">Save your work</button>
       </div>
 
-      <div id="saveFilenameBox" style="display: none;">
+      <div class="left-group" id="saveFilenameBox" style="display: none;">
         <input id="saveFilenameInput" type="text" placeholder="Enter filename…" />
-        <button id="saveOkBtn" class="btn btn-primary">OK</button>
+        <div class="double-btn-group">
+          <button id="saveOkBtn" class="btn btn-primary">OK</button>
+          <button id="saveCancelBtn" class="btn btn-secondary">Cancel</button>
+        </div>
       </div>
 
       <!-- button for excel download -->

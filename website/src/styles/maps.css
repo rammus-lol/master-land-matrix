@@ -21,7 +21,7 @@ html, body {
     height: 70px;
     background-color: var(--main-bg-color);
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     z-index: 2000;
@@ -55,7 +55,7 @@ html, body {
 
 
 #top-right {
-    justify-content: flex-end; 
+    justify-content: flex-end;
 }
 
 .main-logo {
@@ -155,6 +155,53 @@ html, body {
     background-color: var(--main-bg-hover-dark);
 }
 
+/* Save filename box styling */
+#saveFilenameBox {
+    gap: 10px;
+}
+
+#saveFilenameInput {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color-medium);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--background-white);
+    color: var(--text-color);
+    transition: border-color 0.2s ease;
+}
+
+#saveFilenameInput:focus {
+    outline: none;
+    border-color: var(--main-bg-color);
+    box-shadow: 0 0 0 2px var(--main-bg-color-transparent);
+}
+
+#saveFilenameInput::placeholder {
+    color: var(--text-color-light);
+}
+
+#saveOkBtn {
+    background-color: var(--main-bg-color);
+    color: var(--text-color-white);
+    border: none;
+}
+
+#saveOkBtn:hover {
+    background-color: var(--main-bg-hover);
+}
+
+#saveCancelBtn {
+    background-color: var(--background-light);
+    color: var(--text-color);
+    border: 1px solid var(--border-color-medium);
+}
+
+#saveCancelBtn:hover {
+    background-color: var(--background-hover);
+    border-color: var(--border-color-dark);
+}
+
 
 .input-group-text {
     background: var(--background-white);
@@ -231,7 +278,7 @@ html, body {
     border-radius: 8px;
     background: var(--background-white);
     margin-top: 10px;
-    display: none; 
+    display: none;
 }
 
 #known-point-panel label {
@@ -267,7 +314,7 @@ html, body {
 
 .btn-tool:hover {
     border-color: var(--main-bg-color);
-    background: var(--background-orange-light);
+    background: var(--background-green-light);
     transform: translateX(3px);
 }
 
@@ -356,9 +403,9 @@ html, body {
 }
 
 #next {
-    position: absolute; 
-    right: 10px; 
-    top: 50%; 
+    position: absolute;
+    right: 10px;
+    top: 50%;
     transform: translateY(-50%);
     z-index: 10;
     background-color: var(--main-bg-color);
@@ -366,17 +413,17 @@ html, body {
 }
 
 #next:hover {
-    position: absolute; 
-    right: 10px; 
-    top: 50%; 
+    position: absolute;
+    right: 10px;
+    top: 50%;
     transform: translateY(-50%);
     z-index: 10;
     background-color: var(--main-bg-hover-dark);
 }
 #previous {
-position: absolute; 
-left: 10px; 
-top: 50%; 
+position: absolute;
+left: 10px;
+top: 50%;
 transform: translateY(-50%);
 z-index: 10;
 background-color: var(--main-bg-color);
@@ -384,9 +431,9 @@ color: var(--text-color-white);
 }
 
 #previous:hover {
-position: absolute; 
-left: 10px; 
-top: 50%; 
+position: absolute;
+left: 10px;
+top: 50%;
 transform: translateY(-50%);
 z-index: 10;
 background-color: var(--main-bg-hover-dark);

@@ -1,53 +1,54 @@
 :root {
-    /* Primary colors - Vert Émeraude / Forêt */
-    --main-bg-color: #27ae60;
-    --main-bg-color-transparent: rgba(39, 174, 96, 0.3);
-    --main-bg-hover: #219150;
-    --main-bg-hover-dark: #1e8449;
+    /* Primary colors - emerald / forest green */
+    --main-bg-color: oklch(0.663 0.16 152.371);
+    --main-bg-color-transparent: oklch(0.663 0.16 152.371 / 0.3);
+    --main-bg-hover: oklch(0.58 0.139 152.505);
+    --main-bg-hover-dark: oklch(0.542 0.129 152.676);
+
     
     /* Secondary colors - Sauge et Bleu Canard */
-    --secondary-brown: #556b2f; /* Vert olive foncé pour remplacer le marron */
-    --secondary-brown-hover: #6b8e23;
-    --secondary-blue: #16a085; /* Vert canard / Sarcelle */
-    --secondary-blue-transparent: rgba(22, 160, 133, 0.3);
+    --secondary-brown: oklch(0.496 0.09 126.186);
+    --secondary-brown-hover: oklch(0.599 0.137 126.322);
+    --secondary-blue: oklch(0.632 0.116 174.518); /* Vert canard / Sarcelle */
+    --secondary-blue-transparent: oklch(0.632 0.116 174.518 / 0.3);
     
     /* Background colors - Mint green */
-    --background-color: #f4f9f6;
-    --background-light: #f0f7f2;
-    --background-lighter: #f8faf9;
-    --background-lightest: #fafffd;
-    --background-white: #ffffff;
-    --background-almost-white: rgba(255, 255, 255, 0.95);
-    --background-hover: #eaf4ed;
-    --background-orange-light: #e8f5e9;
-    --background-blue-light: #e0f2f1;
-    --background-blue-transparent: rgba(224, 242, 241, 0.3);
+    --background-color: oklch(0.978 0.007 160.078);
+    --background-light: oklch(0.969 0.01 155.098);
+    --background-lighter: oklch(0.983 0.002 165.077);
+    --background-lightest: oklch(0.996 0.006 170.454);
+    --background-white: oklch(1 0 89.876);
+    --background-almost-white: oklch(1 0 89.876 / 0.95);
+    --background-hover: oklch(0.958 0.014 155.587);
+    --background-green-light: oklch(0.957 0.021 147.636);
+    --background-blue-light: oklch(0.948 0.019 192.809);
+    --background-blue-transparent: oklch(0.948 0.019 192.809 / 0.3);
     
     /* Text colors */
-    --text-color: #2c3e50;
-    --text-color-dark: #1b2631;
-    --text-color-medium: #455a64;
-    --text-color-light: #78909c;
-    --text-color-black: #000;
-    --text-color-heading: #145a32;
-    --text-color-white: #fff;
+    --text-color: oklch(0.356 0.039 248.975);
+    --text-color-dark: oklch(0.263 0.026 248.836);
+    --text-color-medium: oklch(0.454 0.03 228.623);
+    --text-color-light: oklch(0.639 0.033 229.545);
+    --text-color-black: oklch(0 0 0);
+    --text-color-heading: oklch(0.415 0.095 153.379);
+    --text-color-white: oklch(1 0 89.876);
     
     /* Border colors */
-    --border-color: #c8e6c9;
-    --border-color-light: #a5d6a7;
-    --border-color-medium: #81c784;
-    --border-color-lighter: #e8f5e9;
-    --border-color-dark: #66bb6a;
-    --border-color-close: #4caf50;
+    --border-color: oklch(0.895 0.05 146.037);
+    --border-color-light: oklch(0.829 0.083 145.817);
+    --border-color-medium: oklch(0.766 0.118 145.295);
+    --border-color-lighter: oklch(0.957 0.021 147.636);
+    --border-color-dark: oklch(0.718 0.142 144.889);
+    --border-color-close: oklch(0.673 0.162 144.208);
     
     /* Shadow colors */
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(20, 90, 50, 0.15); /* Greenish shadow */
-    --shadow-dark: rgba(0, 0, 0, 0.2);
+    --shadow-light: oklch(0 0 0 / 0.1);
+    --shadow-medium: oklch(0.415 0.095 153.379 / 0.15); /* Greenish shadow */
+    --shadow-dark: oklch(0 0 0 / 0.2);
     
     /* Overlay colors */
-    --overlay-white: rgba(255, 255, 255, 0.25);
+    --overlay-white: oklch(1 0 89.876 / 0.25);
     
     /* Button colors */
-    --btn-toolkit-color: white;
+    --btn-toolkit-color: oklch(1 0 89.876);
 }

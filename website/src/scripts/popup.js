@@ -1,4 +1,6 @@
 import Overlay from 'ol/Overlay';
+import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
+import { resultStyle } from './vectorlayertools.js';
 
 // templates cache
 let popupTemplate = null;
@@ -13,8 +15,37 @@ const ACCURACY_LABELS = {
   'ADMINISTRATIVE_REGION': 'Administrative region'
 };
 
+function getSelectionStyle(layerType, geometryType) {
+  const baseStyle = resultStyle(layerType);
+
+  if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+    const pointColor = layerType === 'high_accuracy_location' ? '#fc941d' : '#43b6b5';
+    return [
+      baseStyle,
+      new Style({
+        image: new CircleStyle({
+          radius: 11,
+          fill: new Fill({ color: 'rgba(255,255,255,0.12)' }),
+          stroke: new Stroke({ color: pointColor, width: 4 })
+        })
+      })
+    ];
+  }
+
+  return [
+    baseStyle,
+    new Style({
+      stroke: new Stroke({ color: '#ffffff', width: 4 }),
+      fill: new Fill({ color: 'rgba(255,255,255,0.10)' })
+    })
+  ];
+}
+
 /**
- * intention datas formating
+ * Take current_intention_of_investment value  normally it's an Array (but Django magic can happen)
+ * and format it to a readable string.
+ * @param {string|Array} intention the data fetched from backend for the field current_intention_of_investment
+ * @returns {string}
  */
 function formatIntention(intention) {
   if (!intention) return 'N/A';
@@ -40,6 +71,7 @@ function formatIntention(intention) {
 
 /**
  * Format deals size with appropriate unites
+ * @param {number} dealSize the deal_size value of the feature
  */
 function formatDealSize(dealSize) {
   if (!dealSize || dealSize === 'N/A') return 'Not specified';
@@ -88,6 +120,14 @@ export function initializePopup(map) {
   const container = document.getElementById('popup');
   const content = document.getElementById('popup-content');
   const closer = document.getElementById('popup-closer');
+  let selectedFeature = null;
+
+  function clearSelectedFeature() {
+    if (selectedFeature) {
+      selectedFeature.setStyle(undefined);
+      selectedFeature = null;
+    }
+  }
 
   const overlay = new Overlay({
     element: container,
@@ -100,6 +140,7 @@ export function initializePopup(map) {
 
   closer.onclick = function () {
     overlay.setPosition(undefined);
+    clearSelectedFeature();
     closer.blur();
     return false;
   };
@@ -111,7 +152,7 @@ export function initializePopup(map) {
         "areas"];
     const regionpopup = ['administrative_region'];
 
-    // Priorité 1 : Rechercher d'abord les deals (points, polygones)
+    // 1. search for deals or areas
     let feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
       const layerName = layer ? layer.get('layerName') : null;
       if (layer && dealpopup.includes(layerName)) {
@@ -119,7 +160,7 @@ export function initializePopup(map) {
       }
     });
 
-    // Priorité 2 : Si aucun deal trouvé, chercher les régions
+    // 2. search for administrative region
     if (!feature) {
       feature = map.forEachFeatureAtPixel(evt.pixel, (feat, layer) => {
         const layerName = layer ? layer.get('layerName') : null;
@@ -131,13 +172,18 @@ export function initializePopup(map) {
 
     if (!feature) {
       overlay.setPosition(undefined);
+      clearSelectedFeature();
       return;
     }
 
-    const { feature: selectedFeature, layerType } = feature;
-    const properties = selectedFeature.getProperties();
+    const { feature: clickedFeature, layerType } = feature;
+    clearSelectedFeature();
+    const geometryType = clickedFeature.getGeometry()?.getType();
+    clickedFeature.setStyle(getSelectionStyle(layerType, geometryType));
+    selectedFeature = clickedFeature;
+    const properties = clickedFeature.getProperties();
 
-    // Gérer les popups pour les régions administratives
+    // Popup for administrative regions
     if (regionpopup.includes(layerType)) {
       const regionName = properties.admin || 'Not specified';
       const isoCode = properties.iso_3166_2 || 'Not specified';
@@ -159,7 +205,7 @@ export function initializePopup(map) {
       return;
     }
 
-    // Gérer les popups pour les deals (comportement existant)
+    // Manage popup for deals
     const dealId = properties.deal_id || properties.id;
 
     if (!dealId) return;
