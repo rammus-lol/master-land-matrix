@@ -4,6 +4,7 @@ requests>=2.32.5
 geopandas>=0.15.0
 pandas>=2.1.0
 openpyxl>=3.1.2
+reportlab>=4.2.0
 numpy>=2.3.5
 #api doc
 djangorestframework==3.15.1

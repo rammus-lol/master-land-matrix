@@ -5,20 +5,22 @@
     box-sizing: border-box;
 }
 
+:root {
+    --header-offset: 70px;
+}
+
 html, body {
     height: 100%;
     width: 100%;
     overflow: hidden;
 }
 
-
-
 .top-bar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: var(--header-offset);
     background-color: var(--main-bg-color);
     display: flex;
     justify-content: space-between;
@@ -36,7 +38,7 @@ html, body {
 
 }
 .top-content h2 {
-    font-size: 20px;
+    font-size: 17px;
     margin: 0;
 }
 #top-left {
@@ -49,8 +51,81 @@ html, body {
     padding: 5px 20px;
     border-radius: 8px;
     height: fit-content;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: normal;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+}
+
+@media (max-width: 1268px) {
+    :root {
+        --header-offset: 120px;
+    }
+
+    .top-bar {
+        height: var(--header-offset);
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        row-gap: 6px;
+    }
+
+    #top-left,
+    #top-right {
+        flex: 0 0 auto;
+    }
+
+    #top-center {
+        order: 3;
+        flex: 1 1 100%;
+        font-size: 16px;
+        max-width: 100%;
+        padding: 0;
+        border-radius: 0;
+        background-color: transparent;
+        overflow-wrap: anywhere;
+    }
+
+    .top-content h2 {
+        font-size: 15px;
+    }
+
+    .side-panel {
+        top: var(--header-offset);
+        height: calc(100vh - var(--header-offset));
+    }
+
+    #map {
+        top: var(--header-offset);
+    }
+}
+
+@media (max-width: 1408px) {
+    :root {
+        --header-offset: 150px;
+    }
+
+    .top-bar {
+        height: var(--header-offset);
+    }
+
+    .top-content h2 {
+        font-size: 15px;
+    }
+
+    #top-center {
+        font-size: 14px;
+    }
+
+    .side-panel {
+        top: var(--header-offset);
+        height: calc(100vh - var(--header-offset));
+    }
+
+    #map {
+        top: var(--header-offset);
+    }
 }
 
 
@@ -86,12 +161,12 @@ html, body {
 .side-panel {
     position: fixed;
     right: 0;
-    top: 70px;
+    top: var(--header-offset);
     width: 307px;
     background: var(--background-color);
     padding: 15px;
     border-left: 1px solid var(--border-color);
-    height: calc(100vh - 70px);
+    height: calc(100vh - var(--header-offset));
     overflow-y: auto;
     transition: right 0.3s ease;
     z-index: 1500;
@@ -132,11 +207,26 @@ html, body {
     background-color: var(--main-bg-hover-dark);
 }
 
-.left-group,
-.right-group {
+.left-group{
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+.left-group-pdf {
+    /* center */
+    display: flex;
+    justify-content: center;
+
+}
+
+.left-group-pdf .btn {
+    background-color: var(--main-bg-color);
+    color: var(--text-color-white);
+    width: 100%;
+    margin-top: 10px;
+}
+.left-group-pdf .btn:hover {
+    background-color: var(--main-bg-hover-dark);
 }
 
 .double-btn-group {
@@ -235,7 +325,7 @@ html, body {
 }
 #map {
     position: absolute;
-    top: 70px;
+    top: var(--header-offset);
     left: 0;
     right: 0;
     bottom: 0;
@@ -363,7 +453,7 @@ html, body {
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
+    flex0-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -379,7 +469,7 @@ html, body {
 }
 
 .close {
-    background-color: var(--main-bg-color);
+    background-color: 656v9ar(--main-bg-color);
     border: none;
     color: var(--text-color-white);
     padding: 10px 20px;

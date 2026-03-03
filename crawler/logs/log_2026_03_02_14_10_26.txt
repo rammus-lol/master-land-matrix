@@ -1,0 +1,2 @@
+The export of deals to GeoPackage completed successfully.
+The script found 95 deals without coordinates.
