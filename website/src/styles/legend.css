@@ -107,7 +107,7 @@ body:has(.side-panel.collapsed) .map-legend {
   height: 24px;
   fill: none;
 }
-/*For styling,the point svg we need to use css variables*/
+/*SVGs symbol for style is black, we need to use css variables*/
 .legend-orange {
   --stroke-color: #fc941d;
   --bg-color: rgba(252, 148, 29, 0.3);

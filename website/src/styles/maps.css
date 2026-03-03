@@ -21,7 +21,7 @@ html, body {
     height: 70px;
     background-color: var(--main-bg-color);
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     z-index: 2000;
@@ -55,7 +55,7 @@ html, body {
 
 
 #top-right {
-    justify-content: flex-end; 
+    justify-content: flex-end;
 }
 
 .main-logo {
@@ -278,7 +278,7 @@ html, body {
     border-radius: 8px;
     background: var(--background-white);
     margin-top: 10px;
-    display: none; 
+    display: none;
 }
 
 #known-point-panel label {
@@ -314,7 +314,7 @@ html, body {
 
 .btn-tool:hover {
     border-color: var(--main-bg-color);
-    background: var(--background-orange-light);
+    background: var(--background-green-light);
     transform: translateX(3px);
 }
 
@@ -403,9 +403,9 @@ html, body {
 }
 
 #next {
-    position: absolute; 
-    right: 10px; 
-    top: 50%; 
+    position: absolute;
+    right: 10px;
+    top: 50%;
     transform: translateY(-50%);
     z-index: 10;
     background-color: var(--main-bg-color);
@@ -413,17 +413,17 @@ html, body {
 }
 
 #next:hover {
-    position: absolute; 
-    right: 10px; 
-    top: 50%; 
+    position: absolute;
+    right: 10px;
+    top: 50%;
     transform: translateY(-50%);
     z-index: 10;
     background-color: var(--main-bg-hover-dark);
 }
 #previous {
-position: absolute; 
-left: 10px; 
-top: 50%; 
+position: absolute;
+left: 10px;
+top: 50%;
 transform: translateY(-50%);
 z-index: 10;
 background-color: var(--main-bg-color);
@@ -431,9 +431,9 @@ color: var(--text-color-white);
 }
 
 #previous:hover {
-position: absolute; 
-left: 10px; 
-top: 50%; 
+position: absolute;
+left: 10px;
+top: 50%;
 transform: translateY(-50%);
 z-index: 10;
 background-color: var(--main-bg-hover-dark);

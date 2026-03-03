@@ -4,6 +4,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import KML from 'ol/format/KML';
 import Map from 'ol/Map';
 import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
 import Circle from 'ol/geom/Circle';
 import {fromCircle} from 'ol/geom/Polygon';
 
@@ -15,8 +16,16 @@ export async function sqlStarter() {
 }
 
 //  loading file function
+/**
+ * The function driving the file loading process
+ * @param {FileList} files list of files for example like in e.dataTransfer.files
+ * @param {import('ol/source/Source').default} vectorsource an OpenLayers vector source
+ * @param {import('ol/Map').default} map
+ * */
 export async function loadFile(files, vectorsource, map) {
     const allowed_ext = new Set(["geojson", "shp", "json", "kml", "zip", "gpkg"]);
+    //managing unzipped shp is really gluteal pain it's in the list but if just for alerting
+    //I let shpjs managing .zip without shapefiles in it
     if (!files) return;
     let features = [];
     for (let file of files) {
@@ -47,34 +56,24 @@ export async function loadFile(files, vectorsource, map) {
                     return;
                 } else if (fileName.endsWith(".gpkg")) {
                     const displayProjection = "EPSG:3857";
-                    const url_gpkg = URL.createObjectURL(file);
-
                     try {
-                        const [dataFromGpkg] = await loadGpkg(url_gpkg, displayProjection);
-
+                        const [dataFromGpkg] = await loadGpkg(file, displayProjection);
                         let hasPolygonLayer = false;
-
                         for (const table in dataFromGpkg) {
                             const source = dataFromGpkg[table];
                             const tableFeatures = source.getFeatures();
-
                             if (!tableFeatures || tableFeatures.length === 0) {
                                 continue;
                             }
-
-                            // Standard supposé : une table = un type de géométrie
                             const geomType = tableFeatures[0].getGeometry()?.getType();
-
                             if (geomType === "Polygon" || geomType === "MultiPolygon") {
                                 hasPolygonLayer = true;
                                 features.push(...tableFeatures);
                             }
                         }
-
                         if (!hasPolygonLayer) {
                             alert("The provided geopackage contains no polygonal layer (Polygon or MultiPolygon).");
                         }
-                        URL.revokeObjectURL(url_gpkg)
                     } catch (error) {
                         alert("ol-load-geopackage error: " + error);
                     }
@@ -139,3 +138,4 @@ export function saveGeoJSON(features, filename) {
 
     URL.revokeObjectURL(url);
 }
+

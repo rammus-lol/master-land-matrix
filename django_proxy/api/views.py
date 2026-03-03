@@ -1,5 +1,6 @@
+import io
 import requests
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import geopandas as gpd
@@ -9,11 +10,14 @@ import traceback
 from pathlib import Path
 from django.conf import settings
 from land_matrix_function import export
-from api.spatial_service.spatial_function import  geom_constructor
+from api.custom_service.spatial_function import  geom_constructor
+from api.custom_service.table_function import table_constructor
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
-from .serializers import GeoJSONInputSerializer, GeomResponseSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
+from .serializers import *
+
 @extend_schema(exclude=True)
 @api_view(['GET'])
 @csrf_exempt
@@ -94,3 +98,42 @@ def geom(request):
         print("error in geom api querying :", e, flush=True)
         traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=500)
+@csrf_exempt
+@extend_schema(
+    summary="Requesting for data in spreadsheet format",
+    description="""
+        Processes a list of IDs and exports the corresponding deals into a spreadsheet 
+        (Excel or CSV) based on the requested format.
+    """,
+    request=SheetInputSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="The generated spreadsheet file",
+            response=OpenApiTypes.BINARY,
+        ),
+        400: OpenApiResponse(description="Invalid IDs or format provided"),
+    },
+    tags=["spreadsheet file"]
+)
+@api_view(['POST'])
+def sheet(request):
+    id_list=request['id_list']
+    file_format = request['file_format']
+    table = table_constructor([id_list],file_format)
+    if file_format == "xlsx":
+        output = io.BytesIO()
+        table.to_excel(output, index=False, engine='openpyxl')
+        content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        filename = "export.xlsx"
+        data = output.getvalue()
+    else:
+        output = io.StringIO()
+        table.to_csv(output, sep=";", index=False)
+        content_type = "text/csv"
+        filename = "export.csv"
+        data = output.getvalue()
+    response = HttpResponse(data, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    return response
+

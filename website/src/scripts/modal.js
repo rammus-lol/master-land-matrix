@@ -26,7 +26,7 @@ class LayerSwitcherModal {
     }
     
     /**
-        Define a the basic base map configuration
+        Define a basic base map configuration
      * @returns {Object}
      */
     getDefaultLayers() {
@@ -130,7 +130,7 @@ class LayerSwitcherModal {
     /**
      *
      * @param {string} key
-     * @param {import('ol/source/Source').default} source - Source OpenLayers
+     * @param {import('ol/source/Source').default} source - OpenLayers source
      */
     addLayer(key, source) {
         this.layers[key] = source;

@@ -22,7 +22,7 @@ import AlertPanel from "./alert_panel.js";
 import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
-import {layerUpdator, resultStyle, vectorSources,layerConstructor} from "./vectorlayertools.js";
+import {layerUpdator,layerConstructor} from "./vectorlayertools.js";
 
 // API Base URL - change for production/development
 // const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -293,6 +293,7 @@ dropZone.addEventListener('drop', async e => {
 
     if (e.dataTransfer.files.length > 0) {
         await loadFile(e.dataTransfer.files,drawingSource,map);
+
     }
 });
 
