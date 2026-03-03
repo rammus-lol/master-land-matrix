@@ -15,8 +15,6 @@ html, body {
     overflow: hidden;
 }
 
-
-
 .top-bar {
     position: fixed;
     top: 0;
@@ -209,11 +207,26 @@ html, body {
     background-color: var(--main-bg-hover-dark);
 }
 
-.left-group,
-.right-group {
+.left-group{
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+.left-group-pdf {
+    /* center */
+    display: flex;
+    justify-content: center;
+
+}
+
+.left-group-pdf .btn {
+    background-color: var(--main-bg-color);
+    color: var(--text-color-white);
+    width: 100%;
+    margin-top: 10px;
+}
+.left-group-pdf .btn:hover {
+    background-color: var(--main-bg-hover-dark);
 }
 
 .double-btn-group {
