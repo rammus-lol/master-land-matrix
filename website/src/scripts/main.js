@@ -25,6 +25,7 @@ import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 import {layerUpdator,layerConstructor} from "./vectorlayertools.js";
 import exportCsv from './export_csv.js';
 import exportXlsx from './export_xlsx.js';
+import exportPdf from './export_pdf.js';
 
 // API Base URL - change for production/development
 // const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -492,8 +493,8 @@ async function performSpatialQuery() {
 }
 
 document.getElementById('downloadCSV').addEventListener('click', async () => {
-  // If no deals are queried but there are geometries on the map, perform query first
-  if (selectedDealIds.length === 0 && drawingSource.getFeatures().length > 0) {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
     topCenterPanel.alerting(
       {"background-color": "#FFD700", "color": "#000000"},
       "Performing spatial query to find deals...",
@@ -519,8 +520,8 @@ document.getElementById('downloadCSV').addEventListener('click', async () => {
 });
 
 document.getElementById('downloadExcel').addEventListener('click', async () => {
-  // If no deals are queried but there are geometries on the map, perform query first
-  if (selectedDealIds.length === 0 && drawingSource.getFeatures().length > 0) {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
     topCenterPanel.alerting(
       {"background-color": "#FFD700", "color": "#000000"},
       "Performing spatial query to find deals...",
@@ -542,6 +543,33 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
     await exportXlsx(selectedDealIds, API_BASE_URL);
   } catch {
     alert('Excel export failed. Please try again.');
+  }
+});
+
+document.getElementById('downloadPDF').addEventListener('click', async () => {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
+    topCenterPanel.alerting(
+      {"background-color": "#FFD700", "color": "#000000"},
+      "Performing spatial query to find deals...",
+      5
+    );
+    const querySuccess = await performSpatialQuery();
+    if (!querySuccess) {
+      alert('Could not query database to find deals.');
+      return;
+    }
+  }
+
+  if (selectedDealIds.length === 0) {
+    alert('No deals available. Draw geometries and query the database first.');
+    return;
+  }
+
+  try {
+    await exportPdf(selectedDealIds, API_BASE_URL);
+  } catch {
+    alert('PDF export failed. Please try again.');
   }
 });
 

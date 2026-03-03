@@ -12,6 +12,7 @@ from django.conf import settings
 from land_matrix_function import export
 from api.custom_service.spatial_function import  geom_constructor
 from api.custom_service.table_function import table_constructor
+from api.custom_service.pdf_report import build_pdf_report
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
@@ -102,10 +103,11 @@ def geom(request):
         return JsonResponse({"error": str(e)}, status=500)
 @csrf_exempt
 @extend_schema(
-    summary="Requesting for data in spreadsheet format",
+    summary="Requesting data export (spreadsheet or PDF)",
     description="""
-        Processes a list of IDs and exports the corresponding deals into a spreadsheet 
-        (Excel or CSV) based on the requested format.
+        Processes a list of IDs and exports the corresponding deals into either:
+        - spreadsheet format (Excel or CSV)
+        - PDF report with summary charts based on counts.
     """,
     request=SheetInputSerializer,
     responses={
@@ -131,8 +133,8 @@ def sheet(request):
     except (TypeError, ValueError):
         return JsonResponse({"error": "id_list must contain integers"}, status=400)
 
-    if file_format not in ["xlsx", "csv"]:
-        return JsonResponse({"error": "format must be 'xlsx' or 'csv'"}, status=400)
+    if file_format not in ["xlsx", "csv", "pdf"]:
+        return JsonResponse({"error": "format must be 'xlsx', 'csv' or 'pdf'"}, status=400)
 
     table = table_constructor(id_list)
     if file_format == "xlsx":
@@ -166,11 +168,16 @@ def sheet(request):
         filename = "export.xlsx"
         data = output.getvalue()
     else:
-        output = io.StringIO()
-        table.to_csv(output, sep=';', index=False)
-        content_type = "text/csv"
-        filename = "export.csv"
-        data = output.getvalue()
+        if file_format == "csv":
+            output = io.StringIO()
+            table.to_csv(output, sep=';', index=False)
+            content_type = "text/csv"
+            filename = "export.csv"
+            data = output.getvalue()
+        else:
+            data = build_pdf_report(table)
+            content_type = "application/pdf"
+            filename = "export_report.pdf"
     response = HttpResponse(data, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 

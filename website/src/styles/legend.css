@@ -101,6 +101,13 @@ body:has(.side-panel.collapsed) .map-legend {
   line-height: 1.4;
 }
 
+.legend-empty-state {
+  font-size: 13px;
+  color: var(--text-color-medium);
+  font-style: italic;
+  display: none;
+}
+
 /* Legend symbols */
 .legend-deal {
   width: 24px;

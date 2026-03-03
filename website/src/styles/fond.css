@@ -139,6 +139,8 @@
     justify-content: flex-start;
 }
 
+/* Checkboxs creation for legend */
+
 .layer-option-radio {
     display: flex;
     flex-direction: row;
@@ -187,6 +189,47 @@
 .layer-option-radio:hover {
     background-color: var(--background-blue-transparent);
 }
+
+/* checkbox creation for precise selections only */
+
+#precise_loc-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+#precise_loc-btn input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color-light);
+    border-radius: 4px;
+    margin: 0;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+#precise_loc-btn input[type="checkbox"]:checked {
+    border-color: var(--main-bg-hover-dark);
+    background-color: var(--main-bg-color);
+}
+
+#precise_loc-btn input[type="checkbox"]:checked::before {
+    content: "✓";
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#precise_loc-btn .layer-label {
+    cursor: pointer;
+    user-select: none;
+}
+
 #layers {
     display: none !important;
 }

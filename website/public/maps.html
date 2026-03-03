@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drawing_widget</title>
+  <title>Land Matrix Geodata Visualiser</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.7.0/ol.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
@@ -51,7 +51,7 @@
         <img src="../../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
       </div>
       <div id="vector-layer-switcher-btn" class="layer-switcher-btn">
-        <img src="../../images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+        <img src="../../images/layer_toggle.svg" alt="Layers" width="24" height="24">
       </div>
 
   <!-- Base layer manager -->
@@ -146,7 +146,7 @@
           </button>
         
           <button class="btn-tool" data-type="pen" title="Pen tool for freehand drawing">
-            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <img src="../images/pencil.svg" alt="Pen" width="20" height="20">
             <span>Pen</span>
           </button>
           </div>
@@ -155,15 +155,8 @@
       <div class="left-group">
         <button class="btn btn-light" id="undo">Undo</button>
         <button class="btn btn-light" id="clear">Clear</button>
-      </div>
-
-      <div class="left-group">
-        <button class="btn btn-light" id="export">Querying our database</button>
-      </div>
-
-      <!-- Save file -->
-      <div class="left-group">
         <button class="btn btn-light" id="saveBtn">Save your work</button>
+
       </div>
 
       <div class="left-group" id="saveFilenameBox" style="display: none;">
@@ -173,12 +166,24 @@
           <button id="saveCancelBtn" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
+      <hr>
+
+      <div class="left-group">
+        <button class="btn btn-light" id="export">Querying our database</button>
+        <label class="btn btn-light" id="precise_loc-btn">
+          <input type="checkbox" name="precise_localisation" value unchecked>
+          <span class="layer-label">Precise localisation only</span>
+        </label>
+      </div>
+      <hr>
 
       <!-- button for excel download -->
       <div class="double-btn-group">
         <button class="btn btn-light" id="downloadExcel">Download Excel</button>
         <button class="btn btn-light" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
-
+      </div>
+      <div class="left-group-pdf">
+              <button class="btn btn-light" id="downloadPDF">Download PDF report</button>
       </div>
 
 
