@@ -17,6 +17,8 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from .serializers import *
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 
 @extend_schema(exclude=True)
 @api_view(['GET'])
@@ -117,18 +119,55 @@ def geom(request):
 )
 @api_view(['POST'])
 def sheet(request):
-    id_list=request['id_list']
-    file_format = request['file_format']
-    table = table_constructor([id_list])
+    payload = request.data if hasattr(request, "data") else request
+    id_list = payload.get('id_list', [])
+    file_format = payload.get('file_format') or payload.get('format')
+
+    if not isinstance(id_list, list) or len(id_list) == 0:
+        return JsonResponse({"error": "id_list must be a non-empty list"}, status=400)
+
+    try:
+        id_list = [int(deal_id) for deal_id in id_list]
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "id_list must contain integers"}, status=400)
+
+    if file_format not in ["xlsx", "csv"]:
+        return JsonResponse({"error": "format must be 'xlsx' or 'csv'"}, status=400)
+
+    table = table_constructor(id_list)
     if file_format == "xlsx":
         output = io.BytesIO()
-        table.to_excel(output, index=False, engine='openpyxl')
+        table.to_excel(output, index=False, engine='openpyxl', sheet_name='Deals')
+        
+        # Adjust column widths based on content
+        output.seek(0)
+        workbook = load_workbook(output)
+        worksheet = workbook.active
+        
+        for column in worksheet.columns:
+            max_length = 0
+            column_letter = get_column_letter(column[0].column)
+            
+            for cell in column:
+                try:
+                    if cell.value:
+                        cell_length = len(str(cell.value))
+                        max_length = max(max_length, cell_length)
+                except:
+                    pass
+            
+            # Set column width with some padding
+            adjusted_width = min(max_length + 2, 50)
+            worksheet.column_dimensions[column_letter].width = adjusted_width
+        
+        output = io.BytesIO()
+        workbook.save(output)
         content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         filename = "export.xlsx"
         data = output.getvalue()
     else:
         output = io.StringIO()
-        table.to_csv(output, sep=";", index=False)
+        table.to_csv(output, sep=';', index=False)
         content_type = "text/csv"
         filename = "export.csv"
         data = output.getvalue()
