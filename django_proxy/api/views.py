@@ -119,7 +119,7 @@ def geom(request):
 def sheet(request):
     id_list=request['id_list']
     file_format = request['file_format']
-    table = table_constructor([id_list],file_format)
+    table = table_constructor([id_list])
     if file_format == "xlsx":
         output = io.BytesIO()
         table.to_excel(output, index=False, engine='openpyxl')

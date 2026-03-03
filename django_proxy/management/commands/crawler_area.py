@@ -46,8 +46,9 @@ def crawling_areas(region_file : Path | str):
         areas["region_list"] = region_lists.reindex(areas.index, fill_value=None)
         areas["region_list"] = areas["region_list"].apply(json.dumps)
         areas["current_intention_of_investment"] = areas["current_intention_of_investment"].apply(json.dumps)
-        areas["quality_of_precision"] = "high accuracy location with shape provided"
+        areas["quality_of_precision"] = "Shape provided, exact location"
         areas["feature_type"] = "areas"
+        # field use for frontend rendering (choosing in which layer goes the deal)
         """Unfortunately SQLite doesn't allow to store list type data as JSON
         but you can store string looking alike a json object
         I was tricked by Qgis.
