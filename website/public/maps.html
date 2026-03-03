@@ -146,7 +146,7 @@
           </button>
         
           <button class="btn-tool" data-type="pen" title="Pen tool for freehand drawing">
-            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <img src="../images/pencil.svg" alt="Pen" width="20" height="20">
             <span>Pen</span>
           </button>
           </div>
@@ -155,20 +155,20 @@
       <div class="left-group">
         <button class="btn btn-light" id="undo">Undo</button>
         <button class="btn btn-light" id="clear">Clear</button>
+        <button class="btn btn-light" id="saveBtn">Save your work</button>
+
       </div>
+      <hr>
 
       <div class="left-group">
         <button class="btn btn-light" id="export">Querying our database</button>
         <label class="btn btn-light" id="precise_loc-btn">
           <input type="checkbox" name="precise_localisation" value unchecked>
-          <span class="layer-label">precise localisation only</span>
+          <span class="layer-label">Precise localisation only</span>
         </label>
       </div>
+      <hr>
 
-      <!-- Save file -->
-      <div class="left-group">
-        <button class="btn btn-light" id="saveBtn">Save your work</button>
-      </div>
 
       <div class="left-group" id="saveFilenameBox" style="display: none;">
         <input id="saveFilenameInput" type="text" placeholder="Enter filename…" />
@@ -182,6 +182,9 @@
       <div class="double-btn-group">
         <button class="btn btn-light" id="downloadExcel">Download Excel</button>
         <button class="btn btn-light" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
+      </div>
+      <div class="left-group-pdf">
+              <button class="btn btn-light" id="downloadPDF">Download PDF report</button>
       </div>
 
 

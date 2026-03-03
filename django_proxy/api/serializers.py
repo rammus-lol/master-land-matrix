@@ -61,6 +61,6 @@ class SheetInputSerializer(serializers.Serializer):
         help_text="A list of integers representing the ID of each deal.",
     )
     format = serializers.ChoiceField(
-        choices=["xlsx", "csv"],
-        help_text="The format of the output file. csv are separated by a semicolon (;)",
+        choices=["xlsx", "csv", "pdf"],
+        help_text="Output format: xlsx, csv (semicolon ';' separator), or pdf report with charts.",
     )
