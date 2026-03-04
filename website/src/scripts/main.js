@@ -23,6 +23,9 @@ import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 import {layerUpdator,layerConstructor} from "./vectorlayertools.js";
+import exportCsv from './export_csv.js';
+import exportXlsx from './export_xlsx.js';
+import exportPdf from './export_pdf.js';
 
 // API Base URL - change for production/development
 // const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -376,15 +379,30 @@ kpDrawBtn.addEventListener("click", () => {
 });
 map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
 let resultLayer = null;
+let selectedDealIds = [];
 
-document.getElementById('export').addEventListener('click', async () => {
+function extractDealIds(geojson) {
+  if (!geojson || !Array.isArray(geojson.features)) {
+    return [];
+  }
+
+  const ids = geojson.features
+    .filter((feature) => feature?.properties?.feature_type !== 'administrative_region')
+    .map((feature) => feature?.properties?.id)
+    .filter((id) => Number.isInteger(id));
+
+  return [...new Set(ids)];
+}
+
+// Reusable function to perform spatial query on drawing layer features
+async function performSpatialQuery() {
     map.removeInteraction(draw);
     const format = new GeoJSON();
     const features = drawingSource.getFeatures();
 
     if (features.length === 0) {
         alert("No geometries on the map !");
-        return;
+        return false;
     }
     // Unfortunately, geojson don't support circle object, we have to transform it into point object
     // and add a radius property, backend retransform it into a polygone with shapely.buffer 
@@ -431,6 +449,7 @@ document.getElementById('export').addEventListener('click', async () => {
         if (!query.ok) {
             const error = `Server error: ${query.status}.\nPlease contact us below`;
             topCenterPanel.alerting(yellowTemplate, error, 30);
+            return false;
         }
 
         const response = await query.json();
@@ -438,10 +457,13 @@ document.getElementById('export').addEventListener('click', async () => {
         const resultGeoJSON = response.data;
 
         if (resultGeoJSON === 0) {
+          selectedDealIds = [];
             const emptyMessage = response.status;
             topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
-            return;
+            return false;
         }
+
+        selectedDealIds = extractDealIds(resultGeoJSON);
 
         topCenterPanel.alerting({"background-color" : "#43b6b5"}, resultStatus);
 
@@ -461,11 +483,98 @@ document.getElementById('export').addEventListener('click', async () => {
                 duration: 1000});
         // Show legend when results are displayed
         showLegend();
+        return true;
     } catch (err) {
+      selectedDealIds = [];
         console.error("Technical error:", err);
         topCenterPanel.alerting(redTemplate, "The server is disconnected.", 30);
+        return false;
     }
+}
 
+document.getElementById('downloadCSV').addEventListener('click', async () => {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
+    topCenterPanel.alerting(
+      {"background-color": "#FFD700", "color": "#000000"},
+      "Performing spatial query to find deals...",
+      5
+    );
+    const querySuccess = await performSpatialQuery();
+    if (!querySuccess) {
+      alert('Could not query database to find deals.');
+      return;
+    }
+  }
+
+  if (selectedDealIds.length === 0) {
+    alert('No deals available. Draw geometries and query the database first.');
+    return;
+  }
+
+  try {
+    await exportCsv(selectedDealIds, API_BASE_URL);
+  } catch {
+    alert('CSV export failed. Please try again.');
+  }
+});
+
+document.getElementById('downloadExcel').addEventListener('click', async () => {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
+    topCenterPanel.alerting(
+      {"background-color": "#FFD700", "color": "#000000"},
+      "Performing spatial query to find deals...",
+      5
+    );
+    const querySuccess = await performSpatialQuery();
+    if (!querySuccess) {
+      alert('Could not query database to find deals.');
+      return;
+    }
+  }
+
+  if (selectedDealIds.length === 0) {
+    alert('No deals available. Draw geometries and query the database first.');
+    return;
+  }
+
+  try {
+    await exportXlsx(selectedDealIds, API_BASE_URL);
+  } catch {
+    alert('Excel export failed. Please try again.');
+  }
+});
+
+document.getElementById('downloadPDF').addEventListener('click', async () => {
+  // Always re-query if there are geometries on the map to ensure fresh results
+  if (drawingSource.getFeatures().length > 0) {
+    topCenterPanel.alerting(
+      {"background-color": "#FFD700", "color": "#000000"},
+      "Performing spatial query to find deals...",
+      5
+    );
+    const querySuccess = await performSpatialQuery();
+    if (!querySuccess) {
+      alert('Could not query database to find deals.');
+      return;
+    }
+  }
+
+  if (selectedDealIds.length === 0) {
+    alert('No deals available. Draw geometries and query the database first.');
+    return;
+  }
+
+  try {
+    await exportPdf(selectedDealIds, API_BASE_URL);
+  } catch {
+    alert('PDF export failed. Please try again.');
+  }
+});
+
+document.getElementById('export').addEventListener('click', async () => {
+    await performSpatialQuery();
 });
 const saveBtn = document.getElementById("saveBtn");
 const filenameBox = document.getElementById("saveFilenameBox");

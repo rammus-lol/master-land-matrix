@@ -59,7 +59,7 @@ class LayerSwitcherModal {
 
     setupEventListeners() {
 
-        this.layerSwitcherBtn?.addEventListener('click', () => this.openModal());
+        this.layerSwitcherBtn?.addEventListener('click', () => this.toggleModal());
 
         this.closeModalSpan?.addEventListener('click', () => this.closeModal());
         
@@ -109,6 +109,17 @@ class LayerSwitcherModal {
     updateActiveOption(activeOption) {
         this.layerOptions.forEach(opt => opt.classList.remove('active'));
         activeOption.classList.add('active');
+    }
+
+    toggleModal() {
+        if (this.layerModal) {
+            const isOpen = this.layerModal.style.display === 'block';
+            if (isOpen) {
+                this.closeModal();
+            } else {
+                this.openModal();
+            }
+        }
     }
 
     openModal() {
