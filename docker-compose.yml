@@ -1,0 +1,18 @@
+services:
+  # --- BACKEND CONTAINER ---
+  backend:
+    build:
+      context: ./django_proxy  # backend folder path
+    container_name: django_lm_backend
+    volumes:
+      - ./django_proxy/data:/app/data  # relative path for data
+      - ./django_proxy:/app            #live-reload
+      - /app/.venv
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SKIP_CRAWL=false
+    restart: always
+#  frontend:
+#    build:
