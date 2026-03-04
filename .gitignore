@@ -19,3 +19,4 @@ R_script/.gitignore
 django_proxy/api/management/commands/logs
 *.flag
 *.sqlite3
+explorator.py
