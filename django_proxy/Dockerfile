@@ -1,4 +1,4 @@
-# --- ÉTAPE 1 : BUILDER ---
+# --- STEP 1 : BUILDER ---
 FROM python:3.14-bookworm AS builder
 LABEL authors="h'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,10 +18,9 @@ COPY pyproject.toml uv.lock* ./
 # Installation des dépendances (crée le dossier .venv)
 RUN uv sync --frozen --no-dev
 
-# --- ÉTAPE 2 : RUNTIME (Image finale légère) ---
+# --- STEP 2 : RUNTIME ---
 FROM python:3.14-slim-bookworm
 
-# On réinstalle juste les librairies RUNTIME (pas besoin de build-essential ici)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgdal32 \
     libsqlite3-mod-spatialite \
@@ -29,14 +28,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# On récupère l'environnement virtuel du builder
 COPY --from=builder /app/.venv /app/.venv
-
-# On copie tout ton code (app_1, app_2, etc.)
 COPY . .
 
-# On s'assure que Python utilise l'environnement virtuel
+# On prépare l'entrypoint AVANT de définir le démarrage
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 ENV PATH="/app/.venv/bin:$PATH"
 
-# On lance Django (Adapte 'my_project' au nom de ton dossier contenant wsgi.py)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# L'ENTRYPOINT lance le script qui gère tout
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Land Matrix Geodata Visualiser</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.7.0/ol.css">
+  <link rel="stylesheet" href="/src/styles/maps.css" />
+  <link rel="stylesheet" href="/src/styles/global.css" />
+  <link rel="stylesheet" href="/src/styles/popup.css" />
+  <link rel="stylesheet" href="/src/styles/legend.css" />
+  <link rel="stylesheet" href="/src/styles/fond.css" />
+</head>
+<body>
+  <!-- load template : tutorial-content.html -->
+  <div id="tutorial-content" class="hidden">
+    <!-- Content will be loaded here -->
+  </div>
+
+  <div class="top-bar">
+    <div id="top-left" class="top-content">
+      <h2>Spatial querying for </h2>
+      <!-- when clicking on the logo redirect to the home page -->
+    <img class="main-logo" src="/images/landmatrix.png" alt="LM logo" onclick="window.location.href='/index.html'">
+    </div>
+    <div class="top-content">
+      <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
+    </div>
+    <div id="top-right" class="top-content">
+        <h2>A tool by </h2>
+        <img class="partner-logo" src="/images/univlyon2_logo201806-N2.png" alt="logo1">
+        <img class="partner-logo" src="/images/Univ-Lyon3_WEB.png" alt="logo2">
+        <img class="partner-logo" src="/images/logo_ujm_noir.png" alt="logo3">
+    </div>
+  </div>
+  <div class="app-container">
+    
+    <!-- ---------- MAIN CONTENT PANEL ----------- -->
+    <div class="main-content">
+      <div id="map"></div>
+      <div id="scale-line-container" class="scale-line-container"></div>
+
+      <!-- Popup overlay for deal information -->
+      <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content"></div>
+      </div>
+      <div id="base-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="/images/layer.png" alt="Layers" title="Layer icons created by itim2101 - Flaticon" width="24" height="24">
+      </div>
+      <div id="vector-layer-switcher-btn" class="layer-switcher-btn">
+        <img src="/images/layer_toggle.svg" alt="Layers" width="24" height="24">
+      </div>
+
+  <!-- Base layer manager -->
+  <div id="base-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>Base Maps</h3>
+      <div class="base-layer-options">
+        <div class="layer-option" data-layer="osm">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg" alt="OSM">
+          <span>Standard</span>
+        </div>
+        <div class="layer-option" data-layer="satellite">
+          <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/0/0/0" alt="Satellite">
+          <span>Satellite</span>
+        </div>
+        <div class="layer-option" data-layer="terrain">
+          <img src="/images/terrain.png" alt="Terrain">
+          <span>Terrain</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Vector layer manager -->
+  <div id="vector-layer-modal" class="layer-modal">
+    <div class="base-layer-modal-content">
+      <span class="close-modal">&times;</span>
+      <h4>Toggle Overlays</h4>
+      <div class="base-layer-options">
+        <label class="layer-option-radio" id="drawing-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+            <img src="/images/drawing_layer.svg" alt="drawing layer">
+            <span class="layer-label">Drawing layer</span>
+        </label>
+        <label class="layer-option-radio queried" id="area-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="/images/areas.svg" class="legend-area" alt="Area shape">
+          <span class="layer-label">Deals with a shape provided by partners</span>
+        </label>
+        <label class="layer-option-radio queried" id="high-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-orange"><use href="/images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">High accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="low-acc-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <svg class="legend-deal legend-blue"><use href="/images/deals.svg#my-deal-icon"></use></svg>
+          <span class="layer-label">Low accuracy point represented deals</span>
+        </label>
+        <label class="layer-option-radio queried" id="admin-reg-btn">
+          <input type="checkbox" name="vector-layer" value checked>
+          <img src="/images/administrative_region.svg" class="legend-region" alt="Administrative region shape">
+          <span class="layer-label">Administrative regions crossing polygon(s)</span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+    </div>
+
+    <!-- ----------- SIDE PANEL ----------- -->
+    <div class="side-panel">
+      <!-- button for the toggle of the div side-panel -->
+      <button class="panel-toggle-btn" id="panelToggle" title="Toggle panel">›</button>
+
+      <!-- Right-group: dropzone + load -->
+      <div class="right-group">
+      <div id="drop-area">
+        Drop or click to load a geographic file
+      </div>
+      <input type="file" id="fileInput" multiple style="display:none;">
+      </div>
+
+      <hr>
+
+      <!-- Drawing tools -->
+      <div class="left-group">
+        <h2 class="text-center">Drawing Tools</h2>
+        <div class="drawing-tools-buttons">
+          <button class="btn-tool" data-type="Polygon" title="Draw a polygon">
+            <img src="/images/polygone.png" alt="Polygon" width="20" height="20">
+            <span>Polygon</span>
+          </button>
+          <button class="btn-tool" data-type="Circle" title="Draw a circle">
+            <img src="/images/cercle.png" alt="Circle" width="20" height="20">
+            <span>Circle</span>
+          </button>
+          <button class="btn-tool" data-type="Point" title="Known point location">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <span>Known Point</span>
+          </button>
+        
+          <button class="btn-tool" data-type="pen" title="Pen tool for freehand drawing">
+            <img src="/images/pencil.svg" alt="Pen" width="20" height="20">
+            <span>Pen</span>
+          </button>
+          </div>
+      </div>
+
+      <div class="left-group">
+        <button class="btn btn-light" id="undo">Undo</button>
+        <button class="btn btn-light" id="clear">Clear</button>
+        <button class="btn btn-light" id="saveBtn">Save your work</button>
+
+      </div>
+
+      <div class="left-group" id="saveFilenameBox" style="display: none;">
+        <input id="saveFilenameInput" type="text" placeholder="Enter filename…" />
+        <div class="double-btn-group">
+          <button id="saveOkBtn" class="btn btn-primary">OK</button>
+          <button id="saveCancelBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+      <hr>
+
+      <div class="left-group">
+        <button class="btn btn-light" id="export">Querying our database</button>
+        <label class="btn btn-light" id="precise_loc-btn">
+          <input type="checkbox" name="precise_localisation" value unchecked>
+          <span class="layer-label">Precise localisation only</span>
+        </label>
+      </div>
+      <hr>
+
+      <!-- button for excel download -->
+      <div class="double-btn-group">
+        <button class="btn btn-light" id="downloadExcel">Download Excel</button>
+        <button class="btn btn-light" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
+      </div>
+      <div class="left-group-pdf">
+              <button class="btn btn-light" id="downloadPDF">Download PDF report</button>
+      </div>
+
+
+      <hr>
+
+      <!-- Show tutorial again -->
+      <div class="left-group">
+        <button class="btn btn-light" id="showTutorial">Show Tutorial</button>
+      </div>
+
+      <hr>
+
+      <!-- Known-point panel -->
+      <div id="known-point-panel">
+        <h5>Known point</h5>
+
+        <label>Longitude (WGS 84):</label>
+        <input type="number" id="kp_lon" step="0.000001">
+
+        <label>Latitude (WGS 84):</label>
+        <input type="number" id="kp_lat" step="0.000001">
+
+        <label>Radius (meters):</label>
+        <label for="kp_radius"></label><input type="number" id="kp_radius" step="1" style="margin-bottom: 5%;">
+
+        <button class="btn-tool" id="kp_draw">Draw circle</button>
+      </div>
+    </div>
+  </div>
+  <script type= "module" src="/src/scripts/main.js"></script>
+  <script type= "module" src="/src/scripts/modal.js"></script>
+  <script type= "module" src="/src/scripts/load_tutorial.js"></script>
+
+</body>
+</html>
