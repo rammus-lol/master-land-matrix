@@ -13,7 +13,7 @@ export async function initializeLegend(map) {
   
   // Load legend content from HTML file
   try {
-    const response = await fetch('/src/templates/legend-content.html');
+    const response = await fetch('/templates/legend-content.html');
     const html = await response.text();
     legend.innerHTML = html;
   } catch (error) {
@@ -30,7 +30,7 @@ export async function initializeLegend(map) {
   legendButton.id = 'legend-btn';
   legendButton.className = 'legend-btn';
   legendButton.innerHTML = `
-    <img src="../../images/legend.svg" alt="Legend" width="60%" height="60%">
+    <img src="/legend.svg" alt="Legend" width="60%" height="60%">
   `;
   legendButton.title = 'Show legend';
   

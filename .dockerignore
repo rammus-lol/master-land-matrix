@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+__pycache__
+*.pyc
+.venv
+venv
+django_proxy/db.sqlite3
+R_script
+crawler
+website_prototype

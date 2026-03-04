@@ -22,7 +22,7 @@ This part contains the data useful for map popups and exporting data through Exc
 
 | Field | Purpose |
 |---|---|
-| **deal_size** | Required for volume calculations and metrics. |
+| **deal_size** | Required for area calculations and metrics. |
 | **current_intention_of_investment** | Defines the nature of the investment. |
 | **current_implementation_status** | Tracks project lifecycle progress. |
 | **current_negotiation_status** | Indicates the legal/contractual stage. |

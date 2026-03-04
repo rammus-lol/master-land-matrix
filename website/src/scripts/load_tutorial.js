@@ -17,7 +17,7 @@
 
   if (!tutorialClosed) {
     // Load the tutorial content from the template
-    fetch('../src/templates/tutorial-content.html')
+    fetch('/templates/tutorial-content.html')
       .then(response => response.text())
       .then(html => {
         const tutorialDiv = document.getElementById('tutorial-content');
@@ -85,7 +85,7 @@
     localStorage.removeItem('tutorialClosed');
     
     // Load the tutorial content
-    fetch('../src/templates/tutorial-content.html')
+    fetch('/templates/tutorial-content.html')
       .then(response => response.text())
       .then(html => {
         const tutorialDiv = document.getElementById('tutorial-content');

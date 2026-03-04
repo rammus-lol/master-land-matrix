@@ -335,7 +335,7 @@ dropArea.addEventListener("drop", async (e) => {
 dropArea.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    topCenterPanel.alerting(yellowTemplate, dragmessage);
+  topCenterPanel.alerting(yellowTemplate, dragmessage, 5);
     if (!sqlInitializer) {
         sqlInitializer = sqlStarter();
     }

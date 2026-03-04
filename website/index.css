@@ -33,7 +33,7 @@ main {
 
 .site-footer {
     background-color: var(--background-lighter);
-    padding: 45px 0 20px;
+    padding: 45px 20px 20px;
     font-size: 15px;
     line-height: 24px;
     color: var(--text-color);
@@ -41,14 +41,44 @@ main {
     border-top: 1px solid var(--border-color-lighter);
 }
 
+/* Contenu principal du footer en 3 colonnes */
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section "About" (colonne de gauche) */
+.footer-about {
+    padding-right: 20px;
+}
+
+/* Section "Quick Links" (colonne du milieu) */
+.footer-links-section {
+    /* Styles par défaut */
+}
+
+/* Section logos (colonne de droite) */
+.footer-logos {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+/* Titres du footer */
 .site-footer h5 {
     color: var(--text-color-heading);
     font-size: 16px;
     text-transform: uppercase;
     margin-top: 5px;
+    margin-bottom: 15px;
     letter-spacing: 2px;
 }
 
+/* Liens du footer */
 .site-footer a {
     color: var(--text-color-medium);
     text-decoration: none;
@@ -56,30 +86,39 @@ main {
 
 .site-footer a:hover {
     color: var(--secondary-brown);
-    text-decoration: none;
 }
 
+/* Liste des liens */
 .footer-links {
     padding-left: 0;
     list-style: none;
 }
 
 .footer-links li {
-    display: block;
     margin-bottom: 10px;
 }
 
+/* Logos du footer */
 .footer-logo {
     height: 50px;
     width: auto;
-    margin-left: 15px;
     padding: 5px;
     border-radius: 4px;
 }
 
+/* Ligne de séparation */
 hr {
-    border-top-color: var(--border-color-dark);
+    border: none;
+    border-top: 1px solid var(--border-color-dark);
     opacity: 0.5;
+    margin: 30px 0 20px;
+}
+
+/* Copyright en bas */
+.footer-copyright {
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* --- Buttons --- */
@@ -257,6 +296,24 @@ hr {
         font-size: 1.1rem;
         top: 42%;
         width: 90%;
+    }
+
+    /* Footer responsive - passe en 1 colonne */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .footer-about,
+    .footer-links-section {
+        text-align: center;
+        padding-right: 0;
+    }
+
+    .footer-logos {
+        align-items: center;
+        flex-direction: row;
+        justify-content: center;
     }
 }
 
