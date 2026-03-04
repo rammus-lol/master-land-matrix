@@ -3,6 +3,12 @@ First thank for your well documented API.
 The stability of our app depends entirely on the availability of specific keys within the JSON response. 
 Deleting, renaming, or altering the structure of the following fields will cause critical failures 
 in data processing and UI rendering.
+
+Our backend/database docker container can be run without updating datas 
+using environment variable please contact someone related to the project
+if you need to alter one of the following fields, 
+especially during the next 10 days.
+
 ### 1. Root Identifiers
 
 These fields are essential for data indexing and relational mapping.
@@ -30,7 +36,8 @@ The application iterates through this list to populate maps and location-based r
 
 Ideally data type should all remain the same as today.
 
-here's the organisation tree in the JSON given by LM API : 
+here's the organization tree in the JSON given by LM API of the field used 
+by our crawlers: 
 
 ```api_json[
     root_element{
@@ -46,4 +53,19 @@ here's the organisation tree in the JSON given by LM API :
                     └── [list of dictionaries]
                             └── {level_of_accuracy}
                 }
-           ]```
+           ]
+```
+
+### For deals represented by a polygone
+
+Since it would be pretty hard to find which deal have registered its real shape 
+or not from the api, we download them from this link https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json
+this solution comes with one problem : it's super slow the 130 Megabytes takes 
+between 50 and 96 secs to download  and 15 sec to been read by geopandas/GDAL
+
+**Please don't delete this link** since it's the only difference between deals with and without a shape
+in terms of data used by both crawler the tree  is valid for this one too.
+
+If this is important for you. Datas are stored in a sqlite/spatialite wrapper 
+file format for now and use atomic renaming to update datas even if the 
+datas are locked during writing. 
