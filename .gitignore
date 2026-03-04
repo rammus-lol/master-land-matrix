@@ -16,4 +16,6 @@ website/dist
 __pycache__/
 report.json
 R_script/.gitignore
-django_proxy/management/commands/logs
+django_proxy/api/management/commands/logs
+*.flag
+*.sqlite3

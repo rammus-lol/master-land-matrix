@@ -69,13 +69,12 @@ def final_filtering(query, regions, projects, selected_projects):
         pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
         .drop_duplicates())
     return final_projects
+DATA_DIR = settings.BASE_DIR / "data"
 
-DEALS = gpd.read_file(
-    settings.BASE_DIR.parent / "django_proxy" / "data" / "deals.gpkg")
-REGIONS = gpd.read_file(
-    settings.BASE_DIR.parent / "django_proxy" / "data" / "world_region_light.gpkg")
-AREAS = gpd.read_file(
-    settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg")
+DEALS = gpd.read_file(DATA_DIR / "deals.gpkg")
+REGIONS = gpd.read_file(DATA_DIR / "world_region_light.gpkg")
+AREAS = gpd.read_file(DATA_DIR / "areas.gpkg")
+
 AREAS["region_list"]=AREAS["region_list"].apply(json.loads) #Managing SQLite goofy JSON type logic.
 def geom_constructor(query):
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
@@ -89,8 +88,6 @@ def geom_constructor(query):
     combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
-
-
 
 
 
