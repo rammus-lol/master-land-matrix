@@ -1,11 +1,8 @@
-import wget
 import requests
 import geopandas as gpd
 import pandas as pd
 import json
 from pathlib import Path
-import time
-import pprint as pri
 def download_fast(url, filename):
     with requests.Session() as session:
         with session.get(url, stream=True) as r:
@@ -14,8 +11,9 @@ def download_fast(url, filename):
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
 def crawling_areas(region_file : Path | str):
-    download_fast("https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json","areas.geojson")
-    areas= gpd.read_file("areas.geojson",engine="pyogrio")
+    geojson_path = Path(region_file).parent / "areas.geojson"
+    download_fast("https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json",geojson_path)
+    areas= gpd.read_file(geojson_path,engine="pyogrio")
     areas.to_crs("EPSG:3857", inplace=True)
     world_regions = gpd.read_file(region_file, engine="pyogrio")
     areas.rename(columns={"id": "nid", "deal_id": "id","country" : "admin"}, inplace=True)
@@ -59,7 +57,3 @@ def crawling_areas(region_file : Path | str):
         return areas
     else:
        return f"Houston we got an HTTP problem :{deal_base.status_code}"
-
-if __name__ == "__main__":
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(crawling_areas(r"A:\serveur_landmatrix\master-land-matrix\django_proxy\data\world_region_light.gpkg"))

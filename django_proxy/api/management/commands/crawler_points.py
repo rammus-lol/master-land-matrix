@@ -7,7 +7,7 @@ import traceback
 from pathlib import Path
 from datetime import datetime
 from geopandas.geodataframe import GeoDataFrame
-import pprint as pri
+from .generic_function import atomic_gpkg_exporter
 import numpy as np
 
 def logger(fast_report : str):
@@ -68,6 +68,7 @@ def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
             geom = c['selected_version']["locations"]
             nb_geom=len(geom)
             if nb_geom>1:
+                #I know if statement with 2 for loop in python is not the ultimate go too, but I cannot find a way to do a simple for loop and just have the right amount of copy and not n+1 copies
                 liste_point : list[dict]=[deal]
                 for _ in range(nb_geom-1):
                     liste_point.append(deepcopy(deal))
@@ -90,7 +91,7 @@ def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
     gdf = gdf.dropna(subset=['crs', 'long', 'lat'])
     gdf["x"]=gdf["geometry"].x
     gdf["y"]=gdf["geometry"].y
-    base_dir = Path(__file__).parents[2]
+    base_dir = Path(__file__).parents[3]
     gdf_region = gpd.read_file(base_dir /  "data" / "world_region_light.gpkg")
     gdf = gpd.sjoin(gdf, gdf_region)
     col_to_drop = [col for col in gdf_region.columns if col not in ('admin', 'geometry')] + ['index_right']
@@ -112,7 +113,7 @@ def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
     choices = ["High accuracy location without shape provided","Regionally accurate","Nationally accurate"]
     gdf['quality_of_precision'] = np.select(conditions,choices,"No accuracy qualification provided")
     gdf["feature_type"] = np.where(conditions[0],"high_accuracy_location","low_accuracy_location")
-    #field use for frontend rendering (choosing in which layer goes the deal)
+    #field use for frontend rendering (choosing in which  ol VectorLayer goes the deal)
     return gdf,report
 def api_calling()->list[dict] | str:
     try:
@@ -123,30 +124,23 @@ def api_calling()->list[dict] | str:
     except requests.exceptions.RequestException as e:
         print(f"Houston we got an HTTP problem : {e}")
         return str(e)
-def deal_exporter(deal : GeoDataFrame,report : list[dict],dir : Path) ->str :
-    """Export a GeoDataFrame representing deals
-        to the right path and a report on deals with no coordinates
-        for further investigation.
-        It returns a string for logging about deals with no coordinates"""
-    report_dir = dir / "reports"
-    report_dir.mkdir(parents=True, exist_ok=True)
-    deal.to_file(dir /"deals.gpkg", driver="GPKG", layer="deals")
-    report_name = f"report_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.json"
-    with open(Path(report_dir/report_name), "w", encoding='utf-8') as f:
-        json.dump(report, f, ensure_ascii=False, indent=2)  # exporting deals without location infos into a json
-        print(f"The export of deals to GeoPackage completed successfully. The script found {len(report)} deals without coordinates.")
-    return f"""The export of deals to GeoPackage completed successfully.
-The script found {len(report)} deals without coordinates."""
 
-def deal_gpkg_writer(dir : Path,debug=False):
+def crawling_deals(dir : Path)-> GeoDataFrame | None:
+    """main function of crawling_point.py, assemble all the bricks together"""
     data=api_calling()
     if type(data) != str:
         gdf_deal,report = geodataframe_writer(data)
-        logging_string= deal_exporter(gdf_deal,report,dir)
+        report_dir = dir / "reports"
+        report_dir.mkdir(parents=True, exist_ok=True)
+        report_name = f"report_{datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}.json"
+        with open(Path(report_dir / report_name), "w", encoding='utf-8') as f:
+            json.dump(report, f, ensure_ascii=False, indent=2)  # exporting deals without location infos into a json
+        atomic_gpkg_exporter(gdf_deal, dir / 'deals.gpkg')
+        logging_string=f"""The export of deals represented by a point to GeoPackage completed successfully. The script found {len(report)} deals without coordinates.
+Exported in report folder."""
+        print(logging_string)
         logger(logging_string)
-        if debug:
-            return gdf_deal,report #return something in case you want to debug in another script
-        return None
+        return gdf_deal
     else :
         logger(data)
         return None
