@@ -3,13 +3,13 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copier les fichiers de dépendances
-COPY website/package.json ./
+COPY package.json ./
 
 # Installer les dépendances
 RUN npm install
 
 # Copier tout le code source
-COPY website/ ./
+COPY . ./
 
 # Construire l'application pour la production
 RUN npm run build
