@@ -210,12 +210,13 @@ html, body {
 .left-group{
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 2px;
 }
 .left-group-pdf {
     /* center */
     display: flex;
     justify-content: center;
+    margin-bottom: 10px;
 
 }
 
@@ -309,14 +310,21 @@ html, body {
     padding: 4px 10px;
 }
 
-
+.text-center {
+    text-align: center;
+}
 
 #drop-area {
     padding: 12px;
+    min-height: 100px;
     background: var(--background-light);
     border: 2px dashed var(--border-color-medium);
     border-radius: 10px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
 }
 
 #drop-area.highlight {
@@ -424,6 +432,65 @@ html, body {
     filter: brightness(0) invert(1);
 }
 
+/* Standard buttons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    background-color: var(--background-white);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    transition: all 0.15s ease-in-out;
+    user-select: none;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-light {
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+    color: #212529;
+    padding: 6px 15px;
+    font-size: 16px;
+}
+
+.btn-light:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;
+    color: #212529;
+}
+
+.btn-primary {
+    background-color: var(--main-bg-color);
+    border-color: var(--main-bg-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--main-bg-hover);
+    border-color: var(--main-bg-hover);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    color: white;
+}
+
 /* Tutorial content - fullscreen */
 #tutorial-content {
     position: fixed;
@@ -453,7 +520,7 @@ html, body {
     width: 100%;
     height: 100%;
     display: flex;
-    flex0-direction: column;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -469,7 +536,7 @@ html, body {
 }
 
 .close {
-    background-color: 656v9ar(--main-bg-color);
+    background-color: var(--main-bg-color);
     border: none;
     color: var(--text-color-white);
     padding: 10px 20px;
