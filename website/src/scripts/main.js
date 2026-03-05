@@ -404,7 +404,7 @@ async function performSpatialQuery() {
         alert("No geometries on the map !");
         return false;
     }
-    // Unfortunately, geojson don't support circle object, we have to transform it into point object
+    // Unfortunately, geojson don't support circle geometry type, we have to transform it into point object
     // and add a radius property, backend retransform it into a polygone with shapely.buffer 
     const processedFeatures = [];
     features.forEach(f => {
@@ -420,7 +420,6 @@ async function performSpatialQuery() {
             const newF = new Feature({
                 geometry: pointGeom,
                 radius: radius,
-                original_type: "Circle"
             });
             processedFeatures.push(newF);
         } else {
@@ -438,14 +437,19 @@ async function performSpatialQuery() {
         "height": "70px",
         "fontsize": "20px"
     };
-
+    const body={"geojson":geojsonObject,"is_precise" : document.querySelector("#precise_loc-btn input").checked};
     try {
+        topCenterPanel.alerting(
+            {"background-color": "#FFD700", "color": "#000000"},
+            "Performing spatial query to find deals...",
+            10
+        );
         const query = await fetch(`${API_BASE_URL}/api/geom/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(geojsonObject)
+            body: JSON.stringify(body)
         });
-
+        console.log(body);
         if (!query.ok) {
             const error = `Server error: ${query.status}.\nPlease contact us below`;
             topCenterPanel.alerting(yellowTemplate, error, 30);
@@ -498,7 +502,7 @@ document.getElementById('downloadCSV').addEventListener('click', async () => {
     topCenterPanel.alerting(
       {"background-color": "#FFD700", "color": "#000000"},
       "Performing spatial query to find deals...",
-      5
+      10
     );
     const querySuccess = await performSpatialQuery();
     if (!querySuccess) {
@@ -525,7 +529,7 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
     topCenterPanel.alerting(
       {"background-color": "#FFD700", "color": "#000000"},
       "Performing spatial query to find deals...",
-      5
+      10
     );
     const querySuccess = await performSpatialQuery();
     if (!querySuccess) {
@@ -552,7 +556,7 @@ document.getElementById('downloadPDF').addEventListener('click', async () => {
     topCenterPanel.alerting(
       {"background-color": "#FFD700", "color": "#000000"},
       "Performing spatial query to find deals...",
-      5
+      10
     );
     const querySuccess = await performSpatialQuery();
     if (!querySuccess) {
