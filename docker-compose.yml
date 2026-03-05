@@ -14,5 +14,13 @@ services:
       - PYTHONUNBUFFERED=1
       - SKIP_CRAWL=false #Set this to true for fast restarting, it avoids to run the data crawling script
     restart: always
-#  frontend:
-#    build:
+  # --- FRONTEND CONTAINER ---
+  frontend:
+    build:
+      context: ./website  # frontend folder path
+    container_name: vite_lm_frontend
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend
+    restart: always
