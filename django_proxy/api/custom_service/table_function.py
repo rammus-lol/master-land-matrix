@@ -20,10 +20,9 @@ except Exception as e:
     print(f"Django setup failed: {e}")
 
 from django.conf import settings
-
-DEALS =settings.BASE_DIR.parent / "django_proxy" / "data" / "deals.gpkg"
-
-AREAS = settings.BASE_DIR.parent / "django_proxy" / "data" / "areas.gpkg"
+DATA_DIR = settings.BASE_DIR / "data"
+DEALS =DATA_DIR / "deals.gpkg"
+AREAS = DATA_DIR / "areas.gpkg"
 
 
 def table_constructor(id_list : list[int]):

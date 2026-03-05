@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "api",
     "corsheaders",
     'drf_spectacular',
+    'rest_framework_gis',
 ]
 
 REST_FRAMEWORK = {

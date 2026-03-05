@@ -1,42 +1,56 @@
 from rest_framework import serializers
+from rest_framework_gis.fields import GeometryField
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+# --- The GeoJSON Part ---
+class GeoJSONInputSerializer(serializers.Serializer):
+    type = serializers.CharField(
+        help_text="The GeoJSON type, typically 'FeatureCollection'."
+    )
+    # On utilise GeometryField pour valider chaque élément de la liste
+    features = serializers.ListField(
+        child=serializers.DictField(), # Conteneur de la Feature (geometry + properties)
+        help_text="A list of GeoJSON Features containing validated geometries."
+    )
+
+    def validate_features(self, value):
+        geo_field = GeometryField()
+        for feature in value:
+            if 'geometry' not in feature:
+                raise serializers.ValidationError("Each feature must contain a 'geometry' key.")
+            # Ceci va lever une erreur si le format Point/Polygon est invalide
+            geo_field.to_internal_value(feature['geometry'])
+        return value
+
 @extend_schema_serializer(
     examples=[
         OpenApiExample(
-            'Exhaustive GeoJSON Example',
-            summary='Example with Point (Circle) and Polygon',
+            'Secure Spatial Request Example',
+            summary='Validated GeoJSON data with precision flag',
             value={
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [-6125131.6, -903120.1]
-                        },
-                        "properties": {
-                            "radius": 791292.0,
-                            "original_type": "Circle"
+                "geojson": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [2.3522, 48.8566]
+                            },
+                            "properties": {"radius": 500}
                         }
-                    },
-                    {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Polygon",
-                            "coordinates": [[[8733987.5, 3107342.6], [8122041.1, 2735244.1], [8601999.2, 2111078.8], [8733987.5, 3107342.6]]]
-                        },
-                        "properties": None
-                    }
-                ]
+                    ]
+                },
+                "is_precise": True
             }
         )
     ]
 )
-class GeoJSONInputSerializer(serializers.Serializer):
-    type = serializers.CharField(help_text="The GeoJSON type, typically 'FeatureCollection'")
-    features = serializers.ListField(
-        child=serializers.DictField(),
-        help_text="A list of GeoJSON Features containing geometries and optional spatial properties (like radius for circles)."
+class SpatialProcessSerializer(serializers.Serializer):
+    geojson = GeoJSONInputSerializer(
+        help_text="The validated GeoJSON object."
+    )
+    is_precise = serializers.BooleanField(
+        help_text="A boolean flag to determine if regionally and nationally precise deals should be returned. No default value."
     )
 
 class GeomResponseSerializer(serializers.Serializer):

@@ -8,4 +8,5 @@ reportlab>=4.2.0
 numpy>=2.3.5
 #api doc
 djangorestframework>=3.16.1
+djangorestframework-gis>=1.2.0
 drf-spectacular>=0.29.0
