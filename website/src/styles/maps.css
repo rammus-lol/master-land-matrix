@@ -13,7 +13,19 @@ html, body {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    font-family : system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",
+    "Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji",
+    "Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
+h1, h2, h3, h4, h5, h6 {
+
+    margin-top: 0;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+h1 {font-size: 3rem;}
+h2 {font-size: 2rem;}
 
 .top-bar {
     position: fixed;
@@ -35,12 +47,12 @@ html, body {
     gap: 12px;
     background-color: var(--main-bg-color);
     color: white;
+    & h2 {
+        font-size: 17px;
+        margin: 0;
+    }
+}
 
-}
-.top-content h2 {
-    font-size: 17px;
-    margin: 0;
-}
 #top-left {
     justify-content: flex-start;
 }

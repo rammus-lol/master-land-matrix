@@ -47,17 +47,10 @@ def generic_proxy(request, endpoint):
 @extend_schema(
     summary="Spatial analysis and geometry processing",
     description="""
-        Processes a standard GeoJSON FeatureCollection to perform spatial queries.
-
-        The endpoint performs the following operations:
-        1. **Parsing**: Validates the incoming GeoJSON structure.
-        2. **Geometry Reconstruction**: Handles standard geometries (Points, Polygons, etc.).
-        3. **Extended Properties**: Detects custom spatial definitions within the 'properties' object 
-           (e.g., handles 'Circle' types by utilizing the 'radius' and 'original_type' attributes).
-        4. **Spatial Querying**: Forwards the cleaned geometries to the internal spatial engine 
-           to generate a contextual response.
+        Processes a standard GeoJSON FeatureCollection  in EPSG:3857 along with precision flags.
+        ...
         """,
-    request=GeoJSONInputSerializer,
+    request=SpatialProcessSerializer,
     responses={
         200: GeomResponseSerializer,
     },
@@ -65,17 +58,19 @@ def generic_proxy(request, endpoint):
 )
 @api_view(['POST'])
 def geom(request):
-    input_serializer = GeoJSONInputSerializer(data=request.data)
-    if not input_serializer.is_valid():
-        return Response({"error": "Invalid format for geom endpoint"}, status=400)
-    try:
-        geojson=request.data
-        geoms = [shape(f["geometry"]) for f in geojson["features"]]
-        props = [f.get("properties") or {} for f in geojson["features"]]
+    input_serializer = SpatialProcessSerializer(data=request.data)
 
-        # Convert to GeoDataFrame : filter JSON|point->transform into circle->combine into GeoDataFrame of polygons
-        #                                      |polygon->do nothing
-        query = gpd.GeoDataFrame(props, geometry=geoms, crs="EPSG:3857")
+    if not input_serializer.is_valid():
+        return Response(input_serializer.errors, status=400)
+
+    # Récupération des données validées
+    geojson_data = input_serializer.validated_data['geojson']
+    is_precise = input_serializer.validated_data['is_precise']
+    try:
+        query = gpd.GeoDataFrame.from_features(
+            geojson_data["features"],
+            crs="EPSG:3857"
+        )
         test=query.get("radius")#->test if user asked for circular form
         if test is not None:
             gdf_circle=query[query.geometry.geom_type == 'Point']
@@ -83,7 +78,7 @@ def geom(request):
             buffer=gdf_circle.buffer(gdf_circle['radius'])
             gdf_circle["geometry"]=buffer
             query=gpd.GeoDataFrame(pd.concat([gdf_circle,gdf_polygon],ignore_index=True),crs='EPSG:3857')
-        spatial_query,number_of_deals=geom_constructor(query)
+        spatial_query,number_of_deals=geom_constructor(query,is_precise)
         if type(spatial_query) is str:
             if spatial_query=="code_2":
                 return JsonResponse({"status": "No deal inside the provided shapes but some are near by"
