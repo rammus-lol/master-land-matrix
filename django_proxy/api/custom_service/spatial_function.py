@@ -52,23 +52,31 @@ def which_areas(query, regions, polygone_projects):
     selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["index_right"],errors="ignore")
     return selected_areas
 
-def final_filtering(query, regions, projects, selected_projects):
-    filtered_regions_countries = set(regions["admin"])
-    country_projects = projects[
-        (projects['admin'].str.strip().isin(filtered_regions_countries)) &
-        (projects['level_of_accuracy'].str.strip() == 'COUNTRY')
-        ]
-
+def final_filtering(query, regions, projects, selected_projects,precision_boolean):
     accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
-    projects_inaccurate = selected_projects[~selected_projects["level_of_accuracy"]
+    if precision_boolean:
+        projects_accurate = selected_projects[selected_projects["level_of_accuracy"]
         .isin(accurate_points)]
-    projects_inside = (gpd.sjoin(selected_projects, query, how='inner')
-                    .drop(columns=["id_right", "index_right"],errors="ignore"))
+        projects_inside = (gpd.sjoin(projects_accurate, query, how='inner')
+                           .drop(columns=["id_right", "index_right"], errors="ignore"))
+        return projects_inside
 
-    final_projects = (gpd.GeoDataFrame(
-        pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
-        .drop_duplicates())
-    return final_projects
+    else:
+        filtered_regions_countries = set(regions["admin"])
+        country_projects = projects[
+            (projects['admin'].str.strip().isin(filtered_regions_countries)) &
+            (projects['level_of_accuracy'].str.strip() == 'COUNTRY')
+            ]
+
+        projects_inaccurate = selected_projects[~selected_projects["level_of_accuracy"] #with this method you manage the case where the filed is None
+            .isin(accurate_points)]
+        projects_inside = (gpd.sjoin(selected_projects, query, how='inner')
+                        .drop(columns=["id_right", "index_right"],errors="ignore"))
+
+        final_projects = (gpd.GeoDataFrame(
+            pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
+            .drop_duplicates())
+        return final_projects
 DATA_DIR = settings.BASE_DIR / "data"
 
 DEALS = gpd.read_file(DATA_DIR / "deals.gpkg")
@@ -76,12 +84,12 @@ REGIONS = gpd.read_file(DATA_DIR / "world_region_light.gpkg")
 AREAS = gpd.read_file(DATA_DIR / "areas.gpkg")
 
 AREAS["region_list"]=AREAS["region_list"].apply(json.loads) #Managing SQLite goofy JSON type logic.
-def geom_constructor(query):
+def geom_constructor(query, precision_boolean):
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
     if final_areas.empty and selected_deals.empty:
         return "code_1", 0
-    final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals)
+    final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals,precision_boolean)
     if final_deals.empty:
         return "code_2", 0
     nb_deals = len(final_areas)+len(final_deals)

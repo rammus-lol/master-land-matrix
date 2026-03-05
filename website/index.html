@@ -1,4 +1,4 @@
-<!-- Page d'acceuil Avec une image static en fond , un footer , header et un bouton centrale "Go to the map" -->
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,20 +13,23 @@
   <div class="background-image"></div>
 
   <img class="logo-simple" src="/images/logo_simple.png" alt="landmatrix-large-logo">
-  <div class="slogan">
-    <center><h2>LandMatrix - Projet GeoNum</h2></center>
-    <p>a geospatial tool for querying and visualizing Land Matrix data</p>
-    </div>
 <img class="university-logo-front" src="/images/univ.png" alt="university-logo">
 <img class="master-geonum-logo-front" src="/images/logo_geonum.png" alt="master-geonum-logo">
 
   <main>
-    <button class="btn btn-primary" id="goToMapBtn" onclick="location.href='/maps.html'">Go to the Map</button>
-    <button class="btn btn-primary" id="goToDocumentationBtn" onclick="location.href='/documentation.html'">Documentation</button>
+    <div class="slogan">
+      <h2>Land Matrix - Geodata Visualiser</h2>
+      <p>a geospatial tool for querying and visualizing Land Matrix data</p>
+    </div>
+    <button class="btn-primary" id="goToMapBtn" onclick="location.href='/maps.html'">Go to the Map</button>
+    <button class="btn-primary" id="goToDocumentationBtn" onclick="location.href='/documentation.html'">Documentation</button>
+    <a href="#about" class="scroll-down-arrow" aria-label="Scroll down">
+      <div class="arrow"></div>
+    </a>
   </main>
 
   <section id="about" class="about-section">
-    <h2>About LandMatrix - Projet GeoNum</h2>
+    <h2>About LandMatrix - Geodata Visualiser</h2>
     <p>
       The Land Matrix project has been tracking large-scale land acquisitions in nearly 100 countries since 2009. The data available in the database cover almost 100 countries and are continuously updated. Concluded, planned, and failed attempts to acquire land—whether through purchase, lease, or concession—are recorded and classified according to production objectives.
     </p>
@@ -38,7 +41,7 @@
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-about">
-        <h5>LandMatrix - Projet GeoNum</h5>
+        <h5>Land Matrix - Geodata Visualiser</h5>
         <p>The geospatial tool for querying the Land Matrix data ! <br>Developped by BOCCARDO Solenne, CRETEUR Tom, HERMAN Nicolas, THIBAUDON Arthur et VALENTIN Paul</p>
       </div>
       <div class="footer-links-section">
