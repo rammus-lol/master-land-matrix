@@ -23,13 +23,10 @@ import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 import {layerUpdator,layerConstructor} from "./vectorlayertools.js";
-import exportCsv from './export_csv.js';
-import exportXlsx from './export_xlsx.js';
-import exportPdf from './export_pdf.js';
-
+import exportSpreadSheetandPDF from "./non_cartographic_export.js";
 // API Base URL - change for production/development
-// const API_BASE_URL = 'https://landmatrix.artxypro.org';
-const API_BASE_URL = 'http://localhost:8000';
+// export const API_BASE_URL = 'https://landmatrix.artxypro.org';
+export const API_BASE_URL = 'http://localhost:8000';
 const sqlJsWasmDir = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/' + sql_js_version;
 let sqlInitializer=null;
 const topCenterPanel = new AlertPanel()
@@ -517,7 +514,7 @@ document.getElementById('downloadCSV').addEventListener('click', async () => {
   }
 
   try {
-    await exportCsv(selectedDealIds, API_BASE_URL);
+    await exportSpreadSheetandPDF(selectedDealIds,"csv");
   } catch {
     alert('CSV export failed. Please try again.');
   }
@@ -544,7 +541,7 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
   }
 
   try {
-    await exportXlsx(selectedDealIds, API_BASE_URL);
+    await exportSpreadSheetandPDF(selectedDealIds, "xlsx");
   } catch {
     alert('Excel export failed. Please try again.');
   }
@@ -571,7 +568,7 @@ document.getElementById('downloadPDF').addEventListener('click', async () => {
   }
 
   try {
-    await exportPdf(selectedDealIds, API_BASE_URL);
+    await exportSpreadSheetandPDF(selectedDealIds, "pdf");
   } catch {
     alert('PDF export failed. Please try again.');
   }

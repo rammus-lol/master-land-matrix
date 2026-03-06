@@ -3,7 +3,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copier les fichiers de dépendances
-COPY package.json ./
+COPY package.json package-lock.json* ./
 
 # Installer les dépendances
 RUN npm install
