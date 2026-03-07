@@ -256,7 +256,7 @@ html, body {
 #export:hover {
     background-color: var(--main-bg-hover-dark);
     border-color: var(--main-bg-hover-dark);
-    color: var(--text-color-white);
+    color: var(--text-color);
 }
 
 /* Save filename box styling */
