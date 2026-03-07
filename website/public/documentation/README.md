@@ -1,84 +1,99 @@
-# 📚 Table des matières - Documentation Master Land Matrix
+# Master Land Matrix - Documentation
 
-## Sections disponibles
+## Table of Contents
 
-### 1. [Introduction](00-introduction.md) - Vue d'ensemble du projet
-   - Objectifs principaux
-   - Structure du projet
-   - Concepts clés et intégrité des données
+This documentation is organized into multiple chapters covering all aspects of the Master Land Matrix platform.
 
-### 2. [Frontend](01-frontend.md) - Interface web Vite.js
-   - Architecture et structure des répertoires
-   - Fichiers principaux (document.js, vite.config.js)
-   - Dépendances et build
+### Core Documentation
 
-### 3. [Backend](02-backend.md) - API Django
-   - Architecture et structure
-   - Composants principaux (Views, Services)
-   - Commandes de gestion et crawler
+1. **[00 - Introduction](00-introduction.md)**
+   - Project overview
+   - Main goals
+   - Project structure
+   - Data integrity concepts
 
-### 4. [Crawler](03-crawler.md) - Module de scraping
-   - Vue d'ensemble
-   - Structure et fichiers de log
-   - Points d'intégration et sorties
+2. **[01 - Frontend](01-frontend.md)**
+   - Vite-based web interface
+   - Folder structure
+   - Key files and configuration
+   - Running and building
 
-### 5. [Données](04-data.md) - Ressources et formats
-   - Ressources de données principales (GeoPackage, GeoJSON)
-   - Structure des données Land Matrix
-   - Champs critiques et import/export
+3. **[02 - Backend](02-backend.md)**
+   - Django API architecture
+   - Main components and services
+   - API endpoints
+   - Configuration
 
-### 6. [Déploiement](05-deployment.md) - Configuration et mise en production
-   - Environnements de développement et production
-   - Configuration Django et variables d'environnement
-   - Base de données et sauvegardes
+4. **[03 - Crawler](03-crawler.md)**
+   - Data collection module
+   - How it works
+   - Commands and scheduling
+   - Logs and debugging
 
-### 7. [Workflow](06-workflow.md) - Flux de travail et processus
-   - Cycle de vie des données
-   - Scénarios d'utilisation
-   - Points d'intégration clés
+5. **[04 - Data](04-data.md)**
+   - Data storage and formats
+   - GeoPackage and GeoJSON files
+   - Data schema (critical fields)
+   - Import and export
+
+6. **[05 - Deployment](05-deployment.md)**
+   - Development and production environments
+   - Docker setup
+   - Configuration settings
+   - Performance and monitoring
+
+7. **[06 - Workflow](06-workflow.md)**
+   - Data lifecycle
+   - Common workflows
+   - Integration points
+   - Error handling
 
 ---
 
-## 🚀 Démarrage rapide
+## Quick Start
 
-### Développement
+### Development setup
+
 ```bash
 # Backend
 cd django_proxy
 python manage.py runserver
 
-# Frontend (nouveau terminal)
+# Frontend (new terminal)
 cd website
 npm run dev
 ```
 
-### Mise à jour des données
+### Update data
+
 ```bash
 cd django_proxy
 python manage.py crawler_main
 ```
 
-## 📋 Points importants à retenir
+---
 
-**⚠️ Intégrité des données**: Les champs suivants ne doivent JAMAIS être modifiés:
+## Important Notes
+
+**Data Integrity**: The following fields must remain unchanged:
 - `id`, `country_id`
 - `deal_size`, `current_intention_of_investment`
 - `current_implementation_status`, `current_negotiation_status`
 - `initiation_year`, `locations`, `level_of_accuracy`
 
-**🗂️ Structure des fichiers**: Changer la structure des fichiers GeoPackage ou la organisation des répertoires peut causer des surcharges système.
+**File Structure**: Modifying GeoPackage files or directory organization may cause system failures.
 
-**📊 Performance**: Les opérations spatiales sur de grands ensembles de données peuvent être gourmandes en ressources.
-
----
-
-## 🔧 Support et dépannage
-
-- Vérifier les **logs** dans `crawler/logs/` pour les erreurs du crawler
-- Consulter `django_proxy/data/reports/` pour les rapports des analyses
-- Utiliser la console du navigateur (F12) pour les erreurs frontend
+**Performance**: Spatial operations on large datasets can be resource-intensive.
 
 ---
 
-**Documentation mise à jour le**: 3 Mars 2026
-**Version du projet**: Master Land Matrix
+## Troubleshooting
+
+- Check crawler logs in `django_proxy/data/reports/` for errors
+- Use browser console (F12) for frontend debugging
+- Review Django console output for backend errors
+
+---
+
+**Documentation last updated**: March 2026  
+**Project version**: Master Land Matrix
