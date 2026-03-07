@@ -27,9 +27,9 @@ The project focuses on four core goals:
 The repository is organized into major functional areas:
 
 - **Django Proxy API** (`django_proxy/`): main backend API and data services.
+  - Includes crawler commands in `api/management/commands/` for data collection
 - **Website** (`website/`): frontend application built with Vite.
-- **R Scripts** (`R_script/`): statistical and geospatial analysis scripts.
-- **Crawler module**: data scraping/update component used in environments where it is deployed.
+- **R Scripts** (`R_script/`): statistical and geospatial analysis scripts (if available).
 
 ---
 
@@ -43,16 +43,17 @@ If required fields are missing, renamed, or deeply restructured, critical featur
 - `id`
 - `country_id`
 
-### Required version-related fields
+### Required version-related fields (inside `selected_version` object)
 - `deal_size`
 - `current_intention_of_investment`
 - `current_implementation_status`
 - `current_negotiation_status`
 - `initiation_year`
+- `locations` (array of location objects)
 
 ### Required geographic data format
-- `locations` must remain an iterable list-like structure.
-- Each location entry must keep `level_of_accuracy`.
+- `locations` must remain an iterable list within `selected_version`.
+- Each location entry must keep `level_of_accuracy` field.
 
 ---
 
