@@ -1,65 +1,65 @@
-# 🗺️ Guide de navigation - Master Land Matrix
+# Navigation Guide - Master Land Matrix
 
-## Accès rapide
+## Quick Access
 
-### 🏠 Pages principales
-- **Documentation**: `/documentation.html` - Page que vous lisez actuellement
-- **Cartes interactives**: `/maps.html` - Visualisation des données géospatiales
+### Main Pages
+- **Documentation**: `/documentation.html` - The page you are currently reading
+- **Interactive Maps**: `/maps.html` - Geospatial data visualization
 
-### 📚 Sections de documentation (dans l'ordre)
+### Documentation Sections (in order)
 
-1. **INDEX** - Accueil et vue d'ensemble complète
-   - Vue d'ensemble du projet
-   - Architecture générale
-   - Commandes essentielles
-   - Points critiques
+1. **INDEX** - Home and complete overview
+   - Project overview
+   - General architecture
+   - Essential commands
+   - Critical points
 
-2. **DASHBOARD** - Statuts et métriques en temps réel
-   - État des services
-   - Données disponibles
-   - Performance du système
-   - Alertes et maintenance
+2. **DASHBOARD** - Real-time status and metrics
+   - Service status
+   - Available data
+   - System performance
+   - Alerts and maintenance
 
-3. **00-Introduction** - Concepts fondamentaux
-   - Objectifs du projet
-   - Structure organisationnelle
-   - Intégrité des données
+3. **00-Introduction** - Fundamental concepts
+   - Project objectives
+   - Organizational structure
+   - Data integrity
 
-4. **01-Frontend** - Interface web
-   - Architecture Vite.js
-   - Structure des fichiers
-   - Configuration et déploiement
+4. **01-Frontend** - Web interface
+   - Vite.js architecture
+   - File structure
+   - Configuration and deployment
 
-5. **02-Backend** - API Django
-   - Endpoints REST
-   - Services personnalisés
-   - Commandes de gestion
+5. **02-Backend** - Django API
+   - REST endpoints
+   - Custom services
+   - Management commands
 
-6. **03-Crawler** - Scraping automatisé
-   - Orchestration du scraping
-   - Fichiers de log
-   - Points d'intégration
+6. **03-Crawler** - Automated scraping
+   - Scraping orchestration
+   - Log files
+   - Integration points
 
-7. **04-Data** - Ressources et formats
+7. **04-Data** - Resources and formats
    - GeoPackage (.gpkg)
-   - GeoJSON et JSON
-   - Structure critique des données
+   - GeoJSON and JSON
+   - Critical data structure
 
-8. **05-Deployment** - Mise en production
-   - Développement vs Production
-   - Docker et configuration
-   - Base de données PostgreSQL
+8. **05-Deployment** - Production setup
+   - Development vs Production
+   - Docker and configuration
+   - PostgreSQL database
 
-9. **06-Workflow** - Processus et flux
-   - Cycle de vie des données
-   - Scénarios courants
-   - Gestion des erreurs
+9. **06-Workflow** - Processes and flows
+   - Data lifecycle
+   - Common scenarios
+   - Error handling
 
 ---
 
-## 🚀 Démarrer rapidement
+## Quick Start
 
-### Installation (première fois)
+### First-time Installation
 ```bash
 # Backend
 cd django_proxy
@@ -71,7 +71,7 @@ cd website
 npm install
 ```
 
-### Démarrer le développement
+### Development
 ```bash
 # Terminal 1
 cd django_proxy && python manage.py runserver
@@ -80,7 +80,7 @@ cd django_proxy && python manage.py runserver
 cd website && npm run dev
 ```
 
-### Mettre à jour les données
+### Update Data
 ```bash
 cd django_proxy
 python manage.py crawler_main
@@ -88,85 +88,83 @@ python manage.py crawler_main
 
 ---
 
-## 🔍 Chercher dans la documentation
+## Search Documentation by Topic
 
-### Par sujet
+### Configuration and Setup
+- See: Deployment (05-deployment.md)
+- See: Workflow (06-workflow.md)
 
-**Configuration et Setup**
-- Voir: Déploiement (05-deployment.md)
-- Voir: Workflow (06-workflow.md)
+### Data and Formats
+- See: Data (04-data.md)
+- See: Introduction (00-introduction.md)
 
-**Données et Formats**
-- Voir: Data (04-data.md)
-- Voir: Introduction (00-introduction.md)
+### Development
+- Frontend: See 01-frontend.md
+- Backend: See 02-backend.md
+- Data: See 03-crawler.md
 
-**Développement**
-- Frontend: Voir 01-frontend.md
-- Backend: Voir 02-backend.md
-- Données: Voir 03-crawler.md
-
-**Production et Monitoring**
-- Voir: Déploiement (05-deployment.md)
-- Voir: Dashboard (DASHBOARD.md)
+### Production and Monitoring
+- See: Deployment (05-deployment.md)
+- See: Dashboard (DASHBOARD.md)
 
 ---
 
-## 💡 Tips et astuces
+## Useful Commands
 
-### Raccourcis utiles
+### Common Shortcuts
 
-| Action | Commande | Fichier |
-|--------|----------|---------|
-| Voir les logs du crawler | `tail -f crawler/logs/log_*.txt` | N/A |
-| Voir les rapports | `ls django_proxy/data/reports/` | N/A |
-| Redémarrer Django | `python manage.py runserver` | django_proxy |
-| Watcher frontend | `npm run dev` | website |
-| Build production | `npm run build` | website |
+| Action | Command | Location |
+|--------|---------|----------|
+| View crawler logs | Check reports directory | N/A |
+| View reports | `ls django_proxy/data/reports/` | N/A |
+| Restart Django | `python manage.py runserver` | django_proxy |
+| Frontend watch | `npm run dev` | website |
+| Production build | `npm run build` | website |
 
-### Fichiers importants à connaître
+### Important Files
 
-| Fichier | Localisation | Rôle |
-|---------|-------------|------|
-| `settings.py` | `django_proxy/proxy_project/` | Config Django |
-| `requirements.txt` | `django_proxy/` | Dépendances Python |
-| `package.json` | `website/` | Dépendances npm |
-| `urls.py` | `django_proxy/api/` | Routes API |
-| `models.py` | `django_proxy/api/` | Modèles de données |
-| `document.js` | `website/src/scripts/` | Loader de documentation |
-
----
-
-## ❓ FAQ - Questions fréquentes
-
-### Q: Comment ajouter une nouvelle section de documentation?
-**R**: Créez un fichier `.md` dans `/website/public/documentation/` et ajoutez son chemin dans le tableau `documentationFiles` de `document.js`.
-
-### Q: Où trouver les données géospatiales?
-**R**: Dans `/django_proxy/data/` - fichiers `.gpkg` (GeoPackage) et `.geojson`.
-
-### Q: Comment exporter les données?
-**R**: Via les endpoints API Django ou directement via GDAL `ogrinfo` / `ogr2ogr`.
-
-### Q: Le crawler ne scrape pas les données?
-**R**: Vérifiez les logs dans `/crawler/logs/` pour les erreurs. Vérifiez aussi la connectivité internet.
-
-### Q: Port 8000 ou 5173 déjà utilisé?
-**R**: `python manage.py runserver 8001` ou `npm run dev -- --port 5174`
-
-### Q: Comment utiliser PostgreSQL au lieu de SQLite?
-**R**: Voir section "Base de données" dans 05-deployment.md
+| File | Location | Role |
+|------|----------|------|
+| `settings.py` | `django_proxy/proxy_project/` | Django config |
+| `requirements.txt` | `django_proxy/` | Python dependencies |
+| `package.json` | `website/` | npm dependencies |
+| `urls.py` | `django_proxy/api/` | API routes |
+| `models.py` | `django_proxy/api/` | Data models |
+| `document.js` | `website/src/scripts/` | Documentation loader |
 
 ---
 
-## 🔗 Ressources externes
+## FAQ - Frequently Asked Questions
 
-### Documentation officielle
+### Q: How to add a new documentation section?
+**A**: Create a `.md` file in `/website/public/documentation/` and add its path in the `documentationFiles` array in `document.js`.
+
+### Q: Where to find geospatial data?
+**A**: In `/django_proxy/data/` - check `.gpkg` (GeoPackage) and `.geojson` files.
+
+### Q: How to export data?
+**A**: Through Django API endpoints or directly via GDAL tools (`ogrinfo` / `ogr2ogr`).
+
+### Q: Crawler not fetching data?
+**A**: Check logs in `django_proxy/api/management/commands/logs/` for errors. Also verify internet connectivity and API availability.
+
+### Q: Port 8000 or 5173 already in use?
+**A**: Use `python manage.py runserver 8001` or `npm run dev -- --port 5174`
+
+### Q: How to use PostgreSQL instead of SQLite?
+**A**: See "Database" section in 05-deployment.md
+
+---
+
+## External Resources
+
+### Official Documentation
 - [Django Documentation](https://docs.djangoproject.com/)
 - [Django REST Framework](https://www.django-rest-framework.org/)
 - [Vite.js Documentation](https://vitejs.dev/)
 - [marked.js](https://marked.js.org/)
 
-### Outils géospatiaux
+### Geospatial Tools
 - [GeoPandas](https://geopandas.org/)
 - [GDAL/OGR](https://gdal.org/)
 - [Shapely](https://shapely.readthedocs.io/)
@@ -177,42 +175,43 @@ python manage.py crawler_main
 
 ---
 
-## 📝 Convention de nommage
+## Naming Conventions
 
-### Fichiers de log
+### Log Files
 ```
-/crawler/logs/log_YYYY_MM_DD_HH_MM_SS.txt
-```
-
-### Fichiers de rapport
-```
-/django_proxy/data/reports/report_YYYY_MM_DD_HH_MM_SS.json
+Format: log_YYYY_MM_DD_HH_MM_SS.txt
 ```
 
-### Fichiers de documentation
+### Report Files
 ```
-/website/public/documentation/XX-section-name.md
-Index: INDEX.md, DASHBOARD.md
+Format: report_YYYY_MM_DD_HH_MM_SS.json
+Location: /django_proxy/data/reports/
+```
+
+### Documentation Files
+```
+Format: XX-section-name.md
+Special: INDEX.md, DASHBOARD.md, README.md, etc.
 ```
 
 ---
 
-## ✅ Checklist de déploiement
+## Deployment Checklist
 
-- [ ] Tous les `requirements.txt` mis à jour
-- [ ] Base de données migrée (`python manage.py migrate`)
-- [ ] Variables d'environnement configurées
-- [ ] `DEBUG=False` en production
-- [ ] `SECRET_KEY` changée
-- [ ] `ALLOWED_HOSTS` configuré
-- [ ] CORS configuré correctement
-- [ ] Tests unitaires passent
-- [ ] Build frontend optimisée (`npm run build`)
-- [ ] Sauvegardes en place
-- [ ] Monitoring configuré
-- [ ] Documentation à jour
+- [ ] All `requirements.txt` updated
+- [ ] Database migrated (`python manage.py migrate`)
+- [ ] Environment variables configured
+- [ ] `DEBUG=False` in production
+- [ ] `SECRET_KEY` changed
+- [ ] `ALLOWED_HOSTS` configured
+- [ ] CORS configured correctly
+- [ ] Unit tests passing
+- [ ] Frontend build optimized (`npm run build`)
+- [ ] Backups in place
+- [ ] Monitoring configured
+- [ ] Documentation updated
 
 ---
 
-**Guide de navigation - Version 1.0**  
-**Dernière mise à jour**: 3 Mars 2026
+**Navigation Guide - Version 1.0**  
+**Last updated**: March 2026
