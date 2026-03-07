@@ -1,76 +1,66 @@
-# 🌍 Bienvenue - Master Land Matrix Documentation
+# Master Land Matrix - Documentation Home
 
-## Qu'est-ce que Master Land Matrix?
+## What is Master Land Matrix?
 
-Master Land Matrix est une **plateforme complète d'analyse géospatiale** dédiée à la visualisation et l'analyse des investissements fonciers globaux. Elle combine une API robuste (Django), une interface web interactive (Vite.js) et des outils de scraping automatisés pour fournir une solution d'analyse complète.
-
-## 🎯 À quoi ça sert?
-
-- **Visualiser** les investissements fonciers sur des cartes interactives
-- **Analyser** les données spatiales par région, année et type d'investissement
-- **Exporter** les rapports en PDF, CSV ou Excel
-- **Mettre à jour** automatiquement les données via le crawler
-- **Stocker** et gérer de grandes quantités de données géospatiales
-
-## 🏗️ Architecture générale
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                   LAND MATRIX WEB INTERFACE                   │
-│                  (Vite.js + Frontend Assets)                  │
-└────────────────────────┬─────────────────────────────────────┘
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-        ▼                ▼                ▼
-    ┌────────┐    ┌──────────┐    ┌──────────────┐
-    │ DJANGO │    │  SPATIAL │    │ EXPORT       │
-    │ API    │◄──►│  QUERIES │◄──►│ SERVICES     │
-    │        │    │          │    │ (PDF/CSV)    │
-    └────────┘    └──────────┘    └──────────────┘
-        │                │                │
-        └────────────────┼────────────────┘
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-        ▼                ▼                ▼
-   ┌─────────┐    ┌──────────┐    ┌──────────┐
-   │ BDD     │    │ GEO DATA │    │ CRAWLER  │
-   │ SQLite  │    │ (.gpkg)  │    │ SCRAPER  │
-   │         │    │          │    │          │
-   └─────────┘    └──────────┘    └──────────┘
-```
-
-## 📂 Structure du projet
-
-Le projet est organisé en **4 composants majeurs**:
-
-### 1. **Frontend** (`/website`)
-- Interface utilisateur interactive
-- Visualisation des données
-- Accès à la documentation
-
-### 2. **Backend API** (`/django_proxy`)
-- Serveur Django REST
-- Gestion des requêtes spatiales
-- Export de données
-- Intégration base de données
-
-### 3. **Crawler/Scraper** (`/crawler`)
-- Récupération des données externes
-- Mise à jour automatisée
-- Validation et transformation
-
-### 4. **Scripts d'analyse** (`/R_script`)
-- Analyses statistiques avancées
-- Rapports graphiques
-- Visualisations R
+Master Land Matrix is a comprehensive geospatial analysis platform for visualizing and analyzing global land investments. It combines a robust Django API, an interactive Vite-based web interface, and automated data collection tools to provide a complete analysis solution.
 
 ---
 
-## 🚀 Commandes essentielles
+## Main Features
 
-### Démarrer le développement
+- Visualize land investments on interactive maps
+- Analyze spatial data by region, year, and investment type
+- Export reports in PDF, CSV, or Excel formats
+- Automatically update data through the crawler module
+- Store and manage large geospatial datasets
+
+---
+
+## Platform Architecture
+
+```
+Web Interface (Vite.js + Frontend)
+           ↓
+    Django API
+           ↓
+  Spatial Services + Export Services
+           ↓
+   Database + GeoPackage Data + Crawler
+```
+
+---
+
+## Project Components
+
+The project is organized into four major components:
+
+### 1. Frontend (`/website`)
+- Interactive user interface
+- Data visualization
+- Documentation access
+
+### 2. Backend API (`/django_proxy`)
+- Django REST server
+- Spatial query processing
+- Data export functionality
+- Database integration
+
+### 3. Crawler Module
+- Located in `django_proxy/api/management/commands/`
+- External data retrieval via Django commands
+- Automated updates (crawler_main, crawler_area, crawler_points)
+- Data validation and transformation
+
+### 4. Analysis Scripts (`/R_script`)
+- Advanced statistical analysis
+- Graphic reports
+- R visualizations
+
+---
+
+## Essential Commands
+
+### Development
 ```bash
 # Terminal 1 - Backend
 cd django_proxy
@@ -81,13 +71,13 @@ cd website
 npm run dev
 ```
 
-### Mettre à jour les données
+### Data Update
 ```bash
 cd django_proxy
 python manage.py crawler_main
 ```
 
-### Construire pour la production
+### Production Build
 ```bash
 cd website
 npm run build
@@ -95,79 +85,77 @@ npm run build
 
 ---
 
-## 📚 Documentation complète
+## Documentation Structure
 
-Cette documentation est divisée en **7 sections principales**:
+This documentation is divided into seven main sections:
 
-1. **Introduction** - Vue d'ensemble et concepts clés
-2. **Frontend** - Interface web et technos Vite.js
-3. **Backend** - API Django et endpoints
-4. **Crawler** - Scraping et mise à jour des données
-5. **Données** - Formats et structure des données
-6. **Déploiement** - Configuration et mise en production
-7. **Workflow** - Flux de travail et scénarios
-
-📖 _Consultez les sections détaillées en scrollant vers le bas_
+1. **Introduction** - Overview and key concepts
+2. **Frontend** - Web interface and Vite.js
+3. **Backend** - Django API and endpoints
+4. **Crawler** - Data scraping and updates
+5. **Data** - Formats and data structure
+6. **Deployment** - Configuration and production
+7. **Workflow** - Processes and scenarios
 
 ---
 
-## ⚙️ Configuration initiale
+## Initial Setup
 
-### Prérequis
-- Python 3.8+
-- Node.js 16+
-- PostgreSQL (optionnel, SQLite par défaut)
-- GDAL (pour les opérations spatiales)
+### Prerequisites
+- Python 3.8+ (Docker uses 3.14)
+- Node.js 16+ (Docker uses 20)
+- PostgreSQL (optional, SQLite by default)
+- GDAL (for spatial operations)
 
 ### Installation
 
 ```bash
-# Clone le repository
+# Clone repository
 git clone <repository>
 cd master-land-matrix
 
-# Setup backend
+# Backend setup
 cd django_proxy
 pip install -r requirements.txt
 python manage.py migrate
 
-# Setup frontend
+# Frontend setup
 cd ../website
 npm install
 ```
 
 ---
 
-## ⚠️ Points critiques - À NE PAS modifier
+## Critical Data Fields
 
-### Intégrité des données
-Ces champs sont essentiels pour le fonctionnement de l'application:
-- **`id`** et **`country_id`** - Identifiants
-- **`deal_size`** - Taille de l'investissement
-- **`locations`** - Liste des géométries (doit rester itérable)
-- **`level_of_accuracy`** - Précision géographique
+These fields are essential for application functionality and must not be modified:
+- `id` and `country_id` - Identifiers
+- `deal_size` - Investment size
+- `locations` - Geometry list (must remain iterable)
+- `level_of_accuracy` - Geographic precision
 
-### Structure des répertoires
-- Ne pas renommer les dossiers clés
-- Conserver l'organisation des fichiers GeoPackage
-- Maintenir la structure de migrations Django
-
----
-
-## 🆘 Besoin d'aide?
-
-### Vérifier les logs
-- **Crawler**: `crawler/logs/log_*.txt`
-- **Rapports**: `django_proxy/data/reports/report_*.json`
-- **Django**: Console de développement
-
-### Dépannage courant
-- Erreur d'import: Vérifier `requirements.txt`
-- Erreur CORS: Configurer `CORS_ALLOWED_ORIGINS` dans Django
-- Données manquantes: Lancer le crawler
-- Port occupé: Changer le port dans la commande
+### Directory Structure
+- Do not rename key folders
+- Preserve GeoPackage file organization
+- Maintain Django migrations structure
 
 ---
 
-**Dernière mise à jour**: 3 Mars 2026  
-**Maintenu par**: Master Land Matrix Team
+## Troubleshooting
+
+### Check Logs
+- **Crawler logs**: `django_proxy/api/management/commands/logs/`
+- **Crawler reports**: `django_proxy/data/reports/`
+- **Django**: Development console output
+- **Frontend**: Browser console (F12)
+
+### Common Issues
+- Import errors: Check `requirements.txt`
+- CORS errors: Configure `CORS_ALLOWED_ORIGINS` in Django settings
+- Missing data: Run the crawler
+- Port conflicts: Change port in command
+
+---
+
+**Last updated**: March 2026  
+**Maintained by**: Master Land Matrix Team
