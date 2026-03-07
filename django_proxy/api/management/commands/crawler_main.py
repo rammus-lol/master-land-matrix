@@ -18,17 +18,8 @@ but it works well if you just export it in a geopackage"""
 class Command(BaseCommand):
     help = "Update database directly from API and GeoJSON links"
 
-    def add_arguments(self, parser):
-        # Allow to : python manage.py crawler_main --no-areas
-        parser.add_argument(
-            '--no-areas',
-            action='store_false',
-            dest='making_areas',
-            help='Skip area updating (save 3 minutes)',
-        )
-
     def handle(self, *args, **options):
-        making_areas = options['making_areas']
+        # making_areas = options['making_areas']
         data_dir = settings.BASE_DIR / "data"
         data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -46,16 +37,18 @@ class Command(BaseCommand):
         jobs = [(gdf_deals, data_dir / "deals.gpkg")]
 
         # 2. areas.geojson management
-        if making_areas:
-            self.stdout.write("Processing areas (polygons) - This may take 3 minutes...")
-            gdf_areas = crawling_areas(data_dir / "world_region_light.gpkg")
-            jobs.append((gdf_areas, data_dir / "areas.gpkg"))
+        self.stdout.write("Processing areas (polygons) - This may take 3 minutes...")
+        gdf_areas = crawling_areas(data_dir / "world_region_light.gpkg")
+        jobs.append((gdf_areas, data_dir / "areas.gpkg"))
 
-            # Nettoyage geojson
-            for ext in ["*.geojson"]:
-                for file in Path(__file__).parent.glob(ext):
-                    file.unlink()
-
+        #Deleting geojson file
+        for ext in ["*.geojson"]:
+            for file in Path(__file__).parent.glob(ext):
+                file.unlink()
+        intersection = gpd.sjoin(gdf_deals, gdf_areas, how="inner", lsuffix="deals", rsuffix="areas")
+        indices_to_exclude = intersection.loc[
+        intersection["id_deals"] == intersection["id_areas"], "id_deals"].index.unique()
+        gdf_deals.drop(indices_to_exclude,inplace=True)
         # 3. Exporting with Atomic renaming and retry loop
         for gdf, final_path in jobs:
             atomic_gpkg_exporter(gdf, final_path)
