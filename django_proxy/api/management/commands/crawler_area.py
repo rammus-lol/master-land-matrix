@@ -11,7 +11,7 @@ def download_fast(url, filename):
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
 def crawling_areas(region_file : Path | str):
-    geojson_path = Path(region_file).parent / "areas.geojson"
+    geojson_path = Path(__file__).parent / "areas.geojson"
     download_fast("https://landmatrix.org/api/gis_export/areas/?&subset=PUBLIC&format=json",geojson_path)
     areas= gpd.read_file(geojson_path,engine="pyogrio")
     areas.to_crs("EPSG:3857", inplace=True)
