@@ -1,123 +1,199 @@
-# Déploiement et Configuration
+# 05 - Deployment and Configuration
 
-## Environnements
+## 1) Development environment
 
-### Développement
-
-**Backend**:
+### Backend (Django)
 ```bash
 cd django_proxy
 python manage.py runserver
 ```
 
-**Frontend**:
+Runs on `http://127.0.0.1:8000/`.
+
+### Frontend (Vite)
 ```bash
 cd website
 npm run dev
 ```
 
-### Production
+Runs on `http://localhost:5173/` (or another port specified by Vite).
 
-**Backend avec Docker**:
+---
+
+## 2) Production environment
+
+### Backend with Docker
+
+A Dockerfile is provided in `django_proxy/` for containerization. The project uses `uv` for dependency management.
+
+Build the image:
 ```bash
 cd django_proxy
 docker build -t land-matrix-api .
+```
+
+Run the container:
+```bash
 docker run -p 8000:8000 land-matrix-api
 ```
 
-**Frontend**:
+The Docker setup uses Python 3.14 and `uv` (see `pyproject.toml` and `uv.lock`).
+
+### Frontend build
+
+Build for production:
 ```bash
 cd website
-npm run build  # Crée une build optimisée
-# Servir les fichiers statiques avec un serveur HTTP
+npm run build
 ```
 
-## Dockerfile (Django)
+This creates optimized static files in `website/dist/`.
 
-Un Dockerfile est fourni dans `django_proxy/Dockerfile` pour containeriser l'API Django.
+Serve these files with any HTTP server (Nginx, Apache, etc.).
 
-## Configuration Django
+---
 
-Voir `proxy_project/settings.py` pour configurer:
+## 3) Docker Compose
 
-- **DATABASES**: Connexion à la base de données
-- **CORS_ALLOWED_ORIGINS**: Domaines autorisés
-- **STATIC_URL** et **STATIC_ROOT**: Fichiers statiques
-- **MEDIA_URL** et **MEDIA_ROOT**: Fichiers utilisateur
-- **SECRET_KEY**: Clé secrète (utiliser les variables d'environnement)
-- **DEBUG**: Désactiver en production
+A `docker-compose.yml` file is provided in the project root to run both frontend and backend together:
 
-## Variables d'environnement
+```bash
+docker-compose up
+```
 
-À définiravant le déploiement:
-- `SECRET_KEY`: Clé secrète unique
-- `DEBUG`: False en production
-- `ALLOWED_HOSTS`: Domaines de l'application
-- `DATABASE_URL`: Chaîne de connexion BD (si PostgreSQL)
-- `CORS_ORIGINS`: Origines autorisées pour les requêtes
+This starts:
+- **Backend** on port 8000 (Django API)
+- **Frontend** on port 4173 (Vite preview)
 
-## Dépendances
+Environment variables:
+- `SKIP_CRAWL`: set to `true` to skip data crawling on startup (faster restarts)
+
+The compose file manages volumes for data persistence and live-reload during development.
+
+---
+
+## 4) Django configuration
+
+Key settings in `proxy_project/settings.py`:
+
+- **`DEBUG`**: set to `False` in production.
+- **`SECRET_KEY`**: load from environment variable, never hardcode in production.
+- **`ALLOWED_HOSTS`**: list of allowed domain names.
+- **`CORS_ALLOWED_ORIGINS`**: frontend domains that can make API requests.
+- **`DATABASES`**: configure PostgreSQL/PostGIS for production if needed.
+
+---
+
+## 5) Environment variables
+
+Recommended environment variables for production:
+
+- `SECRET_KEY`: unique secret key for Django.
+- `DEBUG`: set to `False`.
+- `ALLOWED_HOSTS`: comma-separated list of domains.
+- `DATABASE_URL`: PostgreSQL connection string (if using PostgreSQL).
+- `CORS_ORIGINS`: allowed frontend origins.
+
+Example:
+```bash
+export SECRET_KEY="your-secret-key-here"
+export DEBUG="False"
+export ALLOWED_HOSTS="landmatrix.example.com,www.landmatrix.example.com"
+```
+
+---
+
+## 6) Dependencies
 
 ### Backend
-Voir `requirements.txt`:
+Install Python dependencies:
+
+**Using uv (recommended for production)**:
+```bash
+cd django_proxy
+uv sync
+```
+
+**Using pip (alternative)**:
+```bash
+cd django_proxy
+pip install -r requirements.txt
+```
+
+Key dependencies:
 - Django
-- Django Rest Framework
-- GeoPandas
-- GDAL
-- ReportLab
-- Pandas
-- Et autres packages spatiales
+- djangorestframework
+- geopandas
+- pandas
+- reportlab
+- openpyxl
+
+See `pyproject.toml` for complete dependency list.
 
 ### Frontend
-Voir `package.json`:
-- Vite
-- marked (Markdown parser)
-- Scripts de build personnalisés
+Install Node.js dependencies:
+```bash
+cd website
+npm install
+```
 
-## Performance
+Key dependencies:
+- vite
+- marked
+- ol (OpenLayers)
 
-### Optimisations recommandées
+---
 
-- **Frontend**: 
-  - Minification CSS/JS
-  - Lazy loading des ressources
-  - Cache des fichiers statiques
-  
-- **Backend**:
-  - Index base de données sur les champs fréquents
-  - Cache des requêtes spatiales
-  - Compression des réponses gzip
+## 7) Database
 
-## Monitoring
-
-### Fichiers de log
-
-- **Django**: Configuré dans `settings.py`
-- **Crawler**: Logs dans `crawler/logs/` avec horodatage
-- **Frontend**: Erreurs console du navigateur
-
-### Points à surveiller
-
-- Espace disque (données GeoPackage peuvent être volumineuses)
-- Mémoire (opérations spatiales sont gourmandes)
-- Temps de réponse API
-- Erreurs de scraping du crawler
-
-## Base de données
-
-### SQLite (Développement)
-- Fichier: `db.sqlite3`
+### Development
+- SQLite: `django_proxy/db.sqlite3`
 - Migrations: `python manage.py migrate`
 
-### PostgreSQL + PostGIS (Production)
-- Installation: `apt install postgresql postgresql-contrib postgis`
-- Extension: `CREATE EXTENSION postgis;`
-- Configuration dans `settings.py`
+### Production (recommended)
+- PostgreSQL with PostGIS extension for spatial queries.
+- Update `DATABASES` in `settings.py` with connection parameters.
 
-## Sauvegardes
+---
 
-Sauvegarder régulièrement:
-- Base de données Django
-- Fichiers GeoPackage dans `data/`
-- Rapports générés dans `data/reports/`
-- Fichiers de configuration
+## 8) Performance considerations
+
+### Frontend
+- Minify and bundle assets (handled by Vite build).
+- Enable caching headers for static files.
+- Use CDN if serving to global audience.
+
+### Backend
+- Use database indexes on frequently queried fields.
+- Cache expensive spatial queries.
+- Enable gzip compression for API responses.
+- Consider worker processes (Gunicorn, uWSGI) instead of Django development server.
+
+---
+
+## 9) Monitoring and logs
+
+### Django logs
+Configure logging in `settings.py` to track errors and requests.
+
+### Crawler logs
+Check `django_proxy/data/reports/` for JSON reports and any log files generated by crawler commands.
+
+### Frontend errors
+Monitor browser console for JavaScript errors.
+
+---
+
+## 10) Backups
+
+Regularly back up:
+- `django_proxy/db.sqlite3` (or PostgreSQL database).
+- `django_proxy/data/*.gpkg` (GeoPackage files).
+- `django_proxy/data/reports/` (generated reports).
+- Configuration files (`settings.py`, `.env`).
+
+---
+
+## 11) Summary
+
+Deployment involves building and serving both frontend and backend. Use Docker for consistency, configure environment variables for security, and choose appropriate database and server infrastructure for production workloads.
