@@ -12,7 +12,7 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-      - SKIP_CRAWL=false #Set this to true for fast restarting, it avoids to run the data crawling script
+      - SKIP_CRAWL=true #Set this to true for fast restarting, it avoids to run the data crawling script
     restart: always
   # --- FRONTEND CONTAINER ---
   frontend:
