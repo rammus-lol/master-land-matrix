@@ -20,8 +20,6 @@ In this project, the frontend is mainly used to:
 - **Marked**: converts Markdown to HTML for documentation display.
 - **OpenLayers (`ol`)**: map rendering and map interactions.
 
-> Note: in the current state of the `website` folder, **Vue.js is not installed** in `package.json`.
-
 ---
 
 ## 3) Frontend folder structure
