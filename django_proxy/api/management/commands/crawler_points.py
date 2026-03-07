@@ -117,7 +117,7 @@ def geodataframe_writer(calling : list[dict])->tuple[GeoDataFrame,list[dict]]:
     return gdf,report
 def api_calling()->list[dict] | str:
     try:
-        call=requests.get("https://landmatrix.org/api/deals/", timeout=10)
+        call=requests.get("https://landmatrix.org/api/deals/", timeout=30)
         call.raise_for_status()
         data = call.json()
         return  data
