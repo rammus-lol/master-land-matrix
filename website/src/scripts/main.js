@@ -80,7 +80,7 @@ const map = new Map({
     zoom: 10,
   }),
 });
-let vectorLayerList = [drawingLayer]
+let vectorLayerList = [drawingLayer] //Needed by display manager modal
 vectorLayerList = layerConstructor(map, vectorLayerList);
 
 // force the select only on the drawing layer to avoid confusion with the result layer
@@ -332,7 +332,7 @@ dropArea.addEventListener("drop", async (e) => {
 dropArea.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-  topCenterPanel.alerting(yellowTemplate, dragmessage, 5);
+  topCenterPanel.alerting(yellowTemplate, dragmessage, );
     if (!sqlInitializer) {
         sqlInitializer = sqlStarter();
     }
@@ -344,7 +344,11 @@ fileInput.addEventListener("change", async (e) => {
         await loadFile(e.target.files,drawingSource,map);
         topCenterPanel.dropModification();
     }
-});// Knowing point
+});
+fileInput.addEventListener("cancel", () => {
+    topCenterPanel.dropModification();
+});
+// Knowing point
 const kpDrawBtn = document.getElementById("kp_draw");
 
 kpDrawBtn.addEventListener("click", () => {
@@ -466,7 +470,7 @@ async function performSpatialQuery() {
 
         selectedDealIds = extractDealIds(resultGeoJSON);
 
-        topCenterPanel.alerting({"background-color" : "#43b6b5"}, resultStatus);
+        topCenterPanel.alerting({"background-color" : "#fc941d"}, resultStatus);
 
         if (resultLayer !== null) {
             map.removeLayer(resultLayer);
@@ -474,7 +478,7 @@ async function performSpatialQuery() {
         //toolButtons.forEach(b => b.classList.remove('active'));
         layerUpdator(resultGeoJSON);
         toolButtons.forEach(b => b.classList.remove('active'));
-        // deactive penBtn
+        // deactivate penBtn
         penBtn.classList.remove('active');
         select.setActive(false);
         modify.setActive(false);
