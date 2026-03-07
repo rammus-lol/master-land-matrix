@@ -162,17 +162,16 @@ def sheet(request):
         content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         filename = "export.xlsx"
         data = output.getvalue()
-    else:
-        if file_format == "csv":
+    elif file_format == "csv":
             output = io.StringIO()
             table.to_csv(output, sep=';', index=False)
             content_type = "text/csv"
             filename = "export.csv"
             data = output.getvalue()
-        else:
-            data = build_pdf_report(table)
-            content_type = "application/pdf"
-            filename = "export_report.pdf"
+    else:
+        data = build_pdf_report(table)
+        content_type = "application/pdf"
+        filename = "export_report.pdf"
     response = HttpResponse(data, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
