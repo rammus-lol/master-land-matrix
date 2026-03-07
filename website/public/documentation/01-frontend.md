@@ -1,62 +1,121 @@
-# Frontend - Vite.js et Vue.js
+# 01 - Frontend (Vite.js)
 
-## Architecture du Frontend
+## 1) What the frontend is for
 
-Le frontend est une application moderne construite avec **Vite** comme bundler et basée sur l'écosystème Vue.js pour la réactivité. L'application interagit avec le backend Django via des appels API REST.
+The frontend is the visible part of the project: it is what users see and interact with in their browser.
 
-## Structure des répertoires
+In this project, the frontend is mainly used to:
+- display pages (`index`, `maps`, `documentation`),
+- load content (for example, Markdown documentation),
+- provide map and interface interactions,
+- send and receive data through API calls to the Django backend.
 
-```
+---
+
+## 2) Technologies used
+
+- **Vite**: development and build tool (fast and modern).
+- **JavaScript (ES modules)**: interface logic.
+- **CSS**: visual styling.
+- **Marked**: converts Markdown to HTML for documentation display.
+- **OpenLayers (`ol`)**: map rendering and map interactions.
+
+> Note: in the current state of the `website` folder, **Vue.js is not installed** in `package.json`.
+
+---
+
+## 3) Frontend folder structure
+
+```text
 website/
-├── public/                 # Assets publics statiques
-│   ├── documentation.html  # Page de documentation
-│   ├── maps.html          # Page des cartes interactives
-│   └── documentation/     # Fichiers markdown de doc
+├── public/
+│   ├── documentation.md      # Markdown content shown in the documentation page
+│   ├── images/               # Static images
+│   └── templates/            # Static templates
 ├── src/
-│   ├── scripts/           # Fichiers JavaScript/TypeScript
-│   │   ├── document.js    # Chargeur de documentation
-│   │   └── ...            # Autres scripts
-│   ├── styles/            # Fichiers CSS
-│   └── templates/         # Templates HTML/Vue
-├── package.json           # Dépendances npm
-├── vite.config.js        # Configuration Vite
-└── index.css             # Styles globaux
+│   ├── scripts/              # JavaScript logic (maps, modals, docs, exports...)
+│   │   ├── document.js
+│   │   ├── main.js
+│   │   └── ...
+│   └── styles/               # CSS stylesheets
+├── index.html                # Home page
+├── maps.html                 # Map page
+├── documentation.html        # Documentation page
+├── package.json              # Dependencies + npm scripts
+└── vite.config.js            # Vite configuration
 ```
 
-## Fichiers principaux
+---
 
-### `document.js`
-Script responsable du chargement et de l'affichage de la documentation markdown. Utilise la bibliothèque **marked** pour convertir Markdown en HTML.
+## 4) Key files to know
 
-**Fonctionnalités**:
-- Charge des fichiers markdown depuis `/documentation/`
-- Utilise les APIs Fetch pour charger les fichiers
-- Affiche les erreurs de chargement gracieusement
+### `src/scripts/document.js`
+This script:
+1. fetches `public/documentation.md`,
+2. converts Markdown to HTML using `marked`,
+3. injects the result into the documentation page,
+4. shows an error message if the file cannot be loaded.
+
+It is the core of the frontend documentation display system.
 
 ### `vite.config.js`
-Configuration Vite pour l'optimisation des assets, le serveur de développement et le build production.
+This file configures:
+- the development server (accessible from outside),
+- build entry pages (`index.html`, `maps.html`, `documentation.html`),
+- optimization for selected modules,
+- **MPA** mode (multi-page app).
 
-## Dépendances principales
+---
 
-- **marked**: Conversion Markdown vers HTML
-- **Vue.js** (si utilisé): Framework réactif
-- **Vite**: Bundler et serveur de développement
+## 5) Running the frontend
 
-## Build et Déploiement
+## Requirements
+- Node.js installed
+- npm installed
 
-### Développement
+### Development (with hot reload)
 ```bash
-npm run dev    # Lance le serveur Vite en hot-reload
+npm run dev
 ```
 
-### Production
+### Production build
 ```bash
-npm run build  # Crée la build optimisée
+npm run build
 ```
 
-## Style et Templating
+### Preview the production build
+```bash
+npm run preview
+```
 
-Les fichiers CSS sont modulaires et situés dans `/src/styles/`. Chaque page peut avoir ses propres styles:
-- `document.css` - Styles pour la page de documentation
-- `index.css` - Styles globaux de l'application
+---
 
+## 6) Relationship with the Django backend
+
+The frontend does not run heavy business logic:
+- it renders the interface,
+- it sends HTTP requests,
+- it displays server responses.
+
+The Django backend handles processing and data.
+
+In short:
+- **Frontend = display + interactions**
+- **Backend = data + server logic**
+
+---
+
+## 7) Simple maintenance guidelines
+
+- Keep scripts organized by role (docs, map, modals, export, etc.).
+- Avoid moving backend business logic into the frontend.
+- Use clear and user-friendly error messages in the interface.
+- After each change, check:
+  - `npm run dev` (quick verification),
+  - then `npm run build` (production validation).
+
+---
+
+## 8) Summary
+
+The frontend in this project is a multi-page web application built with Vite. It focuses on rendering, user interactions, and communication with Django APIs. Documentation is loaded dynamically from a Markdown file, which makes updates easier without changing HTML code.
