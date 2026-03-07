@@ -123,6 +123,7 @@
     if (prevBtn) {
       prevBtn.disabled = currentSlide === 0;
       prevBtn.style.opacity = currentSlide === 0 ? '0.5' : '1';
+      prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'auto';
     }
     
     // Disable next button if we are at the end
@@ -130,5 +131,6 @@
     if (nextBtn) {
       nextBtn.disabled = currentSlide === slides.length - 1;
       nextBtn.style.opacity = currentSlide === slides.length - 1 ? '0.5' : '1';
+      nextBtn.style.pointerEvents = currentSlide === slides.length - 1 ? 'none' : 'auto';
     }
   }

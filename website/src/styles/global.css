@@ -48,6 +48,7 @@
     
     /* Overlay colors */
     --overlay-white: oklch(1 0 89.876 / 0.25);
+    --overlay-dark: oklch(0 0 0 / 0.6);
     
     /* Button colors */
     --btn-toolkit-color: oklch(1 0 89.876);
