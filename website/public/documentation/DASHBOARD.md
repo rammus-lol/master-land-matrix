@@ -1,22 +1,22 @@
-# 📊 Dashboard et Statuts
+# System Dashboard and Status
 
-## État du Système
+## System Status
 
-### 🟢 Services Actifs
-- **API Django**: http://localhost:8000 (développement)
-- **Frontend Web**: http://localhost:5173 (développement)
-- **Base de données**: SQLite - `django_proxy/db.sqlite3`
+### Active Services
+- **Django API**: http://localhost:8000 (development)
+- **Frontend Web**: http://localhost:5173 (development)
+- **Database**: SQLite - `django_proxy/db.sqlite3`
 
-### 📦 Données Disponibles
+### Available Data
 
-| Resource | Fichier | Type | Statut |
-|----------|---------|------|--------|
-| Zones géographiques | `areas.gpkg` | GeoPackage | ✅ Disponible |
-| Investissements | `deals.gpkg` | GeoPackage | ✅ Disponible |
-| Régions mondiales | `world_region_light.gpkg` | GeoPackage | ✅ Référence |
-| Test spatial | `polygone_test.geojson` | GeoJSON | ✅ Test |
+| Resource | File | Type | Status |
+|----------|------|------|--------|
+| Geographic areas | `areas.gpkg` | GeoPackage | Available |
+| Investments | `deals.gpkg` | GeoPackage | Available |
+| World regions | `world_region_light.gpkg` | GeoPackage | Reference |
+| Spatial test | `polygone_test.geojson` | GeoJSON | Test |
 
-### 📋 Rapports Générés
+### Generated Reports
 
 ```
 django_proxy/data/reports/
@@ -26,118 +26,108 @@ django_proxy/data/reports/
 └── report_2026_03_03_*.json
 ```
 
-**Nombre total de rapports**: 7
+**Total reports**: Check directory for current count
 
-### 🔄 État du Crawler
+### Crawler Status
 
-| Composant | Dernière exécution | Statut |
-|-----------|-------------------|--------|
-| crawler_main | 2026-03-02 14:25:26 | ✅ OK |
-| crawler_area | 2026-03-02 14:10:26 | ✅ OK |
-| crawler_points | 2026-03-03 10:18:34 | ✅ OK |
-
-**Fichiers de log**: 3
+| Component | Last Execution | Status |
+|-----------|---------------|--------|
+| crawler_main | Check logs | View logs |
+| crawler_area | Check logs | View logs |
+| crawler_points | Check logs | View logs |
 
 ---
 
-## 💾 Espace disque
+## Disk Usage
 
-### Répertoires volumineux
+### Large Directories
 ```
 django_proxy/data/                  ~500 MB (GeoPackage files)
-website/node_modules/               ~400 MB (dépendances npm)
-crawler/__pycache__/                ~50 MB (Python compilé)
-django_proxy/__pycache__/           ~30 MB (Python compilé)
+website/node_modules/               ~400 MB (npm dependencies)
+django_proxy/__pycache__/           ~30 MB (Python compiled)
+django_proxy/api/__pycache__/       ~20 MB (Python compiled)
 ```
 
-**Espace utilisé total**: ~1 GB
+**Estimated total**: ~1 GB
 
 ---
 
-## 🔐 Configuration de sécurité
+## Security Configuration
 
-### À vérifier avant production
+### Production Checklist
 
-- [ ] **SECRET_KEY**: Modifier dans `proxy_project/settings.py`
-- [ ] **DEBUG**: Définir à `False` en production
-- [ ] **ALLOWED_HOSTS**: Ajouter les domaines de production
-- [ ] **CORS_ALLOWED_ORIGINS**: Configurer les origines autorisées
-- [ ] **Database**: Migrer vers PostgreSQL + PostGIS
-- [ ] **SSL/HTTPS**: Configurer les certificats
-- [ ] **Authentification**: Ajouter les systèmes d'auth si nécessaire
+- [ ] **SECRET_KEY**: Set via environment variable
+- [ ] **DEBUG**: Set to `False` in production
+- [ ] **ALLOWED_HOSTS**: Add production domains
+- [ ] **CORS_ALLOWED_ORIGINS**: Configure allowed origins
+- [ ] **Database**: Migrate to PostgreSQL + PostGIS
+- [ ] **SSL/HTTPS**: Configure certificates
+- [ ] **Authentication**: Add auth systems if required
 
 ---
 
-## 📈 Métriques de performance
+## Performance Metrics
 
 ### Frontend
-- **Bundle size**: ~200 KB (dépend des dépendances)
-- **Temps de chargement**: ~1-2 secondes (réseau local)
-- **Taux de rafraîchissement**: 60 FPS (cartes interactives)
+- **Bundle size**: ~200 KB (depends on dependencies)
+- **Load time**: ~1-2 seconds (local network)
+- **Refresh rate**: 60 FPS (interactive maps)
 
 ### Backend
-- **Temps réponse API**: ~100-500ms (dépend de la complexité)
-- **Requêtes spatiales**: ~500ms à 5s (selon la zone)
-- **Export PDF**: ~2-5 secondes
+- **API response time**: ~100-500ms (depends on complexity)
+- **Spatial queries**: ~500ms to 5s (depending on area)
+- **PDF export**: ~2-5 seconds
 
-### Base de données
-- **Connexion**: SQLite (local)
-- **Migrations restantes**: 0
-- **Intégrité**: ✅ Vérifiée
-
----
-
-## 🔧 Maintenance programmée
-
-### Tâches récurrentes
-
-| Tâche | Fréquence | Dernière exécution | Prochaine |
-|-------|-----------|-------------------|-----------|
-| Mise à jour données | Hebdomadaire | 2026-03-03 | 2026-03-10 |
-| Sauvegarde BD | Quotidienne | Actuellement | Chaque 00:00 |
-| Nettoyage logs | Mensuel | 2026-03-01 | 2026-04-01 |
-| Vérification intégrité | Mensuel | 2026-03-01 | 2026-04-01 |
+### Database
+- **Connection**: SQLite (local)
+- **Pending migrations**: Run `python manage.py showmigrations`
+- **Integrity**: Verify regularly
 
 ---
 
-## 🚨 Alertes et avertissements
+## Scheduled Maintenance
 
-### ⚠️ Avertissements actuels
-- aucun
+### Recurring Tasks
 
-### 🔔 Notifications
-- Crawler exécuté avec succès le 2026-03-03 à 10:18:34
-- Rapport généré: `report_2026_03_03_10_18_34.json`
-- Taille: ~2 MB
+| Task | Frequency | Notes |
+|------|-----------|-------|
+| Data update | Weekly | Run crawler |
+| Database backup | Daily | Automated recommended |
+| Log cleanup | Monthly | Prevent disk overflow |
+| Integrity check | Monthly | Verify data quality |
 
 ---
 
-## 📞 Support technique
+## Alerts and Warnings
 
-### Logs disponibles pour dépannage
+### Current Warnings
+Check logs for any current warnings or errors.
+
+### Notifications
+Monitor crawler execution and report generation in `django_proxy/data/reports/`.
+
+---
+
+## Support and Logs
+
+### Available Logs for Troubleshooting
 
 **Crawler logs**:
-```
-/crawler/logs/log_2026_03_02_14_44_15.txt
-/crawler/logs/log_2026_03_02_14_25_26.txt
-/crawler/logs/log_2026_03_02_14_10_26.txt
-```
+Check `django_proxy/data/reports/` for JSON reports and execution logs.
 
-**Django logs**: Voir la console lors du démarrage
+**Django logs**: View console output when running the development server.
 
-**Frontend logs**: Ouvrir Developer Tools (F12) dans le navigateur
+**Frontend logs**: Open Developer Tools (F12) in browser.
 
 ---
 
-## 📅 Historique des déploiements
+## Deployment History
 
-| Date | Type | Version | Statut | Notes |
+| Date | Type | Version | Status | Notes |
 |------|------|---------|--------|-------|
-| 2026-03-03 | Patch | 1.x | ✅ SUCCESS | Documentation complétée |
-| 2026-03-02 | Update | 1.x | ✅ SUCCESS | Crawler optimisé |
-| 2026-02-26 | Deploy | 1.0 | ✅ SUCCESS | Production ready |
+| 2026-03 | Update | 1.x | Success | Documentation standardized |
 
 ---
 
-**Dashboard dernière mise à jour**: 3 Mars 2026  
-**Statut global**: 🟢 Tout fonctionne correctement
+**Dashboard last updated**: March 2026  
+**Overall status**: Monitor logs for current system state
