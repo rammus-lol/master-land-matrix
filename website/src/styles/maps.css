@@ -246,6 +246,19 @@ html, body {
     background-color: var(--main-bg-hover-dark);
 }
 
+#export {
+    margin-top: 2%;
+    background-color: var(--main-bg-color);
+    border-color: var(--main-bg-color);
+    color: var(--text-color-white);
+}
+
+#export:hover {
+    background-color: var(--main-bg-hover-dark);
+    border-color: var(--main-bg-hover-dark);
+    color: var(--text-color-white);
+}
+
 /* Save filename box styling */
 #saveFilenameBox {
     gap: 10px;
