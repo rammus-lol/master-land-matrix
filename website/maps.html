@@ -152,9 +152,9 @@
       </div>
 
       <div class="left-group">
-        <button class="btn btn-light" id="undo">Undo</button>
-        <button class="btn btn-light" id="clear">Clear</button>
-        <button class="btn btn-light" id="saveBtn">Save your work</button>
+        <button class="btn btn-light deactivate" id="undo">Undo</button>
+        <button class="btn btn-light deactivate" id="clear">Clear</button>
+        <button class="btn btn-light deactivate" id="saveBtn">Export your drawings to geojson</button>
 
       </div>
 
@@ -168,21 +168,21 @@
       <hr>
 
       <div class="left-group">
-        <button class="btn btn-light" id="export">Querying our database</button>
-        <label class="btn btn-light" id="precise_loc-btn">
+        <button class="btn btn-light deactivate" id="export">Querying our database</button>
+        <label class="btn btn-light deactivate" id="precise_loc-btn">
           <input type="checkbox" name="precise_localisation" value="false">
           <span class="layer-label">Precise localisation only</span>
         </label>
       </div>
       <hr>
 
-      <!-- button for excel download -->
+      <!-- button for non-cartographic download -->
       <div class="double-btn-group">
-        <button class="btn btn-light" id="downloadExcel">Download Excel</button>
-        <button class="btn btn-light" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
+        <button class="btn deactivate" id="downloadExcel">Download Excel</button>
+        <button class="btn deactivate" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
       </div>
-      <div class="left-group-pdf">
-              <button class="btn btn-light" id="downloadPDF">Download PDF report</button>
+      <div class="pdf">
+              <button class="btn deactivate" id="downloadPDF">Download PDF report</button>
       </div>
 
 
