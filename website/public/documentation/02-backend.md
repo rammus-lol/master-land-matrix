@@ -1,96 +1,168 @@
-# Backend - Django API
+# 02 - Backend (Django API)
 
-## Architecture du Backend
+## 1) What the backend is for
 
-Le backend est une API Django (Django Rest Framework) qui sert d'intermédiaire entre l'interface web et les sources de données. Elle gère les requêtes spatiales, les exportations de rapports et la manipulation des données géospatiales.
+The backend is a Django API that acts as a data layer and processing engine for the application. It handles requests from the frontend, performs spatial operations, and manages data storage.
 
-## Structure des répertoires
+The backend is responsible for:
+- serving data to the frontend through REST endpoints,
+- running geospatial queries and analyses,
+- generating reports in various formats (PDF, Excel, CSV),
+- proxying requests to external Land Matrix API,
+- coordinating data updates through crawler commands.
 
-```
+---
+
+## 2) Technologies used
+
+- **Django**: web framework and project structure.
+- **Django REST Framework**: REST API and endpoint management.
+- **GeoPandas**: geospatial data manipulation.
+- **Pandas**: tabular data processing.
+- **ReportLab**: PDF report generation.
+- **Requests**: HTTP client for external API calls.
+- **OpenPyXL**: Excel file generation and manipulation.
+
+---
+
+## 3) Backend folder structure
+
+```text
 django_proxy/
-├── api/                         # Application Django principale
-│   ├── models.py               # Modèles de données
-│   ├── views.py                # Vues et endpoints
-│   ├── serializers.py          # Sérialisation DRF
-│   ├── urls.py                 # Routage des URLs
-│   ├── custom_service/         # Services personnalisés
-│   │   ├── pdf_report.py       # Génération de PDF
-│   │   ├── spatial_function.py # Fonctions spatiales
-│   │   └── table_function.py   # Fonctions tabulaires
-│   ├── spatial_service/        # Services géospatiaux avancés
-│   └── migrations/             # Migrations de base de données
-├── data/                        # Données et ressources
-│   ├── *.gpkg                  # Fichiers GeoPackage
-│   └── reports/                # Rapports générés
-├── management/commands/         # Commandes Django personnalisées
-│   ├── crawler_main.py         # Crawler principal
-│   ├── crawler_area.py         # Crawler de zones
-│   ├── crawler_points.py       # Crawler de points
-│   └── generic_function.py     # Fonctions utilitaires
-├── proxy_project/              # Configuration Django
-│   ├── settings.py             # Paramètres Django
-│   ├── urls.py                 # URLs racines
-│   ├── wsgi.py                 # Configuration WSGI
-│   └── asgi.py                 # Configuration ASGI
-├── manage.py                   # Interface de gestion Django
-├── requirements.txt            # Dépendances Python
-└── pyproject.toml             # Configuration du projet
+├── api/
+│   ├── views.py                  # API endpoints and logic
+│   ├── serializers.py            # Data serialization
+│   ├── urls.py                   # URL routing
+│   ├── models.py                 # Database models (if any)
+│   ├── custom_service/
+│   │   ├── pdf_report.py         # PDF generation logic
+│   │   ├── spatial_function.py   # Geospatial operations
+│   │   └── table_function.py     # Table processing
+│   └── management/
+│       └── commands/             # Django management commands
+│           ├── crawler_main.py
+│           ├── crawler_area.py
+│           ├── crawler_points.py
+│           └── logs/             # Crawler execution logs
+├── data/
+│   ├── areas.gpkg                # Geographic areas data
+│   ├── deals.gpkg                # Investment deals data
+│   ├── world_region_light.gpkg   # World regions reference
+│   └── reports/                  # Generated reports
+├── proxy_project/
+│   ├── settings.py               # Django configuration
+│   ├── urls.py                   # Root URL routing
+│   ├── wsgi.py                   # WSGI config
+│   └── asgi.py                   # ASGI config
+├── manage.py                     # Django management interface
+├── requirements.txt              # Python dependencies (pip)
+├── pyproject.toml                # Project config (uv)
+└── uv.lock                       # Dependency lock file (uv)
 ```
 
-## Composants principaux
+---
 
-### API Views
-Les endpoints REST gèrent:
-- Récupération des données d'investissement
-- Requêtes spatiales (filtrage géographique)
-- Export de données (Excel, CSV, PDF)
-- Statistiques et agrégations
+## 4) Key components
 
-### Services personnalisés
+### `api/views.py`
+Contains REST endpoints that:
+- proxy requests to the external Land Matrix API (`generic_proxy`),
+- process user-defined geometries for spatial analysis,
+- trigger PDF and Excel exports,
+- return GeoJSON features for map rendering.
 
-**pdf_report.py**: Génère des rapports PDF avec:
-- Synthèse des investissements
-- Cartes intégrées
-- Tableaux statistiques
+### `custom_service/spatial_function.py`
+Handles geospatial operations:
+- geometric intersections with stored GeoPackage data,
+- filtering by spatial criteria,
+- building GeoJSON outputs from query results.
 
-**spatial_function.py**: Effectue:
-- Requêtes géospatiales avancées
-- Intersections géométriques
-- Buffer et analyses de proximité
-- Filtrage par région/zone
+### `custom_service/table_function.py`
+Handles data aggregation:
+- organizing tabular data for reports,
+- computing statistics,
+- formatting data for Excel sheets.
 
-**table_function.py**: Traite:
-- Agrégation de données
-- Génération de rapports tabulaires
-- Statistiques descriptives
+### `custom_service/pdf_report.py`
+Generates PDF reports:
+- combines textual summaries with maps,
+- uses layout templates,
+- outputs ready-to-download files.
 
-### Commandes de gestion
+### `management/commands/`
+Contains Django commands for administrative tasks:
+- crawler commands for data updates,
+- batch processing scripts.
 
-**crawler_main.py**: Crawler principal qui coordonne le scraping des données
+---
 
-**crawler_area.py**: Scrape les données de zones/régions
+## 5) Running the backend
 
-**crawler_points.py**: Scrape les points d'intérêt et localisations
+### Development mode
+```bash
+cd django_proxy
+python manage.py runserver
+```
 
-## Dépendances principales
+The server starts at `http://127.0.0.1:8000/`.
 
-- **Django**: Framework web
-- **Django Rest Framework**: API REST
-- **GeoPy** ou **Shapely**: Opérations géospatiales
-- **GDAL/OGR**: Manipulation de fichiers géographiques
-- **ReportLab** ou **WeasyPrint**: Génération de PDF
-- **Pandas**: Manipulation de données tabulaires
+### Production deployment
+See the deployment chapter for Docker and production configurations.
 
-## Base de données
+---
 
-- **sqlite3** (développement): `db.sqlite3`
-- Supporte la configuration pour PostgreSQL avec PostGIS en production
+## 6) Main API endpoints
 
-## Configuration
+- **GET `/api/<path:endpoint>`**: generic proxy to Land Matrix API endpoints (e.g., `/api/countries`, `/api/deals`).
+- **POST `/api/geom/`**: process user geometry (GeoJSON FeatureCollection in EPSG:3857) with precision filtering. Returns matching deals.
+- **POST `/api/sheet/`**: generate Excel/CSV exports based on spatial query results.
 
-Voir `proxy_project/settings.py` pour:
-- Configuration des bases de données
-- Paramètres CORS
-- Clés secrètes et variables d'environnement
-- Applications installées
-- Middleware
+The `/api/geom/` endpoint:
+- Accepts GeoJSON with optional `radius` field for point features (creates circular buffers)
+- Supports `is_precise` flag to filter deals by location accuracy
+- Returns status messages: "No deal found", "No deal inside but nearby", or success with data
+
+Check `api/urls.py` for the complete endpoint configuration.
+
+---
+
+## 7) Database
+
+- **Development**: SQLite (`db.sqlite3`)
+- **Production option**: PostgreSQL with PostGIS extension for spatial queries.
+
+Currently, most data is stored in GeoPackage files rather than in a relational database.
+
+---
+
+## 8) Dependencies
+
+See `requirements.txt`:
+- Django 5.2+
+- djangorestframework
+- geopandas
+- pandas
+- reportlab
+- openpyxl
+- requests
+
+Install with:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 9) Configuration
+
+Main settings are in `proxy_project/settings.py`:
+- `ALLOWED_HOSTS`: allowed domains.
+- `CORS_ALLOWED_ORIGINS`: frontend origins.
+- `DEBUG`: set to `False` in production.
+- `SECRET_KEY`: should be set via environment variable.
+
+---
+
+## 10) Summary
+
+The Django backend serves as the data and processing layer. It proxies external APIs, runs spatial analysis, generates exports, and provides structured data to the frontend through REST endpoints.
