@@ -7,7 +7,8 @@ import VectorLayer from "ol/layer/Vector";
 import { getCenter } from 'ol/extent';
 
 /**
- * Create style based on the layer name (type of feature
+ * Create style based on the layer name.
+ * layer name correspond to the feature_type property in the geoJSON returned by backend
  * @param {string} typeName
  * @returns {{import('ol/Style').default}
  * */
@@ -46,6 +47,9 @@ export function resultStyle(typeName) {
         });
     }
 }
+/**
+ * the conversion table between checkbox ids and layer name
+ * */
 export const vectorSources =
     {
         "admin-reg-btn" : "administrative_region",
@@ -56,6 +60,9 @@ export const vectorSources =
 const layerSources = {};
 
 /**
+ * Add empty layers based on vectorSources values
+ * Take vectorLayerList et return it with all the added layers
+ * Create style with {@link resultStyle} (ctrl/cmd+left click)
  * @param {import('ol/Map').default} map
  * @param {Array} vectorLayerList
  */
