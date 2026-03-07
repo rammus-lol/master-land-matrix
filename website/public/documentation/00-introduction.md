@@ -1,31 +1,73 @@
-# Master Land Matrix - Documentation
+# Master Land Matrix - Project Introduction
 
-## 📋 Vue d'ensemble du projet
+## 1) What this project is
 
-Master Land Matrix est une application web complète pour visualiser, analyser et explorer des données géospatiales sur les investissements fonciers à travers le monde. Le projet combine une API Django avec une interface web Vite/Vue.js pour fournir une expérience utilisateur riche et interactive.
+Master Land Matrix is a full web application designed to visualize, explore, and analyze geospatial data about land-related investments around the world.
 
-## 🎯 Objectifs principaux
+It combines:
+- a Django API backend for data access and processing,
+- a Vite-based web frontend for interactive user experience,
+- data and analysis modules for reporting and geospatial workflows.
 
-- **Visualisation cartographique**: Afficher les localisations des investissements fonciers sur une carte interactive
-- **Analyse spatiale**: Effectuer des analyses géospatiales avancées
-- **Export de données**: Générer des rapports PDF et des fichiers Excel/CSV
-- **Scraping de données**: Crawler et mettre à jour automatiquement les données via le module crawler
+---
 
-## 📁 Structure du projet
+## 2) Main goals
 
-Le projet est organisé en plusieurs composants majeurs:
+The project focuses on four core goals:
 
-1. **Django Proxy API** - Backend principal (`/django_proxy`)
-2. **Website** - Frontend Vite.js (`/website`)
-3. **Crawler** - Module de scraping (`/crawler`)
-4. **Scripts R** - Analyses statistiques (`/R_script`)
+- **Map visualization**: show investment locations on an interactive map.
+- **Spatial analysis**: run geospatial analysis workflows on available data.
+- **Data export**: produce outputs such as PDF reports and tabular exports (Excel/CSV depending on workflow).
+- **Data updates**: support data collection/update pipelines through crawler-based processes when enabled.
 
-## 🔑 Concepts clés
+---
 
-### Data Integrity (Intégrité des données)
+## 3) Project structure (high level)
 
-L'application dépend entièrement de la structure JSON fournie par l'API Land Matrix. Les champs manquants ou restructurés peuvent causer des défaillances critiques:
+The repository is organized into major functional areas:
 
-- **Champs racine obligatoires**: `id`, `country_id`
-- **Champs de version**: `deal_size`, `current_intention_of_investment`, `current_implementation_status`, `current_negotiation_status`, `initiation_year`
-- **Données géographiques**: les `locations` doivent rester une liste itérable avec `level_of_accuracy`
+- **Django Proxy API** (`django_proxy/`): main backend API and data services.
+- **Website** (`website/`): frontend application built with Vite.
+- **R Scripts** (`R_script/`): statistical and geospatial analysis scripts.
+- **Crawler module**: data scraping/update component used in environments where it is deployed.
+
+---
+
+## 4) Key concept: data integrity
+
+A central technical constraint of this project is strict compatibility with the Land Matrix JSON structure.
+
+If required fields are missing, renamed, or deeply restructured, critical features may fail.
+
+### Required root fields
+- `id`
+- `country_id`
+
+### Required version-related fields
+- `deal_size`
+- `current_intention_of_investment`
+- `current_implementation_status`
+- `current_negotiation_status`
+- `initiation_year`
+
+### Required geographic data format
+- `locations` must remain an iterable list-like structure.
+- Each location entry must keep `level_of_accuracy`.
+
+---
+
+## 5) Why this matters
+
+The platform depends on predictable data to:
+- place investments correctly on maps,
+- run filters and analysis logic,
+- generate reliable exports,
+- avoid runtime errors in both backend and frontend.
+
+In short, **stable data structure is a functional requirement**, not only a data quality preference.
+
+---
+
+## 6) Summary
+
+Master Land Matrix is built as a data-driven geospatial platform. The backend, frontend, and analysis modules work together around one critical principle: preserving the expected data schema so that visualization, analysis, and reporting remain reliable.
