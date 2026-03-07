@@ -31,7 +31,8 @@ def _select_count_charts(table: pd.DataFrame, max_columns=3, max_categories=8):
         "country",
     ]
 
-    def _build_counts(series, force_include=False):
+    # Ajout du paramètre column_name pour pouvoir cibler les colonnes à désagréger
+    def _build_counts(series, column_name, force_include=False):
         if pd.api.types.is_numeric_dtype(series):
             return None
 
@@ -39,6 +40,13 @@ def _select_count_charts(table: pd.DataFrame, max_columns=3, max_categories=8):
         cleaned = cleaned[cleaned != ""]
         if cleaned.empty:
             return None
+
+        # --- NEW: Disaggregation of multiple intentions ---
+        # If the column concerns investment intentions, separate them with commas 
+        # and “explode” the list to count each intention individually.
+        if "intention" in str(column_name).lower():
+            cleaned = cleaned.str.split(',').explode().str.strip()
+            cleaned = cleaned[cleaned != ""]
 
         unique_count = cleaned.nunique()
         if not force_include and (unique_count < 2 or unique_count > max_unique_allowed):
@@ -56,7 +64,8 @@ def _select_count_charts(table: pd.DataFrame, max_columns=3, max_categories=8):
     for column_name in table.columns:
         column_lower = str(column_name).lower()
         if any(column_lower.startswith(prefix) for prefix in preferred_prefixes):
-            counts = _build_counts(table[column_name], force_include=True)
+            # On passe le column_name en argument
+            counts = _build_counts(table[column_name], column_name, force_include=True)
             if counts is not None:
                 chart_candidates.append((column_name, counts))
                 selected_columns.add(column_name)
@@ -65,7 +74,8 @@ def _select_count_charts(table: pd.DataFrame, max_columns=3, max_categories=8):
         if column_name in selected_columns:
             continue
 
-        counts = _build_counts(table[column_name], force_include=False)
+        # On passe le column_name en argument
+        counts = _build_counts(table[column_name], column_name, force_include=False)
         if counts is not None:
             chart_candidates.append((column_name, counts))
 
