@@ -27,7 +27,7 @@
     /* Text colors */
     --text-color: oklch(0.356 0.039 248.975);
     --text-color-dark: oklch(0.263 0.026 248.836);
-    --text-color-medium: oklch(0.454 0.03 228.623);
+    --text-color-medium: oklch(0.435 0.002 286.332 / 0.33);
     --text-color-light: oklch(0.639 0.033 229.545);
     --text-color-black: oklch(0 0 0);
     --text-color-heading: oklch(0.415 0.095 153.379);
@@ -52,6 +52,8 @@
     
     /* Button colors */
     --btn-toolkit-color: oklch(1 0 89.876);
+    --btn-toolkit-deactivate: oklch(0.943 0 89.876);
+    --btn-toolkit-deactivate-text:oklch(0.435 0.002 286.332 / 0.33);
 
     --bs-font-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",
     "Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji",

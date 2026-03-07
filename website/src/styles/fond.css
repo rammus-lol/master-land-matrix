@@ -1,4 +1,6 @@
-
+:root{
+    font-family: var(--bs-body-font-family);
+}
 /* Layer Switcher Button */
 
 .layer-switcher-btn {

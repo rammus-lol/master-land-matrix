@@ -14,7 +14,11 @@ html, body {
     width: 100%;
     overflow: hidden;
 }
-
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--bs-body-font-family);
+    font-weight: 500;
+    line-height: 1.2;
+}
 .top-bar {
     position: fixed;
     top: 0;
@@ -208,26 +212,27 @@ html, body {
 }
 
 .left-group{
+    font-family: var(--bs-body-font-family);
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
-.left-group-pdf {
-    /* center */
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
 
-}
-
-.left-group-pdf .btn {
+#export {
+    margin-top: 2%;
     background-color: var(--main-bg-color);
+    border-color: var(--main-bg-color);
     color: var(--text-color-white);
-    width: 100%;
-    margin-top: 10px;
-}
-.left-group-pdf .btn:hover {
-    background-color: var(--main-bg-hover-dark);
+    &:hover {background-color: var(--main-bg-hover-dark);
+        border-color: var(--main-bg-hover-dark);
+        color: var(--text-color);
+    }
+    &.deactivate {
+        pointer-events: none; /*Deactivate hover*/
+        border-color: var(--btn-toolkit-deactivate);
+        background-color: var(--btn-toolkit-deactivate);
+        color: var(--btn-toolkit-deactivate-text);
+    }
 }
 
 .double-btn-group {
@@ -240,23 +245,32 @@ html, body {
     flex: 1;
     background-color:var(--main-bg-color);
     color: var(--text-color-white);
+    &.deactivate {
+        pointer-events: none; /*Deactivate hover*/
+        background-color: var(--btn-toolkit-deactivate);
+        color: var(--btn-toolkit-deactivate-text);
+    }
+    &:hover {background-color: var(--main-bg-hover-dark);}
+    }
 
-}
-.double-btn-group .btn:hover {
-    background-color: var(--main-bg-hover-dark);
+.pdf {
+    justify-content: center;
+    margin-bottom: 10px;
 }
 
-#export {
-    margin-top: 2%;
+.pdf .btn {
     background-color: var(--main-bg-color);
-    border-color: var(--main-bg-color);
     color: var(--text-color-white);
-}
-
-#export:hover {
-    background-color: var(--main-bg-hover-dark);
-    border-color: var(--main-bg-hover-dark);
-    color: var(--text-color);
+    width: 100%;
+    margin-top: 10px;
+    &.deactivate {
+        pointer-events: none;
+        background-color: var(--btn-toolkit-deactivate);
+        color: var(--btn-toolkit-deactivate-text);
+    }
+    &:hover {
+        background-color: var(--main-bg-hover-dark);
+    }
 }
 
 /* Save filename box styling */
@@ -318,16 +332,12 @@ html, body {
     padding: 4px 8px;
 }
 
-.btn {
-    border-radius: 6px;
-    padding: 4px 10px;
-}
-
 .text-center {
     text-align: center;
 }
 
 #drop-area {
+    font-family: var(--bs-body-font-family);
     padding: 12px;
     min-height: 100px;
     background: var(--background-light);
@@ -384,6 +394,7 @@ html, body {
 }
 
 #known-point-panel {
+    font-family: var(--bs-body-font-family);
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -454,7 +465,7 @@ html, body {
     color: var(--text-color);
     cursor: pointer;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 400;
     line-height: 1.5;
     text-align: center;
@@ -472,6 +483,11 @@ html, body {
     color: #212529;
     padding: 6px 15px;
     font-size: 16px;
+    &.deactivate {
+        pointer-events: none;
+        background-color: var(--btn-toolkit-deactivate);
+        color: var(--btn-toolkit-deactivate-text);
+    }
 }
 
 .btn-light:hover {
