@@ -9,11 +9,12 @@ body {
     line-height: 1.6;
     color: var(--text-color);
     background: var(--background-color);
+    overflow-x: hidden;
 }
 
 /* Documentation layout */
 .doc-container {
-    display: flex;
+    display: block;
     min-height: calc(100vh - 300px); /* Account for footer */
 }
 
@@ -116,9 +117,10 @@ body {
 
 /* Main content area */
 .doc-main {
-    flex: 1;
+    width: calc(100% - 280px);
     margin-left: 280px;
     padding: 2rem;
+    box-sizing: border-box;
 }
 
 .preview {
@@ -338,6 +340,7 @@ body {
     }
 
     .doc-main {
+        width: 100%;
         margin-left: 0;
         padding: 1rem;
     }
