@@ -38,6 +38,7 @@ echo "---Configuring Django (manage.py migrate)---"
 python manage.py migrate --noinput
 
 # 4. Launch Server
-echo "---Launching Server manage.py runserver 0.0.0.0:8000---"
+echo "---Launching Production ASGI Server (Uvicorn)---"
+
 # Use exec to let Django handle system signals (SIGTERM)
-exec python manage.py runserver 0.0.0.0:8000
+exec uvicorn proxy_project.asgi:application --host 0.0.0.0 --port 8000 --workers 4 #Feel free to replace workers number, 4 is a very safe choicecd

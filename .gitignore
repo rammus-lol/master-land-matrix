@@ -2,6 +2,7 @@
 .venv/
 venv/
 env/
+.env*
 node_modules/
 django_proxy/data/areas.gpkg
 django_proxy/data/deals.gpkg
