@@ -160,5 +160,4 @@ class LayerSwitcherModal {
     }
 }
 
-// Export de la classe
 export default LayerSwitcherModal;

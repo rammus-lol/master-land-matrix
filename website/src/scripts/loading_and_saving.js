@@ -19,7 +19,7 @@ export async function sqlStarter() {
 /**
  * The function driving the file loading process
  * @param {FileList} files list of files for example like in e.dataTransfer.files
- * @param {import('ol/source/Source').default} vectorsource an OpenLayers vector source
+ * @param {import('ol/source/Vector').default} vectorsource an OpenLayers vector source
  * @param {import('ol/Map').default} map
  * */
 export async function loadFile(files, vectorsource, map) {
@@ -59,20 +59,21 @@ export async function loadFile(files, vectorsource, map) {
                     try {
                         const [dataFromGpkg] = await loadGpkg(file, displayProjection);
                         let hasPolygonLayer = false;
+                        let geomType
                         for (const table in dataFromGpkg) {
                             const source = dataFromGpkg[table];
                             const tableFeatures = source.getFeatures();
                             if (!tableFeatures || tableFeatures.length === 0) {
                                 continue;
                             }
-                            const geomType = tableFeatures[0].getGeometry()?.getType();
+                            geomType = tableFeatures[0].getGeometry()?.getType();
                             if (geomType === "Polygon" || geomType === "MultiPolygon") {
                                 hasPolygonLayer = true;
                                 features.push(...tableFeatures);
                             }
                         }
                         if (!hasPolygonLayer) {
-                            alert("The provided geopackage contains no polygonal layer (Polygon or MultiPolygon).");
+                            alert('The provided geopackage contains no polygonal layer (Polygon or MultiPolygon)');
                         }
                     } catch (error) {
                         alert("ol-load-geopackage error: " + error);
@@ -88,7 +89,8 @@ export async function loadFile(files, vectorsource, map) {
         map.getView().fit(vectorsource.getExtent(), {padding: [20, 20, 20, 20]});
     }
 }
-
+//Future function to forbid loading geometries which are not polygon
+function geomVerifier(){}
 //Saving function
 
 export function saveGeoJSON(features, filename) {
