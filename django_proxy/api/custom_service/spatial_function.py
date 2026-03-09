@@ -32,7 +32,9 @@ DATA_DIR = settings.BASE_DIR /  "data"
 _DEALS_CACHE = None
 _AREAS_CACHE = None
 def get_data():
-
+    """ A function read deals and areas in cache
+    while allowing to not block Docker start
+    if they are not present in the folder (like when it's a fresh installation)"""
     global _DEALS_CACHE, _AREAS_CACHE
     if _DEALS_CACHE is None:
         path = DATA_DIR / "deals.gpkg"

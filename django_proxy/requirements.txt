@@ -1,12 +1,14 @@
-Django>=5.2,<6.0
+django>=5.2,<6.0
 django-cors-headers>=4.9.0
 requests>=2.32.5
 geopandas>=0.15.0
 pandas>=2.1.0
 openpyxl>=3.1.2
-reportlab>=4.2.0
 numpy>=2.3.5
-#api doc
 djangorestframework>=3.16.1
-djangorestframework-gis>=1.2.0
 drf-spectacular>=0.29.0
+reportlab>=4.2.0
+djangorestframework-gis>=1.2.0 #usefull if you migrate data on postgreSQL
+djangorestframework-stubs>=3.16.8
+uvicorn[standard]>=0.41.0
+django-environ>=0.13.0
