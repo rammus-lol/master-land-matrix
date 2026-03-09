@@ -1,3 +1,7 @@
+:root{
+  font-family: var(--bs-body-font-family);
+}
+
 /* Legend container */
 .map-legend {
   position: fixed;
@@ -97,7 +101,6 @@ body:has(.side-panel.collapsed) .map-legend {
 
 .legend-label {
   font-size: 13px;
-  color: var(--text-color-medium);
   line-height: 1.4;
 }
 

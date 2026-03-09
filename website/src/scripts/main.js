@@ -4,7 +4,7 @@ import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
 import Draw from 'ol/interaction/Draw.js';
 import Select from 'ol/interaction/Select.js';
 import Modify from 'ol/interaction/Modify.js';
-import { fromLonLat,transform,get } from 'ol/proj';
+import {fromLonLat, transform, get, Projection} from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import OSM from 'ol/source/OSM.js';
 import VectorLayer from 'ol/layer/Vector';
@@ -22,16 +22,17 @@ import AlertPanel from "./alert_panel.js";
 import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
-import {layerUpdator,layerConstructor} from "./vectorlayertools.js";
-import exportSpreadSheetandPDF from "./non_cartographic_export.js";
+import {layerConstructor} from "./vectorlayertools.js";
+import {performSpatialQuery,exportSpreadSheetandPDF} from "./backend_interaction.js";
+
 // API Base URL - change for production/development
 // export const API_BASE_URL = 'https://landmatrix.artxypro.org';
 export const API_BASE_URL = 'http://localhost:8000';
 const sqlJsWasmDir = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/' + sql_js_version;
 let sqlInitializer=null;
-const topCenterPanel = new AlertPanel()
+export const topCenterPanel = new AlertPanel()
 
-const drawingSource = new VectorSource();
+export const drawingSource = new VectorSource();
 //for the moment I keep the initialization at the beginning, if it's appear it's slows down the app for
 const scaleControl = new ScaleLine({
     className: 'ol-scale-line',
@@ -58,14 +59,21 @@ const drawingLayer = new VectorLayer({
     }),
   }),
     visible :checkbox.checked,
+    properties:{
+        layerName:"drawinglayer"
+    }
 });
-
+drawingSource.on('change', () => {
+    const hasFeatures = drawingSource.getFeatures().length > 0;
+    const editionBtn = document.querySelectorAll("#export,#precise_loc-btn,#undo,#clear,#saveBtn")
+    editionBtn.forEach((el) => {el.classList.toggle('deactivate',!hasFeatures);});
+});
 
 checkbox.addEventListener('change', (e) => {
     drawingLayer.setVisible(e.target.checked)
 });
 
-const map = new Map({
+export const map = new Map({
     interactions: defaultInteractions(),
     controls: controls,
   target: 'map',
@@ -86,12 +94,12 @@ vectorLayerList = layerConstructor(map, vectorLayerList);
 // force the select only on the drawing layer to avoid confusion with the result layer
 //select feature only if button pen is active
 
-const select = new Select({ 
+export const select = new Select({
   layers: [drawingLayer],
   active: false, // Start with select interaction inactive
 });
 
-const modify = new Modify({
+export const modify = new Modify({
 features: select.getFeatures(),
 active: false, // Start with modify interaction inactive
 });
@@ -101,7 +109,7 @@ map.addInteraction(select);
 map.addInteraction(modify);
 
 // 2. Logic to toggle based on the Pen button
-const penBtn = document.querySelector('.btn-tool[data-type="pen"]');
+export const penBtn = document.querySelector('.btn-tool[data-type="pen"]');
 
 penBtn.addEventListener('click', () => {
   // Toggle a class for visual feedback
@@ -135,7 +143,7 @@ initializePopup(map);
 // Initialize legend
 initializeLegend(map);
 
-let draw;
+export let draw;
 let currentDrawType = null;
 
 function addInteraction(type) {
@@ -150,13 +158,14 @@ function addInteraction(type) {
       type: type,
     });
     map.addInteraction(draw);
-  } else {
+  }
+  else {
     currentDrawType = null;
   }
 }
 
 // Handle drawing tool buttons
-const toolButtons = document.querySelectorAll('.btn-tool');
+export const toolButtons = document.querySelectorAll('.btn-tool');
 toolButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const type = btn.getAttribute('data-type');
@@ -196,7 +205,7 @@ toolButtons.forEach(btn => {
 });
 
 
-document.getElementById('undo').addEventListener('click', function () {
+document.querySelector('#undo').addEventListener('click', function () {
     if (!draw) return;
     
     const type = draw.type_ || currentDrawType; 
@@ -379,173 +388,31 @@ kpDrawBtn.addEventListener("click", () => {
 
 });
 map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
-let resultLayer = null;
-let selectedDealIds = [];
+let result = []
 
-function extractDealIds(geojson) {
-  if (!geojson || !Array.isArray(geojson.features)) {
-    return [];
-  }
+document.getElementById('export').addEventListener('click', async () => {
+    result = await performSpatialQuery();
 
-  const ids = geojson.features
-    .filter((feature) => feature?.properties?.feature_type !== 'administrative_region')
-    .map((feature) => feature?.properties?.id)
-    .filter((id) => Number.isInteger(id));
-
-  return [...new Set(ids)];
-}
-
-// Reusable function to perform spatial query on drawing layer features
-async function performSpatialQuery() {
-    map.removeInteraction(draw);
-    const format = new GeoJSON();
-    const features = drawingSource.getFeatures();
-
-    if (features.length === 0) {
-        alert("No geometries on the map !");
-        return false;
-    }
-    // Unfortunately, geojson don't support circle geometry type, we have to transform it into point object
-    // and add a radius property, backend retransform it into a polygone with shapely.buffer 
-    const processedFeatures = [];
-    features.forEach(f => {
-        const geom = f.getGeometry();
-
-        if (geom instanceof Circle) {
-            // Extract center+radius for added circle
-            const center = geom.getCenter();
-            const radius = geom.getRadius();
-            const pointGeom = new Point(center);
-
-            // Create new feature for backend sending
-            const newF = new Feature({
-                geometry: pointGeom,
-                radius: radius,
-            });
-            processedFeatures.push(newF);
-        } else {
-            processedFeatures.push(f);
-        }
-    });
-    // Convert to GeoJSON
-    const geojsonObject = format.writeFeaturesObject(processedFeatures, {
-        featureProjection: "EPSG:3857",
-        dataProjection: "EPSG:3857"
-    });
-
-    const redTemplate = {
-        "background-color" : "#b61010",
-        "height": "70px",
-        "fontsize": "20px"
-    };
-    const body={"geojson":geojsonObject,"is_precise" : document.querySelector("#precise_loc-btn input").checked};
-    try {
-        topCenterPanel.alerting(
-            {"background-color": "#FFD700", "color": "#000000"},
-            "Performing spatial query to find deals...",
-            10
-        );
-        const query = await fetch(`${API_BASE_URL}/api/geom/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-        console.log(body);
-        if (!query.ok) {
-            const error = `Server error: ${query.status}.\nPlease contact us below`;
-            topCenterPanel.alerting(yellowTemplate, error, 30);
-            return false;
-        }
-
-        const response = await query.json();
-        const resultStatus = response.status;
-        const resultGeoJSON = response.data;
-
-        if (resultGeoJSON === 0) {
-          selectedDealIds = [];
-            const emptyMessage = response.status;
-            topCenterPanel.alerting(yellowTemplate, emptyMessage, 30);
-            return false;
-        }
-
-        selectedDealIds = extractDealIds(resultGeoJSON);
-
-        topCenterPanel.alerting({"background-color" : "#fc941d"}, resultStatus);
-
-        if (resultLayer !== null) {
-            map.removeLayer(resultLayer);
-        }
-        //toolButtons.forEach(b => b.classList.remove('active'));
-        layerUpdator(resultGeoJSON);
-        toolButtons.forEach(b => b.classList.remove('active'));
-        // deactivate penBtn
-        penBtn.classList.remove('active');
-        select.setActive(false);
-        modify.setActive(false);
-        select.getFeatures().clear();
-        map.getView().fit(map.getLayers().item(2).getSource().getExtent(),
-            {padding: [20, 20, 20, 20],
-                duration: 1000});
-        // Show legend when results are displayed
-        showLegend();
-        return true;
-    } catch (err) {
-      selectedDealIds = [];
-        console.error("Technical error:", err);
-        topCenterPanel.alerting(redTemplate, "The server is disconnected.", 30);
-        return false;
-    }
-}
-
+});
 document.getElementById('downloadCSV').addEventListener('click', async () => {
-  // Always re-query if there are geometries on the map to ensure fresh results
-  if (drawingSource.getFeatures().length > 0) {
-    topCenterPanel.alerting(
-      {"background-color": "#FFD700", "color": "#000000"},
-      "Performing spatial query to find deals...",
-      10
-    );
-    const querySuccess = await performSpatialQuery();
-    if (!querySuccess) {
-      alert('Could not query database to find deals.');
-      return;
-    }
-  }
-
-  if (selectedDealIds.length === 0) {
+  if (!result || result[0].length === 0) {
     alert('No deals available. Draw geometries and query the database first.');
     return;
   }
-
   try {
-    await exportSpreadSheetandPDF(selectedDealIds,"csv");
+    await exportSpreadSheetandPDF(result,"csv");
   } catch {
     alert('CSV export failed. Please try again.');
   }
 });
 
 document.getElementById('downloadExcel').addEventListener('click', async () => {
-  // Always re-query if there are geometries on the map to ensure fresh results
-  if (drawingSource.getFeatures().length > 0) {
-    topCenterPanel.alerting(
-      {"background-color": "#FFD700", "color": "#000000"},
-      "Performing spatial query to find deals...",
-      10
-    );
-    const querySuccess = await performSpatialQuery();
-    if (!querySuccess) {
-      alert('Could not query database to find deals.');
-      return;
-    }
-  }
-
-  if (selectedDealIds.length === 0) {
+    if (!result || result[0].length === 0) {
     alert('No deals available. Draw geometries and query the database first.');
     return;
   }
-
   try {
-    await exportSpreadSheetandPDF(selectedDealIds, "xlsx");
+    await exportSpreadSheetandPDF(result, "xlsx");
   } catch {
     alert('Excel export failed. Please try again.');
   }
@@ -553,34 +420,17 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
 
 document.getElementById('downloadPDF').addEventListener('click', async () => {
   // Always re-query if there are geometries on the map to ensure fresh results
-  if (drawingSource.getFeatures().length > 0) {
-    topCenterPanel.alerting(
-      {"background-color": "#FFD700", "color": "#000000"},
-      "Performing spatial query to find deals...",
-      10
-    );
-    const querySuccess = await performSpatialQuery();
-    if (!querySuccess) {
-      alert('Could not query database to find deals.');
-      return;
-    }
-  }
-
-  if (selectedDealIds.length === 0) {
+    if (!result || result[0].length === 0) {
     alert('No deals available. Draw geometries and query the database first.');
     return;
   }
-
   try {
-    await exportSpreadSheetandPDF(selectedDealIds, "pdf");
+    await exportSpreadSheetandPDF(result, "pdf");
   } catch {
     alert('PDF export failed. Please try again.');
   }
 });
 
-document.getElementById('export').addEventListener('click', async () => {
-    await performSpatialQuery();
-});
 const saveBtn = document.getElementById("saveBtn");
 const filenameBox = document.getElementById("saveFilenameBox");
 const filenameInput = document.getElementById("saveFilenameInput");
@@ -648,5 +498,4 @@ panelToggleBtn.addEventListener('click', () => {
         map.updateSize();
     }, 300);
 });
-
 

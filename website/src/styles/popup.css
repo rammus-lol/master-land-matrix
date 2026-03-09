@@ -1,4 +1,6 @@
-
+:root{
+    font-family: var(--bs-body-font-family);
+}
 .ol-popup {
     position: absolute;
     background-color: var(--background-white);

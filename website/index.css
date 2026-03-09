@@ -165,7 +165,7 @@ main {
     }
 
     & p {
-        color: var(--text-color-medium);
+        color: var(--text-color);
         margin-top: 0;
         line-height: 1.6;
         margin-bottom: 1rem;
