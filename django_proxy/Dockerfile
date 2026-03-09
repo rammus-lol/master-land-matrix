@@ -28,14 +28,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
 COPY . .
+COPY --from=builder /app/.venv /app/.venv
 
 # On prépare l'entrypoint AVANT de définir le démarrage
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 ENV PATH="/app/.venv/bin:$PATH"
 
 # L'ENTRYPOINT lance le script qui gère tout
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]

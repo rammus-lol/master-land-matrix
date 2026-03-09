@@ -16,6 +16,7 @@ dependencies = [
     "drf-spectacular>=0.29.0",
     "reportlab>=4.2.0",
     "djangorestframework-gis>=1.2.0",
+    "djangorestframework-stubs>=3.16.8",
 ]
 
 [dependency-groups]

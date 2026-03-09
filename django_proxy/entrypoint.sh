@@ -2,7 +2,6 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
-
 echo "---Starting Django Container ---"
 
 # 1. Database readiness check (Optional for SQLite)

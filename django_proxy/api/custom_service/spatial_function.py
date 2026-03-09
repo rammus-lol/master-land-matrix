@@ -2,6 +2,9 @@ import os
 import sys
 import django
 from pathlib import Path
+
+from api.custom_service.table_function import DEALS
+
 #This is for direct testing
 BASE_PATH = Path(__file__).resolve().parents[3]
 
@@ -25,6 +28,27 @@ from django.conf import settings
 -code_1 their is no deals in the entier country.
 -code_2 the processing find deals in the administrative regions crossing the polygons provided 
 but is certain their is no one inside this polygons or any deals with APPROXIMATE_LOCATION near by."""
+DATA_DIR = settings.BASE_DIR /  "data"
+_DEALS_CACHE = None
+_AREAS_CACHE = None
+def get_data():
+
+    global _DEALS_CACHE, _AREAS_CACHE
+    if _DEALS_CACHE is None:
+        path = DATA_DIR / "deals.gpkg"
+        if not path.exists():
+            print(f"{path} don't exists. Crawler don't end did it ?")
+            _DEALS_CACHE = gpd.GeoDataFrame()
+        _DEALS_CACHE = gpd.read_file(path)
+    elif _AREAS_CACHE is None:
+        path = DATA_DIR / "areas.gpkg"
+        if not path.exists():
+            print(f"{path} don't exists. Crawler don't end did it ?")
+            _AREAS_CACHE = gpd.GeoDataFrame()
+        _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
+        _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
+    return _DEALS_CACHE,_AREAS_CACHE
+
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
@@ -77,14 +101,11 @@ def final_filtering(query, regions, projects, selected_projects,precision_boolea
             pd.concat([projects_inaccurate, projects_inside, country_projects], ignore_index=True))
             .drop_duplicates())
         return final_projects
-DATA_DIR = settings.BASE_DIR / "data"
 
-DEALS = gpd.read_file(DATA_DIR / "deals.gpkg")
+
 REGIONS = gpd.read_file(DATA_DIR / "world_region_light.gpkg")
-AREAS = gpd.read_file(DATA_DIR / "areas.gpkg")
-
-AREAS["region_list"]=AREAS["region_list"].apply(json.loads) #Managing SQLite goofy JSON type logic.
 def geom_constructor(query, precision_boolean):
+    DEALS,AREAS = get_data()
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
     if final_areas.empty and selected_deals.empty:
