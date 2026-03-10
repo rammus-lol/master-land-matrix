@@ -2,9 +2,6 @@ import os
 import sys
 import django
 from pathlib import Path
-
-from api.custom_service.table_function import DEALS
-
 #This is for direct testing
 BASE_PATH = Path(__file__).resolve().parents[3]
 
@@ -31,25 +28,35 @@ but is certain their is no one inside this polygons or any deals with APPROXIMAT
 DATA_DIR = settings.BASE_DIR /  "data"
 _DEALS_CACHE = None
 _AREAS_CACHE = None
+_REGIONS_CACHE = None
 def get_data():
-    """ A function read deals and areas in cache
-    while allowing to not block Docker start
-    if they are not present in the folder (like when it's a fresh installation)"""
-    global _DEALS_CACHE, _AREAS_CACHE
+    """ A function allowing to read geopackages even
+    if they are not present in the folder (like when it's a fresh installation)
+    by calling it in app.py they are loaded in ram at each start"""
+    global _DEALS_CACHE, _AREAS_CACHE,_REGIONS_CACHE
     if _DEALS_CACHE is None:
         path = DATA_DIR / "deals.gpkg"
         if not path.exists():
             print(f"{path} don't exists. Crawler don't end did it ?")
             _DEALS_CACHE = gpd.GeoDataFrame()
-        _DEALS_CACHE = gpd.read_file(path)
-    elif _AREAS_CACHE is None:
+        else:
+            _DEALS_CACHE = gpd.read_file(path)
+    if _REGIONS_CACHE is None:
+        path = DATA_DIR / "world_region_light.gpkg"
+        if not path.exists():
+            print(f"{path} don't exists. Crawler don't end did it ?")
+            _REGIONS_CACHE = gpd.GeoDataFrame()
+        else:
+            _REGIONS_CACHE = gpd.read_file(path)
+    if _AREAS_CACHE is None:
         path = DATA_DIR / "areas.gpkg"
         if not path.exists():
             print(f"{path} don't exists. Crawler don't end did it ?")
             _AREAS_CACHE = gpd.GeoDataFrame()
-        _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
-        _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
-    return _DEALS_CACHE,_AREAS_CACHE
+        else:
+            _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
+            _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
+    return _DEALS_CACHE,_AREAS_CACHE,_REGIONS_CACHE
 
 def which_regions(query, projects, regions):
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
@@ -105,9 +112,8 @@ def final_filtering(query, regions, projects, selected_projects,precision_boolea
         return final_projects
 
 
-REGIONS = gpd.read_file(DATA_DIR / "world_region_light.gpkg")
 def geom_constructor(query, precision_boolean):
-    DEALS,AREAS = get_data()
+    DEALS,AREAS,REGIONS = get_data()
     selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
     if final_areas.empty and selected_deals.empty:
@@ -119,6 +125,3 @@ def geom_constructor(query, precision_boolean):
     combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
-
-
-
