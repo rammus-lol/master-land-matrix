@@ -39,20 +39,23 @@ def get_data():
         if not path.exists():
             print(f"{path} don't exists. Crawler don't end did it ?")
             _DEALS_CACHE = gpd.GeoDataFrame()
-        _DEALS_CACHE = gpd.read_file(path)
+        else:
+            _DEALS_CACHE = gpd.read_file(path)
     if _REGIONS_CACHE is None:
         path = DATA_DIR / "world_region_light.gpkg"
         if not path.exists():
             print(f"{path} don't exists. Crawler don't end did it ?")
             _REGIONS_CACHE = gpd.GeoDataFrame()
-        _REGIONS_CACHE = gpd.read_file(path)
+        else:
+            _REGIONS_CACHE = gpd.read_file(path)
     if _AREAS_CACHE is None:
         path = DATA_DIR / "areas.gpkg"
         if not path.exists():
             print(f"{path} don't exists. Crawler don't end did it ?")
             _AREAS_CACHE = gpd.GeoDataFrame()
-        _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
-        _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
+        else:
+            _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
+            _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
     return _DEALS_CACHE,_AREAS_CACHE,_REGIONS_CACHE
 
 def which_regions(query, projects, regions):
@@ -122,6 +125,3 @@ def geom_constructor(query, precision_boolean):
     combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, final_areas,filtered_regions]
                                               ,ignore_index=True),crs="EPSG:3857")
     return combined_deals,nb_deals
-
-
-
