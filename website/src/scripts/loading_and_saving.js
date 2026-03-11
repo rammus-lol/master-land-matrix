@@ -2,9 +2,7 @@ import { initSqlJsWasm, loadGpkg , sql_js_version} from 'ol-load-geopackage';
 import shp from 'shpjs';
 import GeoJSON from 'ol/format/GeoJSON';
 import KML from 'ol/format/KML';
-import Map from 'ol/Map';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
+
 import Circle from 'ol/geom/Circle';
 import {fromCircle} from 'ol/geom/Polygon';
 
@@ -37,43 +35,41 @@ export async function loadFile(files, vectorsource, map) {
             try {
                 if (fileName.endsWith(".geojson") || fileName.endsWith(".json")) {
                     const text = await file.text();
-                    features = new GeoJSON().readFeatures(text, {
+                    features.push(...new GeoJSON().readFeatures(text, {
                         featureProjection: "EPSG:3857"
-                    });
+                    }));
                 } else if (fileName.endsWith(".kml")) {
                     const text = await file.text();
-                    features = new KML().readFeatures(text, {
+                    features.push(...new KML().readFeatures(text, {
                         featureProjection: "EPSG:3857"
-                    });
+                    }));
                 } else if (fileName.endsWith(".zip")) {
                     const buffer = await file.arrayBuffer();
                     const geojson = await shp(buffer);
-                    features = new GeoJSON().readFeatures(geojson, {
-                        featureProjection: "EPSG:3857"
-                    });
-                } else if (fileName.endsWith(".shp")) {
+                    if (Array.isArray(geojson)) {
+                        for (const geo of geojson) {
+                            features.push(...new GeoJSON().readFeatures(geo, {
+                                featureProjection: "EPSG:3857"
+                            }));
+                        }
+                    }
+                    else {
+                        features.push(...new GeoJSON().readFeatures(geojson, {
+                            featureProjection: "EPSG:3857"
+                        }));
+                    }
+                }
+                else if (fileName.endsWith(".shp")) {
                     alert(".shp isn't a loneliness enjoyer you need to zip all your files having the same name but different extension and give it back to me.");
                     return;
-                } else if (fileName.endsWith(".gpkg")) {
+                }
+                else if (fileName.endsWith(".gpkg")) {
                     const displayProjection = "EPSG:3857";
                     try {
-                        const [dataFromGpkg] = await loadGpkg(file, displayProjection);
-                        let hasPolygonLayer = false;
-                        let geomType
-                        for (const table in dataFromGpkg) {
-                            const source = dataFromGpkg[table];
-                            const tableFeatures = source.getFeatures();
-                            if (!tableFeatures || tableFeatures.length === 0) {
-                                continue;
-                            }
-                            geomType = tableFeatures[0].getGeometry()?.getType();
-                            if (geomType === "Polygon" || geomType === "MultiPolygon") {
-                                hasPolygonLayer = true;
-                                features.push(...tableFeatures);
-                            }
-                        }
-                        if (!hasPolygonLayer) {
-                            alert('The provided geopackage contains no polygonal layer (Polygon or MultiPolygon)');
+                        const dataFromGpkg = (await loadGpkg(file, displayProjection))[0];
+                        for (const table of Object.values(dataFromGpkg)) {
+                            const tableFeatures = table.getFeatures();
+                            features.push(...tableFeatures);
                         }
                     } catch (error) {
                         alert("ol-load-geopackage error: " + error);
@@ -89,10 +85,6 @@ export async function loadFile(files, vectorsource, map) {
         map.getView().fit(vectorsource.getExtent(), {padding: [20, 20, 20, 20]});
     }
 }
-//Future function to forbid loading geometries which are not polygon
-function geomVerifier(){}
-//Saving function
-
 export function saveGeoJSON(features, filename) {
     let savingFeatures = []
     const format = new GeoJSON();
