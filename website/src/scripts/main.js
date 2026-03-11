@@ -92,7 +92,7 @@ let vectorLayerList = [drawingLayer] //Needed by display manager modal
 vectorLayerList = layerConstructor(map, vectorLayerList);
 
 // force the select only on the drawing layer to avoid confusion with the result layer
-//select feature only if button pen is active
+//select feature only if button edit shape is active
 
 export const select = new Select({
   layers: [drawingLayer],
@@ -108,7 +108,7 @@ active: false, // Start with modify interaction inactive
 map.addInteraction(select);
 map.addInteraction(modify);
 
-// 2. Logic to toggle based on the Pen button
+// 2. Logic to toggle based on the edit shapes button
 export const penBtn = document.querySelector('.btn-tool[data-type="pen"]');
 
 penBtn.addEventListener('click', () => {
@@ -127,10 +127,24 @@ penBtn.addEventListener('click', () => {
     });
   }
 
-  // Optional: Clear selection when deactivating tool
+  // Deactivate selection when switching tool
   if (!isActive) {
     select.getFeatures().clear();
   }
+});
+window.addEventListener('keydown', (e) => {
+
+    const isPenActive = penBtn.classList.contains('active');
+
+    if (isPenActive && (e.key === "Delete" || e.key === "Backspace")) {
+        const selectedFeatures = select.getFeatures();
+
+        selectedFeatures.forEach((feature) => {
+            drawingSource.removeFeature(feature);
+        });
+
+        selectedFeatures.clear();
+    }
 });
 
 
