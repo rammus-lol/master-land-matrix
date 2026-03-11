@@ -58,6 +58,7 @@ def generic_proxy(request, endpoint):
 )
 @api_view(['POST'])
 def geom(request):
+    """end points for spatial querying."""
     input_serializer = SpatialProcessSerializer(data=request.data)
 
     if not input_serializer.is_valid():
@@ -116,6 +117,7 @@ def geom(request):
 )
 @api_view(['POST'])
 def sheet(request):
+    """Endpoints for xlsx, csv and pdf downloads"""
     payload = request.data if hasattr(request, "data") else request
     id_list = payload.get('id_list', [])
     file_format = payload.get('file_format') or payload.get('format')
@@ -163,12 +165,12 @@ def sheet(request):
         filename = "export.xlsx"
         data = output.getvalue()
     elif file_format == "csv":
-            output = io.StringIO()
-            table.to_csv(output, sep=';', index=False)
-            content_type = "text/csv"
-            filename = "export.csv"
-            data = output.getvalue()
-    else:
+        output = io.StringIO()
+        table.to_csv(output, sep=';', index=False)
+        content_type = "text/csv"
+        filename = "export.csv"
+        data = output.getvalue()
+    elif file_format == "pdf":
         data = build_pdf_report(table)
         content_type = "application/pdf"
         filename = "export_report.pdf"
