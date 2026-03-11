@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import markedKatex from 'marked-katex-extension'; // Vous aurez besoin de ce package
 
 // Documentation sections configuration, grouped by documentation part
 const documentationGroups = [
@@ -87,6 +88,14 @@ function createSidebar() {
 
     sidebar.appendChild(navWrapper);
 }
+
+// Configuration de l'extension
+const options = {
+    throwOnError: false,
+    displayMode: true // Pour le rendu en bloc avec $$
+};
+
+marked.use(markedKatex(options));
 
 // Load all markdown sections
 async function loadAllSections() {
