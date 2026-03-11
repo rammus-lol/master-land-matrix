@@ -54,10 +54,10 @@ website/
 
 ### `src/scripts/document.js`
 This script:
-1. loads multiple Markdown files from `public/documentation/` (INDEX.md, 00-introduction.md, etc.),
+1. loads multiple Markdown files from `public/documentation/`,
 2. converts each Markdown file to HTML using `marked`,
-3. concatenates and injects the results into the documentation page,
-4. shows error messages if files cannot be loaded.
+3. injects the rendered content into the documentation page,
+4. manages grouped navigation in the sidebar.
 
 It is the core of the frontend documentation display system.
 
@@ -121,4 +121,4 @@ In short:
 
 ## 8) Summary
 
-The frontend in this project is a multi-page web application built with Vite. It focuses on rendering, user interactions, and communication with Django APIs. Documentation is loaded dynamically from a Markdown file, which makes updates easier without changing HTML code.
+The frontend in this project is a multi-page web application built with Vite. It focuses on rendering, user interactions, and communication with Django APIs. Documentation is loaded dynamically from Markdown files, which makes updates easier without changing HTML code.

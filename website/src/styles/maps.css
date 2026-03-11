@@ -688,3 +688,31 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
     font-size: 14px;
 }
+
+.home-btn {
+    /* Basics */
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    /* Styling */
+    background-color: var(--main-bg-dark);
+    color: var(--text-color-white);
+    font-size: 1rem;
+    font-weight: 500;
+    border-color: var(--border-color-dark);
+
+    /* The "Clean" Feel */
+    transition: background 0.2s ease-in-out;
+}
+
+.home-btn:hover {
+    background-color: var(--main-bg-hover-dark);
+}
+
+.home-btn:active {
+    opacity: 0.8; /* Simple visual feedback when clicked */
+}

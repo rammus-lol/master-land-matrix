@@ -1,15 +1,29 @@
 import { marked } from 'marked';
 
-// Documentation sections configuration
-const documentationSections = [
-    { id: 'introduction', file: '/documentation/00-introduction.md', title: 'Introduction' },
-    { id: 'frontend', file: '/documentation/01-frontend.md', title: 'Frontend' },
-    { id: 'backend', file: '/documentation/02-backend.md', title: 'Backend' },
-    { id: 'crawler', file: '/documentation/03-crawler.md', title: 'Crawler' },
-    { id: 'data', file: '/documentation/04-data.md', title: 'Data' },
-    { id: 'deployment', file: '/documentation/05-deployment.md', title: 'Deployment' },
-    { id: 'workflow', file: '/documentation/06-workflow.md', title: 'Workflow' }
+// Documentation sections configuration, grouped by documentation part
+const documentationGroups = [
+    {
+        title: 'Methodology Part',
+        sections: [
+            { id: 'introduction', file: '/documentation/introduction.md', title: 'Introduction' },
+            { id: 'technical-methodology', file: '/documentation/methodology/technical-pipeline.md', title: 'Technical Methodology' },
+            { id: 'methodological-workflow', file: '/documentation/methodology/methodological-workflow.md', title: 'Methodological Workflow' }
+        ]
+    },
+    {
+        title: 'Architecture Part',
+        sections: [
+            { id: 'frontend', file: '/documentation/architecture/01-frontend.md', title: 'Frontend' },
+            { id: 'backend', file: '/documentation/architecture/02-backend.md', title: 'Backend' },
+            { id: 'crawler', file: '/documentation/architecture/03-crawler.md', title: 'Crawler' },
+            { id: 'data', file: '/documentation/architecture/04-data.md', title: 'Data' },
+            { id: 'deployment', file: '/documentation/architecture/05-deployment.md', title: 'Deployment' },
+            { id: 'workflow', file: '/documentation/architecture/06-workflow.md', title: 'Workflow' }
+        ]
+    }
 ];
+
+const documentationSections = documentationGroups.flatMap(group => group.sections);
 
 // Cache for loaded content
 const contentCache = new Map();
@@ -18,37 +32,60 @@ const contentCache = new Map();
 async function initDocumentation() {
     createSidebar();
     await loadAllSections();
-    showSection('introduction');
+    const hash = window.location.hash.substring(1);
+    const defaultSection = hash && contentCache.has(hash)
+        ? hash
+        : documentationSections[0]?.id;
+
+    if (defaultSection) {
+        showSection(defaultSection);
+    }
     setupMobileToggle();
 }
 
 // Create sidebar navigation
 function createSidebar() {
     const sidebar = document.querySelector('.doc-sidebar');
-    const nav = document.createElement('ul');
-    nav.className = 'doc-nav';
-    
-    documentationSections.forEach(section => {
-        const li = document.createElement('li');
-        li.className = 'doc-nav-item';
-        
-        const link = document.createElement('a');
-        link.href = `#${section.id}`;
-        link.className = 'doc-nav-link';
-        link.textContent = section.title;
-        link.dataset.section = section.id;
-        
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSection(section.id);
-            closeMobileSidebar();
+    const navWrapper = document.createElement('div');
+    navWrapper.className = 'doc-nav-wrapper';
+
+    documentationGroups.forEach(group => {
+        const groupContainer = document.createElement('section');
+        groupContainer.className = 'doc-nav-group';
+
+        const groupTitle = document.createElement('h3');
+        groupTitle.className = 'doc-nav-group-title';
+        groupTitle.textContent = group.title;
+
+        const nav = document.createElement('ul');
+        nav.className = 'doc-nav';
+
+        group.sections.forEach(section => {
+            const li = document.createElement('li');
+            li.className = 'doc-nav-item';
+
+            const link = document.createElement('a');
+            link.href = `#${section.id}`;
+            link.className = 'doc-nav-link';
+            link.textContent = section.title;
+            link.dataset.section = section.id;
+
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(section.id);
+                closeMobileSidebar();
+            });
+
+            li.appendChild(link);
+            nav.appendChild(li);
         });
-        
-        li.appendChild(link);
-        nav.appendChild(li);
+
+        groupContainer.appendChild(groupTitle);
+        groupContainer.appendChild(nav);
+        navWrapper.appendChild(groupContainer);
     });
-    
-    sidebar.appendChild(nav);
+
+    sidebar.appendChild(navWrapper);
 }
 
 // Load all markdown sections
@@ -136,14 +173,6 @@ function closeMobileSidebar() {
     const sidebar = document.querySelector('.doc-sidebar');
     sidebar.classList.remove('mobile-open');
 }
-
-// Check URL hash on load
-window.addEventListener('load', () => {
-    const hash = window.location.hash.substring(1);
-    if (hash && contentCache.has(hash)) {
-        showSection(hash);
-    }
-});
 
 // Initialize when DOM is ready
 initDocumentation();

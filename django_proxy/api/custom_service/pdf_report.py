@@ -11,6 +11,9 @@ from reportlab.lib.units import mm
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+nameApplication = "Land Matrix - Geodata Visualiser"
+urlwebsite = "https://landmatrix.artxypro.org/"
+urlwebsiteOriginal = "https://landmatrix.org/"
 
 def _truncate_value(value, max_len=32):
     text = str(value)
@@ -148,7 +151,16 @@ def build_pdf_report(table: pd.DataFrame) -> bytes:
     elements.append(Spacer(1, 6))
     elements.append(
         Paragraph(
-            f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Deals: {len(table)} | Columns: {len(table.columns)}",
+            f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Deals: {len(table)}",
+            normal_style,
+        )
+    )
+    elements.append(Spacer(1, 6))
+    elements.append(
+        Paragraph(
+            f"This report summarises a subset of Land Matrix deals, queried through the tool "
+            f"<font color='green'>{nameApplication}</font> - <font color='blue'>{urlwebsite}</font>. "
+            f"Access all Land Matrix data at <font color='blue'>{urlwebsiteOriginal}</font>.",
             normal_style,
         )
     )
