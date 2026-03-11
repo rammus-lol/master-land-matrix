@@ -104,6 +104,40 @@ export function layerConstructor(map,vectorLayerList) {
     return vectorLayerList;
 }
 /**
+ * Updates the feature counts displayed on vector layer modal.
+ *
+ * @returns {void}
+ */
+export function numbersCalculator() {
+    const numbers = {};
+    for(const [layername, source] of Object.entries(layerSources)){
+        numbers[layername] = source.getFeatures().length;
+
+    }
+    const btnNumbers = {};
+    for (const [btnName, sourceName] of Object.entries(vectorSources)) {
+        btnNumbers[btnName] = numbers[sourceName];
+    }
+    for (const [buttonId, count] of Object.entries(btnNumbers)) {
+        const buttonElement = document.getElementById(buttonId);
+
+        if (buttonElement) {
+            const labelSpan = buttonElement.querySelector('.layer-label');
+
+            if (labelSpan) {
+                const baseText = labelSpan.getAttribute('data-base-text') || labelSpan.textContent.split(' (')[0];
+                labelSpan.setAttribute('data-base-text', baseText);
+
+                if (count > 0) {
+                    labelSpan.innerHTML = `${baseText} <i style="font-style: italic;">(${count})</i>`;
+                } else {
+                    labelSpan.textContent = baseText;
+                }
+            }
+        }
+    }
+}
+/**
  * A function which add event listener to activate querying button
  * depending on the layers added by {@link layerConstructor} emptiness
  * take nothing return nothing
@@ -156,6 +190,6 @@ export function layerUpdator(geojsonObject) {
             source.addFeature(feature)
         }
     }
-    console.log(idset)
+    numbersCalculator()// Updating numbers of each category in vector layer modal
     return [...idset];
 }

@@ -80,7 +80,6 @@ export async function performSpatialQuery() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
-        console.log(body);
         if (!query.ok) {
             const error = `Server error: ${query.status}.\nPlease contact us below`;
             topCenterPanel.alerting(yellowTemplate, error, 30);

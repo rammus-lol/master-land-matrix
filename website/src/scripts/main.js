@@ -22,7 +22,7 @@ import AlertPanel from "./alert_panel.js";
 import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
-import {layerConstructor} from "./vectorlayertools.js";
+import {layerConstructor,numbersCalculator} from "./vectorlayertools.js";
 import {performSpatialQuery,exportSpreadSheetandPDF} from "./backend_interaction.js";
 
 // API Base URL - change for production/development
@@ -241,7 +241,9 @@ function clearMap() {
     topCenterPanel.dropModification();
     const allLayers = map.getLayers().getArray()
     const vectorLayers = allLayers.filter(layer => layer instanceof VectorLayer);
-    for (const layer of vectorLayers) {layer.getSource().clear();}
+    for (const layer of vectorLayers) {layer.getSource().clear();
+    }
+    numbersCalculator()//reset counter after each clear map
 }
 
 const dropArea = document.getElementById("drop-area");
