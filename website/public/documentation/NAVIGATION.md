@@ -20,37 +20,51 @@
    - System performance
    - Alerts and maintenance
 
-3. **00-Introduction** - Fundamental concepts
+3. **Methodology / 07-Technical Methodology** - Technical pipeline
+   - ETL-like ingestion
+   - GeoPackage construction
+   - Spatial enrichment
+   - Crawler orchestration
+
+4. **Methodology / 08-Methodological Workflow** - User-facing workflow
+   - Spatial intent to export pipeline
+   - Precision-aware query design
+   - Review-before-export logic
+   - CSV / Excel / PDF specialization
+
+5. **Architecture / 00-Introduction** - Fundamental concepts
    - Project objectives
    - Organizational structure
    - Data integrity
 
-4. **01-Frontend** - Web interface
+6. **Architecture / 01-Frontend** - Web interface
    - Vite.js architecture
    - File structure
    - Configuration and deployment
 
-5. **02-Backend** - Django API
+7. **Architecture / 02-Backend** - Django API
    - REST endpoints
    - Custom services
    - Management commands
 
-6. **03-Crawler** - Automated scraping
-   - Scraping orchestration
-   - Log files
-   - Integration points
+8. **Architecture / 03-Crawler** - Data ingestion
+   - Crawler commands
+   - Logs and reports
+   - Scheduling
+   - Update strategy
 
-7. **04-Data** - Resources and formats
-   - GeoPackage (.gpkg)
-   - GeoJSON and JSON
-   - Critical data structure
+9. **Architecture / 04-Data** - Data resources
+   - GeoPackage storage
+   - Critical schema
+   - Import and export formats
+   - Validation concerns
 
-8. **05-Deployment** - Production setup
+10. **Architecture / 05-Deployment** - Production setup
    - Development vs Production
    - Docker and configuration
    - PostgreSQL database
 
-9. **06-Workflow** - Processes and flows
+11. **Architecture / 06-Workflow** - Processes and flows
    - Data lifecycle
    - Common scenarios
    - Error handling
@@ -91,20 +105,22 @@ python manage.py crawler_main
 ## Search Documentation by Topic
 
 ### Configuration and Setup
-- See: Deployment (05-deployment.md)
-- See: Workflow (06-workflow.md)
+- See: Architecture / Deployment (architecture/05-deployment.md)
+- See: Architecture / Workflow (architecture/06-workflow.md)
 
 ### Data and Formats
-- See: Data (04-data.md)
-- See: Introduction (00-introduction.md)
+- See: Architecture / Data (architecture/04-data.md)
+- See: Architecture / Introduction (architecture/00-introduction.md)
+- See: Methodology / 07-Technical Methodology (methodology/07-technical-pipeline.md)
+- See: Methodology / 08-Methodological Workflow (methodology/08-methodological-workflow.md)
 
 ### Development
-- Frontend: See 01-frontend.md
-- Backend: See 02-backend.md
-- Data: See 03-crawler.md
+- Frontend: See architecture/01-frontend.md
+- Backend: See architecture/02-backend.md
+- Data ingestion: See architecture/03-crawler.md
 
 ### Production and Monitoring
-- See: Deployment (05-deployment.md)
+- See: Architecture / Deployment (architecture/05-deployment.md)
 - See: Dashboard (DASHBOARD.md)
 
 ---
@@ -137,13 +153,13 @@ python manage.py crawler_main
 ## FAQ - Frequently Asked Questions
 
 ### Q: How to add a new documentation section?
-**A**: Create a `.md` file in `/website/public/documentation/` and add its path in the `documentationFiles` array in `document.js`.
+**A**: Create a `.md` file in `/website/public/documentation/methodology/` or `/website/public/documentation/architecture/`, then register it in the `documentationGroups` configuration in `document.js`.
 
 ### Q: Where to find geospatial data?
 **A**: In `/django_proxy/data/` - check `.gpkg` (GeoPackage) and `.geojson` files.
 
 ### Q: How to export data?
-**A**: Through Django API endpoints or directly via GDAL tools (`ogrinfo` / `ogr2ogr`).
+**A**: Through the spatial query + export workflow described in `methodology/08-methodological-workflow.md`, or directly via GDAL tools (`ogrinfo` / `ogr2ogr`).
 
 ### Q: Crawler not fetching data?
 **A**: Check logs in `django_proxy/api/management/commands/logs/` for errors. Also verify internet connectivity and API availability.
@@ -191,7 +207,7 @@ Location: /django_proxy/data/reports/
 ### Documentation Files
 ```
 Format: XX-section-name.md
-Special: INDEX.md, DASHBOARD.md, README.md, etc.
+Special: methodology/XX-section-name.md, architecture/XX-section-name.md, DASHBOARD.md, README.md, etc.
 ```
 
 ---

@@ -76,7 +76,7 @@ Local Storage (GeoPackage files)
    - filters by precision level if requested,
    - returns matching deals as GeoJSON.
 4. Map displays the results with visual feedback.
-5. User can export results via `/api/sheet/` endpoint for Excel/CSV.
+5. User can export results via `/api/sheet/` endpoint for Excel/CSV/PDF.
 
 ---
 
@@ -154,4 +154,3 @@ Example cron entry (daily at 2 AM):
 ## 6) Summary
 
 This chapter describes how different parts of the system interact. Understanding these workflows helps with troubleshooting, feature development, and maintaining the platform over time.
-

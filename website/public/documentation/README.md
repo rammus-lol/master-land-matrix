@@ -4,45 +4,59 @@
 
 This documentation is organized into multiple chapters covering all aspects of the Master Land Matrix platform.
 
-### Core Documentation
+### Methodology Part
 
-1. **[00 - Introduction](00-introduction.md)**
+1. **[07 - Technical Methodology](methodology/07-technical-pipeline.md)**
+   - ETL-like pipeline
+   - Point and polygon extraction
+   - Spatial enrichment and GeoPackage storage
+   - Crawler orchestration and technical compromises
+
+2. **[08 - Methodological Workflow](methodology/08-methodological-workflow.md)**
+   - User intent to spatial query
+   - Precision-aware selection
+   - Query → review → export logic
+   - Output specialization for CSV / XLSX / PDF
+
+### Architecture Part
+
+3. **[00 - Introduction](architecture/00-introduction.md)**
    - Project overview
    - Main goals
    - Project structure
    - Data integrity concepts
 
-2. **[01 - Frontend](01-frontend.md)**
+4. **[01 - Frontend](architecture/01-frontend.md)**
    - Vite-based web interface
    - Folder structure
    - Key files and configuration
    - Running and building
 
-3. **[02 - Backend](02-backend.md)**
+5. **[02 - Backend](architecture/02-backend.md)**
    - Django API architecture
    - Main components and services
    - API endpoints
    - Configuration
 
-4. **[03 - Crawler](03-crawler.md)**
+6. **[03 - Crawler](architecture/03-crawler.md)**
    - Data collection module
    - How it works
    - Commands and scheduling
    - Logs and debugging
 
-5. **[04 - Data](04-data.md)**
+7. **[04 - Data](architecture/04-data.md)**
    - Data storage and formats
    - GeoPackage and GeoJSON files
    - Data schema (critical fields)
    - Import and export
 
-6. **[05 - Deployment](05-deployment.md)**
+8. **[05 - Deployment](architecture/05-deployment.md)**
    - Development and production environments
    - Docker setup
    - Configuration settings
    - Performance and monitoring
 
-7. **[06 - Workflow](06-workflow.md)**
+9. **[06 - Workflow](architecture/06-workflow.md)**
    - Data lifecycle
    - Common workflows
    - Integration points

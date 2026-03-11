@@ -115,12 +115,12 @@ See the deployment chapter for Docker and production configurations.
 
 - **GET `/api/<path:endpoint>`**: generic proxy to Land Matrix API endpoints (e.g., `/api/countries`, `/api/deals`).
 - **POST `/api/geom/`**: process user geometry (GeoJSON FeatureCollection in EPSG:3857) with precision filtering. Returns matching deals.
-- **POST `/api/sheet/`**: generate Excel/CSV exports based on spatial query results.
+- **POST `/api/sheet/`**: generate Excel/CSV/PDF exports based on spatial query results.
 
 The `/api/geom/` endpoint:
-- Accepts GeoJSON with optional `radius` field for point features (creates circular buffers)
-- Supports `is_precise` flag to filter deals by location accuracy
-- Returns status messages: "No deal found", "No deal inside but nearby", or success with data
+- accepts GeoJSON with optional `radius` field for point features (creates circular buffers),
+- supports `is_precise` flag to filter deals by location accuracy,
+- returns status messages: "No deal found", "No deal inside but nearby", or success with data.
 
 Check `api/urls.py` for the complete endpoint configuration.
 
