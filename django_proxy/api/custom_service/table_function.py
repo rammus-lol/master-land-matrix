@@ -25,17 +25,27 @@ DEALS =DATA_DIR / "deals.gpkg"
 AREAS = DATA_DIR / "areas.gpkg"
 
 
-def table_constructor(id_list : list[int]):
+def table_constructor(id_list : list[int])-> pd.DataFrame:
+    """A function which extract a non-spatial table for user downloading
+    with formating of certain fields"""
     ids =", ".join([str(i) for i in id_list])
 
     sql_query = f"""
         SELECT 
-            id as deal_id, admin as country, deal_size, current_intention_of_investment,
-            current_implementation_status, current_negotiation_status,
-            level_of_accuracy,quality_of_precision, initiation_year
+            id as deal_id, 
+            admin as country, 
+            deal_size, 
+            (SELECT group_concat(value) FROM json_each(current_intention_of_investment)) as current_intention_of_investment,
+            --this field is a JSON list we were asked to retrieve [] and '"'.
+            current_implementation_status, 
+            current_negotiation_status,
+            level_of_accuracy,
+            quality_of_precision, 
+            initiation_year
         FROM deals
         WHERE id IN ({ids})
         """
+    #Don't worry django serializers before calling manage SQL injection (since you
     table_deals = gpd.read_file(DEALS,sql =sql_query)
     table_areas = gpd.read_file(AREAS,sql =sql_query.replace("deals","areas"))
     table=pd.concat([table_deals,table_areas]).drop_duplicates()
