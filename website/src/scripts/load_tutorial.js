@@ -1,15 +1,14 @@
   let currentSlide = 0;
   const slides = [
     '../../images/tutorial/tutorial_page_01_upload.png',
-    '../../images/tutorial/tutorial_page_04_open_file.png',
- '../../images/tutorial/tutorial_page_02_draw_tools.png',
- '../../images/tutorial/tutorial_page_02_01_drawing_tools_points.png',
- '../../images/tutorial/tutorial_page_03_overlays_basemap.png',
- '../../images/tutorial/tutorial_page_03_02_overlays_basemap.png',
- '../../images/tutorial/tutorial_page_05_draw_area.png',
- '../../images/tutorial/tutorial_page_06_query_export.png',
- '../../images/tutorial/tutorial_page_06_query_export_clear.png',
- '../../images/tutorial/tutorial_page_06_query_export_save.png',
+    '../../images/tutorial/tutorial_page_01_02_open_file.png',
+ '../../images/tutorial/tutorial_page_01_03_drawing_tools_points.png',
+ '../../images/tutorial/tutorial_page_02_overlays_basemap.png',
+ '../../images/tutorial/tutorial_page_02_02_overlays_basemap.png',
+ '../../images/tutorial/tutorial_page_03_draw_area.png',
+  '../../images/tutorial/tutorial_page_03_02_edit_shape.png',
+ '../../images/tutorial/tutorial_page_04_query_export.png',
+ '../../images/tutorial/tutorial_page_05_query_export_clear.png',
   ];
 
   // Check if tutorial was previously closed
