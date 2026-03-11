@@ -58,7 +58,9 @@ def get_data():
             _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
     return _DEALS_CACHE,_AREAS_CACHE,_REGIONS_CACHE
 
-def which_regions(query, projects, regions):
+def regional_prefilter(query, projects, regions):
+    """A function catching regions crossing the brought polygons,
+        return all the concerned regions and deals with buffers"""
     filtered_regions=gpd.sjoin(regions,query).drop(columns=["id","index_right"],errors="ignore")
     selected_projects = gpd.sjoin(projects, filtered_regions)
     col_to_keep = ("admin","geometry","name","name_en","type","type_en")
@@ -69,8 +71,15 @@ def which_regions(query, projects, regions):
     return selected_projects,filtered_regions
 
 def which_areas(query, regions, polygone_projects):
-
+    """A function performing spatial selection between deals with polygons.
+        and selected regions, by applying a filter on stored regions id first
+        the by spatial selection with brought polygons.
+        """
     def region_checker(region_list : list,region_id_list : list):
+        """A function to pre-filter areas.gpkg using a region_list.
+        By intersecting region ID with deals attributes,
+        it optimizes the spatial selection process
+        by significantly reducing the number of candidate polygons."""
         bool_list=[]
         for region in region_list:
             if region in region_id_list:
@@ -85,7 +94,19 @@ def which_areas(query, regions, polygone_projects):
     selected_areas=gpd.sjoin(filtered_areas,query).drop(columns=["index_right"],errors="ignore")
     return selected_areas
 
-def final_filtering(query, regions, projects, selected_projects,precision_boolean):
+def buffer_filtering(query : gpd.GeoDataFrame, regions : gpd.GeoDataFrame,
+                     projects : gpd.GeoDataFrame, selected_projects : gpd.GeoDataFrame,
+                     precision_boolean : bool)-> gpd.GeoDataFrame:
+    """A function performing compound selection between deals represented with a buffer
+    on deal size. with 3 methods :
+    -Which deals are in the coutry managing the concerned regions and have a level_of_accuracy
+    equals to 'COUNTRY' ?
+    -Which deals are in the concerned regions and have a level_of_accuracy
+    equals to 'ADMINISTRATIVE_REGION' ?
+    -Which deals are precisly located and crossed the given polygons ?
+    Then the duplicates are dropped.
+    if precision_boolean are set to true, the first to methods are skipped.
+    """
     accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
     if precision_boolean:
         projects_accurate = selected_projects[selected_projects["level_of_accuracy"]
@@ -112,14 +133,16 @@ def final_filtering(query, regions, projects, selected_projects,precision_boolea
         return final_projects
 
 
-def geom_constructor(query, precision_boolean):
+def geom_constructor(query : gpd.GeoDataFrame, precision_boolean : bool) \
+        -> tuple[gpd.GeoDataFrame,int] | tuple[str,int]:
+    """ Main function calling all the blocs and returning it to backend for export."""
     DEALS,AREAS,REGIONS = get_data()
-    selected_deals,filtered_regions = which_regions(query,DEALS,REGIONS)
+    selected_deals,filtered_regions = regional_prefilter(query, DEALS, REGIONS)
     final_areas=which_areas(query,filtered_regions,AREAS)
     if final_areas.empty and selected_deals.empty:
         return "code_1", 0
-    final_deals = final_filtering(query,filtered_regions,DEALS,selected_deals,precision_boolean)
-    if final_deals.empty:
+    final_deals = buffer_filtering(query, filtered_regions, DEALS, selected_deals, precision_boolean)
+    if final_deals.empty and final_areas.empty:
         return "code_2", 0
     nb_deals = len(final_areas)+len(final_deals)
     combined_deals=gpd.GeoDataFrame(pd.concat([final_deals, final_areas,filtered_regions]
