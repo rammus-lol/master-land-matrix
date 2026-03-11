@@ -1,199 +1,195 @@
 # 05 - Deployment and Configuration
 
-## 1) Development environment
+This section explains how to configure and run the project.  
+It includes instructions for **Windows** and **Linux** users and two possible setups:
 
-### Backend (Django)
-```bash
-cd django_proxy
-python manage.py runserver
-```
-
-Runs on `http://127.0.0.1:8000/`.
-
-### Frontend (Vite)
-```bash
-cd website
-npm run dev
-```
-
-Runs on `http://localhost:5173/` (or another port specified by Vite).
+- Running with **Docker (recommended)**
+- Running **without Docker (bare metal)**
 
 ---
 
-## 2) Production environment
+# 1. Generate the Django Secret Key
 
-### Backend with Docker
+You first need to generate a secure Django secret key.
 
-A Dockerfile is provided in `django_proxy/` for containerization. The project uses `uv` for dependency management.
+### On Windows
 
-Build the image:
 ```bash
-cd django_proxy
-docker build -t land-matrix-api .
+python -c "import secrets; print(secrets.token_urlsafe(50))"
+````
+
+### On Linux / macOS
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(50))"
 ```
 
-Run the container:
-```bash
-docker run -p 8000:8000 land-matrix-api
-```
-
-The Docker setup uses Python 3.14 and `uv` (see `pyproject.toml` and `uv.lock`).
-
-### Frontend build
-
-Build for production:
-```bash
-cd website
-npm run build
-```
-
-This creates optimized static files in `website/dist/`.
-
-Serve these files with any HTTP server (Nginx, Apache, etc.).
+Copy the generated key.
 
 ---
 
-## 3) Docker Compose
+# 2. Configure the Environment File
 
-A `docker-compose.yml` file is provided in the project root to run both frontend and backend together:
+Go to the following folder:
 
-```bash
-docker-compose up
+```
+django_proxy/proxy_project
 ```
 
-This starts:
-- **Backend** on port 8000 (Django API)
-- **Frontend** on port 4173 (Vite preview)
+Locate the file:
 
-Environment variables:
-- `SKIP_CRAWL`: set to `true` to skip data crawling on startup (faster restarts)
+```
+squelete_fichier_env_prod.env
+```
 
-The compose file manages volumes for data persistence and live-reload during development.
-
----
-
-## 4) Django configuration
-
-Key settings in `proxy_project/settings.py`:
-
-- **`DEBUG`**: set to `False` in production.
-- **`SECRET_KEY`**: load from environment variable, never hardcode in production.
-- **`ALLOWED_HOSTS`**: list of allowed domain names.
-- **`CORS_ALLOWED_ORIGINS`**: frontend domains that can make API requests.
-- **`DATABASES`**: configure PostgreSQL/PostGIS for production if needed.
-
----
-
-## 5) Environment variables
-
-Recommended environment variables for production:
-
-- `SECRET_KEY`: unique secret key for Django.
-- `DEBUG`: set to `False`.
-- `ALLOWED_HOSTS`: comma-separated list of domains.
-- `DATABASE_URL`: PostgreSQL connection string (if using PostgreSQL).
-- `CORS_ORIGINS`: allowed frontend origins.
+Edit it and replace `yoursecretkey` with the generated key.
 
 Example:
+
+```
+ENVIRONMENT=production
+SECRET_KEY=your_generated_secret_key
+
+DJANGO_ALLOWED_HOSTS=0.0.0.0,localhost
+
+DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:5173,http://localhost:4173,http://localhost:5500
+
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:4173,http://localhost:5500
+```
+
+Notes:
+
+* `DJANGO_ALLOWED_HOSTS` must contain your backend host (for example `0.0.0.0` or `localhost`)
+* Do **not** include protocol or ports there (`http://` or `:8000`)
+* Frontend origins go in:
+
+  * `DJANGO_CSRF_TRUSTED_ORIGINS`
+  * `CORS_ALLOWED_ORIGINS`
+
+After editing the file, rename it to:
+
+```
+.env
+```
+
+This file will be ignored by **Docker** and **Git**.
+
+---
+
+# 3. Modify docker-compose Configuration
+
+Open the file:
+
+```
+docker-compose.yml
+```
+
+Locate this line:
+
+```
+- SKIP_CRAWL=false
+```
+
+Explanation:
+
+```
+SKIP_CRAWL=false
+```
+
+* `false`: runs the data crawling script
+* `true`: skips crawling for faster restarts
+
+Set it according to your needs.
+
+---
+
+# 4. Running the Project with Docker (Recommended)
+
+If you had issues during previous builds, rebuild everything:
+
 ```bash
-export SECRET_KEY="your-secret-key-here"
-export DEBUG="False"
-export ALLOWED_HOSTS="landmatrix.example.com,www.landmatrix.example.com"
+sudo docker compose build --no-cache
+sudo docker compose up -d
+```
+
+Or simply run:
+
+```bash
+sudo docker compose up -d --build
 ```
 
 ---
 
-## 6) Dependencies
+# 5. Running the Project Without Docker (Bare Metal)
 
-### Backend
-Install Python dependencies:
+## 5.1 Backend (Django)
 
-**Using uv (recommended for production)**:
+Create a virtual environment and install dependencies.
+
+### Linux / macOS
+
 ```bash
-cd django_proxy
-uv sync
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-**Using pip (alternative)**:
+### Windows
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
 ```bash
 cd django_proxy
 pip install -r requirements.txt
 ```
 
-Key dependencies:
-- Django
-- djangorestframework
-- geopandas
-- pandas
-- reportlab
-- openpyxl
+Run the Django server:
 
-See `pyproject.toml` for complete dependency list.
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
 
-### Frontend
-Install Node.js dependencies:
+---
+
+## 5.2 Frontend
+
+Go to the frontend folder:
+
 ```bash
 cd website
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-Key dependencies:
-- vite
-- marked
-- ol (OpenLayers)
+Build the project:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
 
 ---
 
-## 7) Database
+# Summary
 
-### Development
-- SQLite: `django_proxy/db.sqlite3`
-- Migrations: `python manage.py migrate`
+Steps required:
 
-### Production (recommended)
-- PostgreSQL with PostGIS extension for spatial queries.
-- Update `DATABASES` in `settings.py` with connection parameters.
+1. Generate a Django secret key
+2. Configure `.env`
+3. Adjust `docker-compose.yml`
+4. Run the project with Docker **or** manually
 
----
-
-## 8) Performance considerations
-
-### Frontend
-- Minify and bundle assets (handled by Vite build).
-- Enable caching headers for static files.
-- Use CDN if serving to global audience.
-
-### Backend
-- Use database indexes on frequently queried fields.
-- Cache expensive spatial queries.
-- Enable gzip compression for API responses.
-- Consider worker processes (Gunicorn, uWSGI) instead of Django development server.
-
----
-
-## 9) Monitoring and logs
-
-### Django logs
-Configure logging in `settings.py` to track errors and requests.
-
-### Crawler logs
-Check `django_proxy/data/reports/` for JSON reports and any log files generated by crawler commands.
-
-### Frontend errors
-Monitor browser console for JavaScript errors.
-
----
-
-## 10) Backups
-
-Regularly back up:
-- `django_proxy/db.sqlite3` (or PostgreSQL database).
-- `django_proxy/data/*.gpkg` (GeoPackage files).
-- `django_proxy/data/reports/` (generated reports).
-- Configuration files (`settings.py`, `.env`).
-
----
-
-## 11) Summary
-
-Deployment involves building and serving both frontend and backend. Use Docker for consistency, configure environment variables for security, and choose appropriate database and server infrastructure for production workloads.
+Docker is recommended for easier setup and environment consistency.
