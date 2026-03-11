@@ -208,7 +208,11 @@ export function initializePopup(map) {
     // Manage popup for deals
     const dealId = properties.deal_id || properties.id;
 
-    if (!dealId) return;
+    if (!dealId) {
+      overlay.setPosition(undefined);
+      clearSelectedFeature();
+      return;
+    }
 
     const accuracy = properties.level_of_accuracy || 'N/A';
     const accuracyDisplay = ACCURACY_LABELS[accuracy] || accuracy;

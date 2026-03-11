@@ -144,12 +144,12 @@ export function layerUpdator(geojsonObject) {
         else {
             if (type.includes('accuracy')) {
                 const geometry = feature.getGeometry();
-                let center;
                 const extent  = geometry.getExtent()
-                center = getCenter(extent)
+                const center = getCenter(extent)
                 const pointFeature = new Feature({
+                    ...feature.getProperties(),
                     geometry: new Point(center),
-                    feature_type: type
+                    is_centroid_proxy: true
                 });
                 source.addFeature(pointFeature);
             }
