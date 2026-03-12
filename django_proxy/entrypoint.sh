@@ -4,10 +4,7 @@
 set -e
 echo "---Starting Django Container ---"
 
-# 1. Database readiness check (Optional for SQLite)
-# python manage.py wait_for_db
-
-# 2. Data Crawling Management (GeoPackage files)
+# 1. Data Crawling Management (GeoPackage files)
 DATA_DIR="/app/data"
 FLAG_FILE="$DATA_DIR/crawling_done.flag"
 # checking if someone set skip_crawl variable too true
@@ -32,13 +29,20 @@ else
     echo "---Data already present (Flag file detected), skipping crawl ---"
 fi
 
-# 3. Django Setup
+# 2. Django Setup
 echo "---Configuring Django (manage.py migrate)---"
 # Apply database migrations
 python manage.py migrate --noinput
 
-# 4. Launch Server
-echo "---Launching Production ASGI Server (Uvicorn)---"
-
-# Use exec to let Django handle system signals (SIGTERM)
-exec uvicorn proxy_project.asgi:application --host 0.0.0.0 --port 8000 --workers 4 #Feel free to replace workers number, 4 is a very safe choicecd
+# 3. Launch Server
+if [ "$ENVIRONMENT" = "development" ]; then
+    echo "---Launching Development ASGI Server (Uvicorn with live-reload)---"
+    exec uvicorn proxy_project.asgi:application \
+        --host 0.0.0.0 --port 8000 \
+        --reload --reload-dir /app
+else
+    echo "---Launching Production ASGI Server (Uvicorn)---"
+    exec uvicorn proxy_project.asgi:application \
+        --host 0.0.0.0 --port 8000 \
+        --workers 4
+fi

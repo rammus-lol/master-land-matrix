@@ -1,18 +1,19 @@
 services:
-  # --- BACKEND CONTAINER ---
   backend:
     build:
-      context: ./django_proxy  # backend folder path
+      context: ./django_proxy
     container_name: django_lm_backend
+    env_file:
+      - ./django_proxy/proxy_project/.env  # chargé au runtime, pas au build
     volumes:
-      - ./django_proxy/data:/app/data  # relative path for data
-      - ./django_proxy:/app            #live-reload
+      - ./django_proxy/data:/app/data
+      - ./django_proxy:/app
       - /app/.venv
     ports:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-      - SKIP_CRAWL=false #Set this to true for fast restarting, it avoids to run the data crawling script
+      - SKIP_CRAWL=true
     restart: always
   # --- FRONTEND CONTAINER ---
   frontend:
