@@ -154,7 +154,7 @@
       </div>
 
       <div class="left-group">
-        <button class="btn btn-light deactivate" id="undo">Undo</button>
+        <button class="btn btn-light" id="undo">Undo</button>
         <button class="btn btn-light deactivate" id="clear">Clear</button>
         <button class="btn btn-light deactivate" id="saveBtn">Export your drawings to geojson</button>
 
@@ -170,11 +170,12 @@
       <hr>
 
       <div class="left-group">
-        <button class="btn btn-light deactivate" id="export">Extract Land Matrix Data</button>
         <label class="btn btn-light deactivate" id="precise_loc-btn">
-          <input type="checkbox" name="precise_localisation" value="false">
-          <span class="layer-label">Precise localisation only</span>
+          <input type="checkbox" name="precise_localisation" value="true" checked>
+          <span class="layer-label">Include inaccurate locations</span>
         </label>
+        <button class="btn btn-light deactivate" id="export">Extract Land Matrix Data</button>
+
       </div>
       <hr>
 
