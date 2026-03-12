@@ -65,7 +65,7 @@ const drawingLayer = new VectorLayer({
 });
 drawingSource.on('change', () => {
     const hasFeatures = drawingSource.getFeatures().length > 0;
-    const editionBtn = document.querySelectorAll("#export,#precise_loc-btn,#undo,#clear,#saveBtn")
+    const editionBtn = document.querySelectorAll("#export,#precise_loc-btn,#clear,#saveBtn")
     editionBtn.forEach((el) => {el.classList.toggle('deactivate',!hasFeatures);});
 });
 
