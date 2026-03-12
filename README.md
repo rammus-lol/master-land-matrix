@@ -74,6 +74,15 @@ After editing the file, rename it to:
 
 This file will be ignored by **Docker** and **Git**.
 
+You will also need to configure the url for the backend in the main.js in the folder :
+```
+website/src/scripts/main.js
+```
+
+```
+export const API_BASE_URL = 'http://localhost:8000'; // remplace this url by your backend url
+```
+
 ---
 
 # 3. Modify docker-compose Configuration
