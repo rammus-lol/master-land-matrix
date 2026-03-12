@@ -108,7 +108,7 @@ SKIP_CRAWL=false
 * `false`: runs the data crawling script
 * `true`: skips crawling for faster restarts
 
-Set it according to your needs.
+Set it according to your needs. The crawler will make the backend start in average of 3 minutes. But you need to let the crawler for the first launch of the backend docker for the application to work.
 
 ---
 
