@@ -105,10 +105,10 @@ def buffer_filtering(query : gpd.GeoDataFrame, regions : gpd.GeoDataFrame,
     equals to 'ADMINISTRATIVE_REGION' ?
     -Which deals are precisly located and crossed the given polygons ?
     Then the duplicates are dropped.
-    if precision_boolean are set to true, the first to methods are skipped.
+    if precision_boolean are set to false, the first to methods are skipped.
     """
     accurate_points = ["APPROXIMATE_LOCATION", "EXACT_LOCATION", "COORDINATES"]
-    if precision_boolean:
+    if not precision_boolean:
         projects_accurate = selected_projects[selected_projects["level_of_accuracy"]
         .isin(accurate_points)]
         projects_inside = (gpd.sjoin(projects_accurate, query, how='inner')
