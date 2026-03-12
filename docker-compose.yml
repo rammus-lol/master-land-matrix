@@ -10,6 +10,8 @@ services:
       - /app/.venv
     ports:
       - "8000:8000"
+    env_file :
+      - ./django_proxy/.env
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_CRAWL=false #Set this to true for fast restarting, it avoids to run the data crawling script
