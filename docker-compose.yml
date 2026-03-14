@@ -11,8 +11,6 @@ services:
       - /app/.venv
     ports:
       - "8000:8000"
-    env_file :
-      - ./django_proxy/.env
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_CRAWL=true

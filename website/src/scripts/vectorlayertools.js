@@ -143,7 +143,7 @@ export function numbersCalculator() {
  * take nothing return nothing
  * */
 function updateGlobalExportStatus() {
-    const downloadButtons = document.querySelectorAll('#downloadExcel, #downloadCSV, #downloadPDF');
+    const downloadButtons = document.querySelectorAll('#downloadExcel, #downloadCSV, #downloadPDF,#downloadGeoJSON');
     const hasAnyData = Object.values(layerSources).some(source => source.getFeatures().length > 0);
     downloadButtons.forEach(btn => {
         btn.classList.toggle('deactivate', !hasAnyData);

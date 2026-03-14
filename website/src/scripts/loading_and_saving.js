@@ -2,7 +2,7 @@ import { initSqlJsWasm, loadGpkg , sql_js_version} from 'ol-load-geopackage';
 import shp from 'shpjs';
 import GeoJSON from 'ol/format/GeoJSON';
 import KML from 'ol/format/KML';
-
+import VectorSource from 'ol/source/Vector';
 import Circle from 'ol/geom/Circle';
 import {fromCircle} from 'ol/geom/Polygon';
 
@@ -19,8 +19,12 @@ export async function sqlStarter() {
  * @param {FileList} files list of files for example like in e.dataTransfer.files
  * @param {import('ol/source/Vector').default} vectorsource an OpenLayers vector source
  * @param {import('ol/Map').default} map
+ * @param {boolean} returnClause a boolean expressing if you want to automatically put features inside vectorsource or return them
+ * @returns {void | import('ol/source/Vector').default} by default returns nothing,
+ * every features goes in the given source, but if returnClause is set to true it returns a vectorSource.
+ * In case you wanna apply spatial treatment before displaying it.
  * */
-export async function loadFile(files, vectorsource, map) {
+export async function loadFile(files, vectorsource, map,returnClause=false) {
     const allowed_ext = new Set(["geojson", "shp", "json", "kml", "zip", "gpkg"]);
     //managing unzipped shp is really gluteal pain it's in the list but if just for alerting
     //I let shpjs managing .zip without shapefiles in it
@@ -80,9 +84,18 @@ export async function loadFile(files, vectorsource, map) {
                 alert("Error while reading file.");
             }
     }
-    if (features.length > 0) {
+    if (features.length === 0) {
+        alert("No features found in the given files");
+        return;
+    }
+    else if (features.length > 0 && returnClause===false) {
         vectorsource.addFeatures(features);
         map.getView().fit(vectorsource.getExtent(), {padding: [20, 20, 20, 20]});
+    }
+    else {
+        const tempSource = new VectorSource();
+        tempSource.addFeatures(features);
+        return tempSource;
     }
 }
 export function saveGeoJSON(features, filename) {

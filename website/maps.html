@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/src/styles/popup.css" />
   <link rel="stylesheet" href="/src/styles/legend.css" />
   <link rel="stylesheet" href="/src/styles/fond.css" />
+  <link rel="stylesheet" href="/src/styles/loader.css" />
 </head>
 <body>
   <!-- load template : tutorial-content.html -->
@@ -20,11 +21,10 @@
 
   <div class="top-bar">
     <div id="top-left" class="top-content">
+      <button class="home-btn" onclick="window.location.href='/index.html'">Home</button>
       <h2>Spatial querying for </h2>
-      <!-- when clicking on the logo redirect to the home page -->
+      <!-- when clicking on the logo redirect to the LM home page -->
     <img class="main-logo" src="/images/landmatrix.png" alt="LM logo" onclick="window.location.href='https://landmatrix.org'">
-    <!-- add a button home use default button style -->
-    <button class="home-btn" onclick="window.location.href='/index.html'">Home</button>
     </div>
     <div class="top-content">
       <h1 id="top-center" >Load a file, drop it or draw a shape then analyze your region</h1>
@@ -54,6 +54,8 @@
       <div id="vector-layer-switcher-btn" class="layer-switcher-btn">
         <img src="/images/layer_toggle.svg" alt="Layers" width="24" height="24">
       </div>
+      <div class="deactivate" id="loader"></div>
+
 
   <!-- Base layer manager -->
   <div id="base-layer-modal" class="layer-modal">
@@ -126,7 +128,18 @@
       </div>
       <input type="file" id="fileInput" multiple style="display:none;">
       </div>
-
+      <div class="buffer-menu">
+        <button class="btn-tool" id="bufferbtn" data-type="loader" title="Create a buffer">
+          <img src="/images/buffer.png" alt="buffer symbol" width="20" height="20">
+          <span>Create a buffer</span>
+        </button>
+        <div class="buffer-menu-options hidden">
+          <button id="buff-cancel" class="btn buffer-menu-item">Cancel</button>
+          <button  class="btn buffer-menu-item interact">5 km</button>
+          <button  class="btn buffer-menu-item interact">10 km</button>
+          <input type="file" id="bufferFileInput" style="display: none;" accept=".json,.geojson,.kml,.zip,.gpkg">
+        </div>
+      </div>
       <hr>
 
       <!-- Drawing tools -->
@@ -142,10 +155,9 @@
             <span>Circle</span>
           </button>
           <button class="btn-tool" data-type="Point" title="Known point location">
-            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="20" height="20">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Point" width="30" height="20">
             <span>Known Point</span>
           </button>
-        
           <button class="btn-tool" data-type="pen" title="Pen tool for freehand drawing">
             <img src="/images/pencil.svg" alt="Pen" width="20" height="20">
             <span>Edit Shapes</span>
@@ -184,8 +196,12 @@
         <button class="btn deactivate" id="downloadExcel">Download Excel</button>
         <button class="btn deactivate" id="downloadCSV">Download CSV <strong>( ; )</strong></button>
       </div>
+      <div class="double-btn-group">
+        <button class="btn deactivate" id="downloadPDF">Generate PDF report</button>
+        <button class="btn deactivate" id="downloadGeoJSON">Generate GeoJSON layer</button>
+      </div>
       <div class="pdf">
-              <button class="btn deactivate" id="downloadPDF">Generate PDF report</button>
+
       </div>
 
 

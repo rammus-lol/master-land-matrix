@@ -117,23 +117,18 @@ def geom(request):
 )
 @api_view(['POST'])
 def sheet(request):
-    """Endpoints for xlsx, csv and pdf downloads"""
-    payload = request.data if hasattr(request, "data") else request
-    id_list = payload.get('id_list', [])
-    file_format = payload.get('file_format') or payload.get('format')
 
-    if not isinstance(id_list, list) or len(id_list) == 0:
-        return JsonResponse({"error": "id_list must be a non-empty list"}, status=400)
+    # 1. On initialise le serializer avec les données reçues
+    serializer = SheetInputSerializer(data=request.data)
 
-    try:
-        id_list = [int(deal_id) for deal_id in id_list]
-    except (TypeError, ValueError):
-        return JsonResponse({"error": "id_list must contain integers"}, status=400)
+    # 2. On valide. Si c'est faux, ça renvoie direct un 400 propre avec les détails
+    serializer.is_valid(raise_exception=True)
 
-    if file_format not in ["xlsx", "csv", "pdf"]:
-        return JsonResponse({"error": "format must be 'xlsx', 'csv' or 'pdf'"}, status=400)
-
-    table = table_constructor(id_list)
+    # 3. On récupère les données PROPRES et TYPÉES
+    id_list = serializer.validated_data['id_list']
+    file_format = serializer.validated_data['format']
+    is_spatial = (file_format == "geojson")
+    table = table_constructor(id_list,spatial=is_spatial)
     if file_format == "xlsx":
         output = io.BytesIO()
         table.to_excel(output, index=False, engine='openpyxl', sheet_name='Deals')
@@ -174,6 +169,11 @@ def sheet(request):
         data = build_pdf_report(table)
         content_type = "application/pdf"
         filename = "export_report.pdf"
+    elif file_format == "geojson":
+        gdf = table_constructor(id_list, spatial=True)
+        data = gdf.to_json()
+        content_type = 'application/json'
+        filename = "export.geojson"
     response = HttpResponse(data, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 

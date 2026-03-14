@@ -3,7 +3,18 @@ import {showLegend} from './legend.js';
 import {Circle, Point} from "ol/geom.d.ts";
 import Feature from 'ol/Feature.js';
 import {layerUpdator} from "./vectorlayertools.js";
-import {map,draw,select,modify,drawingSource,topCenterPanel,toolButtons,penBtn,API_BASE_URL} from "./main.js";
+import {
+    map,
+    draw,
+    select,
+    modify,
+    drawingSource,
+    topCenterPanel,
+    dropZone,
+    penBtn,
+    API_BASE_URL,
+    toolButtons} from "./main.js";
+
 const yellowTemplate = {
     "background-color": "#FFD700",
     "color": "#000000"
@@ -13,6 +24,24 @@ const redTemplate = {
     "height": "70px",
     "fontsize": "20px"
 };
+/**
+ * wrapper managing loader displaying during async function execution
+ * @param {Function} asyncTask - async function to execute
+ * @const {HTMLElement} dropZone map container
+ */
+export async function initLoader(asyncTask){
+    const loader = document.getElementById('loader');
+    loader.classList.toggle("deactivate");
+    dropZone.classList.add("highlight");
+    try{
+        return await asyncTask();
+    } catch (error){
+        console.error(error);
+    }finally{
+        loader.classList.toggle("deactivate")
+        dropZone.classList.remove("highlight");
+    }
+}
 /**
  * Performs a spatial query by sending map geometries to the backend.
  * * @description
@@ -129,7 +158,7 @@ export async function performSpatialQuery() {
  * @param {[integer[], string]} utilityArray - A tuple containing:
  * - [0]: {integer[]} idList - Array of unique deal identifiers.
  * - [1]: {string} statusMessage - Status or summary message for the alerting panel.
- * @param {'xlsx' | 'csv' | 'pdf'} format - The target file extension/format.
+ * @param {'xlsx' | 'csv' | 'pdf' | 'geojson'} format - The target file extension/format.
  * * @returns {Promise<void>} Resolves when the download process is initiated.
  * @throws {Error} If the export process fails or the network is unreachable.
  * * @see {@link exportSpreadSheetandPDF} For the underlying fetch and blob creation logic.
@@ -138,11 +167,11 @@ export const exportSpreadSheetandPDF = async (utilityArray, format) => {
     if (!Array.isArray(utilityArray[0]) || utilityArray[0].length === 0) {
         throw new Error(`No IDs available for ${format.toUpperCase()} export`);
     }
-
     const naming = {
         "xlsx": "export.xlsx",
         "csv": "export.csv",
         "pdf": "export_report.pdf",
+        "geojson": "export.geojson",
     };
 
     let objectUrl = null;
@@ -161,6 +190,7 @@ export const exportSpreadSheetandPDF = async (utilityArray, format) => {
         });
         if (!response.ok) {
             const errorText = await response.text();
+            topCenterPanel.dropModification()
             console.error("Backend error detail:", errorText);
             throw new Error(`Server error (${response.status}): ${errorText}`);
         }
@@ -185,6 +215,7 @@ export const exportSpreadSheetandPDF = async (utilityArray, format) => {
         throw error;
     } finally {
         if (objectUrl) {
+            topCenterPanel.alerting({"background-color" : "#fc941d"}, utilityArray[1]); //Making sure it returns to good displaying and not error message
             window.URL.revokeObjectURL(objectUrl);
         }
     }

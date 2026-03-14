@@ -1,0 +1,27 @@
+#loader {
+    /* Taille du cercle */
+    width: 48px;
+    height: 48px;
+    z-index: 10000;
+
+    /* Création du cercle avec une bordure grise légère */
+    border: 5px solid var(--btn-toolkit-deactivate);
+
+    /* La partie colorée qui va tourner */
+    border-top: 5px solid var(--main-bg-color);
+
+    /* Arrondi parfait pour faire un cercle */
+    border-radius: 50%;
+
+    /* Application de l'animation */
+    animation: spin 2s linear infinite;
+    &.deactivate{
+        display: none;
+    }
+}
+
+/* Définition du mouvement de rotation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

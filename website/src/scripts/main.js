@@ -23,7 +23,8 @@ import { initializePopup } from './popup.js';
 import { initializeLegend, showLegend } from './legend.js';
 import {sqlStarter,loadFile,saveGeoJSON} from "./loading_and_saving.js";
 import {layerConstructor,numbersCalculator} from "./vectorlayertools.js";
-import {performSpatialQuery,exportSpreadSheetandPDF} from "./backend_interaction.js";
+import {performSpatialQuery,exportSpreadSheetandPDF,initLoader} from "./backend_interaction.js";
+import {bufferCreator} from "./buffer.js";
 
 // API Base URL - change for production/development
 // export const API_BASE_URL = 'https://landmatrix.artxypro.org';
@@ -217,6 +218,48 @@ toolButtons.forEach(btn => {
     }
   });
 });
+const yellowTemplate = {
+    "background-color": "#FFD700",
+    "color": "#000000"
+};
+const dragmessage = "Supported format : GeoJSONs, KMLs, zipped SHPs and GPKGs";
+const bufferBtn = document.getElementById("bufferbtn");
+const bufferOptions = document.querySelector('.buffer-menu-options');
+const buffCancel = document.getElementById('buff-cancel');
+const buffInteract = document.querySelectorAll(".btn.buffer-menu-item.interact")
+const bufferFileInput = document.getElementById("bufferFileInput");
+let currentRadius = 0
+const switchBufferMenu = () => {
+    bufferBtn.classList.toggle('hidden');
+    bufferOptions.classList.toggle('hidden');
+    bufferBtn.classList.remove('active');
+};
+bufferBtn.addEventListener("click", () => {
+    switchBufferMenu()
+});
+buffCancel.addEventListener("click",switchBufferMenu)
+buffInteract.forEach(btn => {btn.addEventListener("click",()=>{
+    currentRadius = parseFloat(btn.textContent.trim());
+    console.log("currentRadius : ",currentRadius);
+    bufferFileInput.click();
+    });
+});
+bufferFileInput.addEventListener("change", async (e) => {
+    topCenterPanel.alerting(yellowTemplate, dragmessage,);
+    if (!sqlInitializer) {
+        sqlInitializer = sqlStarter();
+    }
+    if (e.target.files.length > 0) {
+        const preBufferSource = await loadFile(e.target.files,drawingSource,map,true);
+        topCenterPanel.dropModification();
+        const buffer = bufferCreator(preBufferSource,currentRadius);
+        console.log("buffer réalisé avec un rayon de : ",currentRadius);
+        drawingSource.addFeatures(buffer);
+        map.getView().fit(drawingSource.getExtent(), {padding: [20, 20, 20, 20]});
+        currentRadius = 0;
+    }
+});
+
 
 
 document.querySelector('#undo').addEventListener('click', function () {
@@ -249,12 +292,7 @@ function clearMap() {
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 
-const dropZone = map.getTargetElement();
-const yellowTemplate = {
-    "background-color": "#FFD700",
-    "color": "#000000"
-};
-const dragmessage = "Supported format : GeoJSONs, KMLs, zipped SHPs and GPKGs";
+export const dropZone = map.getTargetElement();
 
 let dragCounter = 0;
 let highlightTimeout = null;
@@ -407,8 +445,7 @@ map.getView().fit(get('EPSG:3857').getExtent(), { size: map.getSize() });
 let result = []
 
 document.getElementById('export').addEventListener('click', async () => {
-    result = await performSpatialQuery();
-
+    result = await initLoader(performSpatialQuery);
 });
 document.getElementById('downloadCSV').addEventListener('click', async () => {
   if (!result || result[0].length === 0) {
@@ -416,7 +453,7 @@ document.getElementById('downloadCSV').addEventListener('click', async () => {
     return;
   }
   try {
-    await exportSpreadSheetandPDF(result,"csv");
+    await initLoader(()=>exportSpreadSheetandPDF(result,"csv"));
   } catch {
     alert('CSV export failed. Please try again.');
   }
@@ -428,23 +465,34 @@ document.getElementById('downloadExcel').addEventListener('click', async () => {
     return;
   }
   try {
-    await exportSpreadSheetandPDF(result, "xlsx");
+    await initLoader(()=>exportSpreadSheetandPDF(result,"xlsx"));
   } catch {
     alert('Excel export failed. Please try again.');
   }
 });
 
 document.getElementById('downloadPDF').addEventListener('click', async () => {
-  // Always re-query if there are geometries on the map to ensure fresh results
     if (!result || result[0].length === 0) {
     alert('No deals available. Draw geometries and query the database first.');
     return;
   }
   try {
-    await exportSpreadSheetandPDF(result, "pdf");
+    await initLoader(()=>exportSpreadSheetandPDF(result,"pdf"));
   } catch {
     alert('PDF export failed. Please try again.');
   }
+});
+document.getElementById('downloadGeoJSON').addEventListener('click', async () => {
+    // Always re-query if there are geometries on the map to ensure fresh results
+    if (!result || result[0].length === 0) {
+        alert('No deals available. Draw geometries and query the database first.');
+        return;
+    }
+    try {
+        await initLoader(()=>exportSpreadSheetandPDF(result,"geojson"));
+    } catch {
+        alert('GeoJSON export failed. Please try again.');
+    }
 });
 
 const saveBtn = document.getElementById("saveBtn");

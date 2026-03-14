@@ -1,62 +1,58 @@
-import os
-import sys
-import django
-from pathlib import Path
-#This is for direct testing
-BASE_PATH = Path(__file__).resolve().parents[3]
-
-if str(BASE_PATH) not in sys.path:
-    sys.path.insert(0, str(BASE_PATH))
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proxy_project.settings')
-
-try:
-    django.setup()
-    print("Django setup successful!")
-except Exception as e:
-    print(f"Django setup failed: {e}")
-
+import json
 import geopandas as gpd
 import pandas as pd
-import json
 from django.conf import settings
-"""Spatial processing of data sqlless using geopandas it can return
--A GeoDataFrame comporting evry shapes you need to bring back to frontend.
--code_1 their is no deals in the entier country.
--code_2 the processing find deals in the administrative regions crossing the polygons provided 
-but is certain their is no one inside this polygons or any deals with APPROXIMATE_LOCATION near by."""
-DATA_DIR = settings.BASE_DIR /  "data"
+
+# Global caches for RAM storage
 _DEALS_CACHE = None
 _AREAS_CACHE = None
 _REGIONS_CACHE = None
+
+
 def get_data():
-    """ A function allowing to read geopackages even
-    if they are not present in the folder (like when it's a fresh installation)
-    by calling it in app.py they are loaded in ram at each start"""
-    global _DEALS_CACHE, _AREAS_CACHE,_REGIONS_CACHE
+    """
+    Load GeoPackages into RAM.
+    Returns three GeoDataFrames (deals, areas, regions).
+    If files are missing (e.g., fresh install), returns empty GeoDataFrames.
+    """
+    global _DEALS_CACHE, _AREAS_CACHE, _REGIONS_CACHE
+
+    # Use Django settings to get the absolute path to the data folder
+    data_dir = settings.BASE_DIR / "data"
+
+    # 1. Load Deals data
     if _DEALS_CACHE is None:
-        path = DATA_DIR / "deals.gpkg"
+        path = data_dir / "deals.gpkg"
         if not path.exists():
-            print(f"{path} don't exists. Crawler don't end did it ?")
-            _DEALS_CACHE = gpd.GeoDataFrame()
+            print(f"WARNING: {path} not found. Has the crawler finished?")
+            _DEALS_CACHE = gpd.GeoDataFrame(geometry=[])
         else:
             _DEALS_CACHE = gpd.read_file(path)
+
+    # 2. Load World Regions data (used for spatial context)
     if _REGIONS_CACHE is None:
-        path = DATA_DIR / "world_region_light.gpkg"
+        path = data_dir / "world_region_light.gpkg"
         if not path.exists():
-            print(f"{path} don't exists. Crawler don't end did it ?")
-            _REGIONS_CACHE = gpd.GeoDataFrame()
+            print(f"WARNING: {path} not found.")
+            _REGIONS_CACHE = gpd.GeoDataFrame(geometry=[])
         else:
             _REGIONS_CACHE = gpd.read_file(path)
+
+    # 3. Load Areas data
     if _AREAS_CACHE is None:
-        path = DATA_DIR / "areas.gpkg"
+        path = data_dir / "areas.gpkg"
         if not path.exists():
-            print(f"{path} don't exists. Crawler don't end did it ?")
-            _AREAS_CACHE = gpd.GeoDataFrame()
+            print(f"WARNING: {path} not found.")
+            _AREAS_CACHE = gpd.GeoDataFrame(geometry=[])
         else:
-            _AREAS_CACHE = gpd.read_file(DATA_DIR / "areas.gpkg" )
-            _AREAS_CACHE["region_list"] = _AREAS_CACHE ["region_list"].apply(json.loads)  # Managing SQLite goofy JSON type logic.
-    return _DEALS_CACHE,_AREAS_CACHE,_REGIONS_CACHE
+            _AREAS_CACHE = gpd.read_file(path)
+            # Handle SQLite's string representation of JSON lists
+            if "region_list" in _AREAS_CACHE.columns:
+                _AREAS_CACHE["region_list"] = _AREAS_CACHE["region_list"].apply(
+                    lambda x: json.loads(x) if isinstance(x, str) else x
+                )
+
+    return _DEALS_CACHE, _AREAS_CACHE, _REGIONS_CACHE
 
 def regional_prefilter(query, projects, regions):
     """A function catching regions crossing the brought polygons,

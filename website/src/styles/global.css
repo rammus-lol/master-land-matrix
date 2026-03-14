@@ -24,7 +24,7 @@
     --background-hover: oklch(0.958 0.014 155.587);
     --background-green-light: oklch(0.957 0.021 147.636);
     --background-blue-light: oklch(0.948 0.019 192.809);
-    --background-blue-transparent: oklch(0.948 0.019 192.809 / 0.3);
+    --background-blue-transparent: oklch(0.948 0.019 192.809 / 0.5);
     
     /* Text colors */
     --text-color: oklch(0.356 0.039 248.975);
