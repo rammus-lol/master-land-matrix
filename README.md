@@ -74,6 +74,15 @@ After editing the file, rename it to:
 
 This file will be ignored by **Docker** and **Git**.
 
+You will also need to configure the url for the backend in the main.js in the folder :
+```
+website/src/scripts/main.js
+```
+
+```
+export const API_BASE_URL = 'http://localhost:8000'; // remplace this url by your backend url
+```
+
 ---
 
 # 3. Modify docker-compose Configuration
@@ -99,7 +108,7 @@ SKIP_CRAWL=false
 * `false`: runs the data crawling script
 * `true`: skips crawling for faster restarts
 
-Set it according to your needs.
+Set it according to your needs. The crawler will make the backend start in average of 3 minutes. But you need to let the crawler for the first launch of the backend docker for the application to work.
 
 ---
 
