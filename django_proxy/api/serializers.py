@@ -63,7 +63,8 @@ class GeomResponseSerializer(serializers.Serializer):
             summary='Example with list of deals for an Excel file',
             value={
                 "id_list" : [42,69,666],
-                "format" : "xlsx"
+                "format" : "xlsx",
+                "precise_only" : True,
             }
         )
     ]
@@ -76,5 +77,8 @@ class SheetInputSerializer(serializers.Serializer):
     )
     format = serializers.ChoiceField(
         choices=["xlsx", "csv", "pdf","geojson"],
-        help_text="Output format: xlsx, csv (semicolon ';' separator), or pdf report with charts.",
+        help_text="Output format: xlsx, csv (semicolon ';' separator), geojson or pdf report with charts.",
+    )
+    precise_only = serializers.BooleanField(
+        help_text="A boolean flag to determine if regionally and nationally precise deals should be returned. No default value, should always be provided"
     )
