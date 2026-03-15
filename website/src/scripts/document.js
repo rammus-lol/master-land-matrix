@@ -4,6 +4,16 @@ import markedKatex from 'marked-katex-extension'; // Vous aurez besoin de ce pac
 // Documentation sections configuration, grouped by documentation part
 const documentationGroups = [
     {
+        title: 'User Section',
+        sections: [
+            {id: 'drawing', file: '/documentation/user_section/drawing.md', title : 'Drawing Tool'},
+            {id: 'uploading', file: '/documentation/user_section/uploading.md', title : 'Uploading File'},
+            {id: 'buffer', file: '/documentation/user_section/buffer.md', title : 'Create a buffer'},
+            {id: 'spatial_query', file: '/documentation/user_section/spatial_query.md', title : 'Extract Land Matrix Data'},
+            {id: 'download', file: '/documentation/user_section/download.md', title : 'Download a file'},
+        ]
+    },
+    {
         title: 'Methodology Part',
         sections: [
             { id: 'introduction', file: '/documentation/introduction.md', title: 'Introduction' },
