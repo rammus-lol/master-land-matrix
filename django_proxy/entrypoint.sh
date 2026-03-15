@@ -41,8 +41,13 @@ if [ "$ENVIRONMENT" = "development" ]; then
         --host 0.0.0.0 --port 8000 \
         --reload --reload-dir /app
 else
-    echo "---Launching Production ASGI Server (Uvicorn)---"
-    exec uvicorn proxy_project.asgi:application \
-        --host 0.0.0.0 --port 8000 \
-        --workers 4
+    echo "---Launching Production Server (Gunicorn + Uvicorn Workers)---"
+    # We use Gunicorn to manage workers and --preload to save RAM
+    #then we use uvicorn to run the prod efficiently.
+  exec /app/.venv/bin/gunicorn proxy_project.asgi:application \
+          --bind 0.0.0.0:8000 \
+          --workers 4 \
+          --worker-class uvicorn.workers.UvicornWorker \
+          --preload \
+          --timeout 120
 fi
