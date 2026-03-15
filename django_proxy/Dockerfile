@@ -9,13 +9,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Installation de uv
+#uv init
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copie des fichiers de configuration AVANT le code pour le cache
+#config file copy
 COPY pyproject.toml uv.lock* ./
 
-# Installation des dépendances (crée le dossier .venv)
+# dependancies instalation
 RUN uv sync --frozen --no-dev
 
 # --- STEP 2 : RUNTIME ---
@@ -31,11 +31,11 @@ WORKDIR /app
 COPY . .
 COPY --from=builder /app/.venv /app/.venv
 
-# On prépare l'entrypoint AVANT de définir le démarrage
+# setting up entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-# L'ENTRYPOINT lance le script qui gère tout
+# sh script managing everything
 ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]

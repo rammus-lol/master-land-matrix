@@ -2,6 +2,7 @@ from geopandas import GeoDataFrame
 import os
 from pathlib import Path
 import time
+import sqlite3
 def key_extraction(js, key, path=None)->str | None:
     if path is None:
         path = []
@@ -50,6 +51,18 @@ def atomic_gpkg_exporter(gdb : GeoDataFrame, filepath : Path,max_retries: int = 
     I recommend to not querying API during updating dbs."""
     temp_filepath = filepath.with_suffix(filepath.suffix + ".tmp")
     gdb.to_file(temp_filepath, driver="GPKG", layer=filepath.stem, engine = "pyogrio")
+    conn = sqlite3.connect(temp_filepath)
+    try:
+        cursor = conn.cursor()
+        if filepath.stem =="deals":
+            cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_accuracy ON {filepath.stem} (level_of_accuracy);")
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_deal_id ON {filepath.stem} (id);")
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"SQLite error during indexing of {filepath.stem}: {e}")
+    finally:
+        conn.close()
     for attempt in range(max_retries):
         try:
             # os.replace is atomic in Unix/Linux/macOS so it will unreferenced the ancient version and will replace it with the new one.
