@@ -481,6 +481,12 @@ hr {
     transform: translateX(3px);
 }
 
+.buffer-menu-item:hover {
+    border-color: var(--main-bg-color);
+    background: var(--background-green-light);
+    transform: translateX(3px);
+}
+
 .btn-tool.active {
     background: var(--main-bg-color);
     border-color: var(--main-bg-color);
