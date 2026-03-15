@@ -21,6 +21,7 @@ In this project, the frontend is mainly used to:
 - **OpenLayers (`ol`)**: map rendering and map interactions.
 - **ol-load-geopackage**: load GeoPackage files in the browser.
 - **shpjs**: load Shapefiles in the browser.
+- **turf.js/buffer** : calculating a buffer of any geometry in the browser using geojson
 
 ---
 
