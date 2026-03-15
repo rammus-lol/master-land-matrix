@@ -97,7 +97,8 @@ export async function performSpatialQuery() {
         dataProjection: "EPSG:3857"
     });
 
-    const body={"geojson":geojsonObject,"is_precise" : document.querySelector("#precise_loc-btn input").checked};
+    const body={"geojson":geojsonObject,
+        "is_precise" : document.querySelector("#precise_loc-btn input").checked};
     try {
         topCenterPanel.alerting(
             yellowTemplate,
@@ -152,7 +153,7 @@ export async function performSpatialQuery() {
  * Manages non-cartographic data exports in various formats.
  * * @description
  * Coordinates the generation and downloading of export files. Supports the GOAT CSV (semicolon delimited),
- * the slop Excel (XLSX), and PDF reports. It extracts the IDs from the utility array
+ * the slop Excel (XLSX), GeoJSON layer (EPSG:3857) and PDF reports. It extracts the IDs from the utility array
  * and triggers a browser download via {@link exportSpreadSheetandPDF}.
  *
  * @param {[integer[], string]} utilityArray - A tuple containing:
@@ -185,7 +186,8 @@ export const exportSpreadSheetandPDF = async (utilityArray, format) => {
             },
             body: JSON.stringify({
                 id_list: utilityArray[0],
-                format: format
+                format: format,
+                precise_only: !document.querySelector("#precise_loc-btn input").checked
             })
         });
         if (!response.ok) {
