@@ -8,8 +8,8 @@ __pycache__
 venv
 django_proxy/db.sqlite3
 R_script
-crawler
 website_prototype
 .env
 .idea
 .vscode
+gunicorn.ctl
