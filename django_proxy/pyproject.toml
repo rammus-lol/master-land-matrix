@@ -19,6 +19,7 @@ dependencies = [
     "djangorestframework-stubs>=3.16.8",
     "uvicorn[standard]>=0.41.0",
     "django-environ>=0.13.0",
+    "gunicorn>=25.1.0",
 ]
 
 [dependency-groups]
