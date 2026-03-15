@@ -104,11 +104,12 @@ def geom(request):
         Processes a list of IDs and exports the corresponding deals into either:
         - spreadsheet format (Excel or CSV)
         - PDF report with summary charts based on counts.
+        - GeoJSON layer for GIS usage
     """,
     request=SheetInputSerializer,
     responses={
         200: OpenApiResponse(
-            description="The generated spreadsheet file",
+            description="The generated file",
             response=OpenApiTypes.BINARY,
         ),
         400: OpenApiResponse(description="Invalid IDs or format provided"),
@@ -118,17 +119,16 @@ def geom(request):
 @api_view(['POST'])
 def sheet(request):
 
-    # 1. On initialise le serializer avec les données reçues
+
     serializer = SheetInputSerializer(data=request.data)
 
-    # 2. On valide. Si c'est faux, ça renvoie direct un 400 propre avec les détails
     serializer.is_valid(raise_exception=True)
 
-    # 3. On récupère les données PROPRES et TYPÉES
     id_list = serializer.validated_data['id_list']
     file_format = serializer.validated_data['format']
+    precise_only = serializer.validated_data['precise_only']
     is_spatial = (file_format == "geojson")
-    table = table_constructor(id_list,spatial=is_spatial)
+    table = table_constructor(id_list,spatial=is_spatial,precise_only=precise_only)
     if file_format == "xlsx":
         output = io.BytesIO()
         table.to_excel(output, index=False, engine='openpyxl', sheet_name='Deals')
@@ -170,7 +170,7 @@ def sheet(request):
         content_type = "application/pdf"
         filename = "export_report.pdf"
     elif file_format == "geojson":
-        gdf = table_constructor(id_list, spatial=True)
+        gdf = table_constructor(id_list, spatial=True,precise_only=precise_only)
         data = gdf.to_json()
         content_type = 'application/json'
         filename = "export.geojson"
