@@ -40,7 +40,7 @@ class Command(BaseCommand):
         self.stdout.write("Processing areas (polygons) - This may take 3 minutes...")
         gdf_areas = crawling_areas(data_dir / "world_region_light.gpkg")
         jobs.append((gdf_areas, data_dir / "areas.gpkg"))
-
+        #if you want to add a layer please make sure it's a valid SQL name without using "" (lowercase and _ only)
         #Deleting geojson file
         for ext in ["*.geojson"]:
             for file in Path(__file__).parent.glob(ext):
