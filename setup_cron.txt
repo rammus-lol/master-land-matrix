@@ -1,0 +1,1 @@
+00 03 * * * /usr/bin/docker restart django_lm_backend
